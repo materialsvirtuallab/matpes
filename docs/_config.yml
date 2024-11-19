@@ -1,0 +1,21 @@
+title: MVL template
+email: ongsp@ucsd.edu
+description: >- # this means to ignore newlines until "baseurl:"
+  This is the template for MAVRL repos.
+# twitter_username: jekyllrb
+github_username:  materialsvirtuallab
+
+# Build settings
+remote_theme: just-the-docs/just-the-docs
+plugins:
+  - jekyll-feed
+
+# favicon_ico: "/assets/favicon.ico"
+
+nav_external_links:
+  - title: "GitHub"
+    url: "https://github.com/materialsvirtuallab/python_template"
+
+aux_links:
+  "Materials Virtual Lab":
+    - "https://materialsvirtuallab.org"
