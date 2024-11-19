@@ -6,6 +6,51 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+
+[project]
+name = "matpes-ui"
+authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
+maintainers = [
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+]
+description = """A UI for Exploring MatPES."""
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+keywords = [
+    "VASP",
+    "analysis",
+    "crystal",
+    "materials",
+    "science",
+    "structure",
+    "ai",
+    "ml"
+]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "pandas>=2",
+    "plotly>=4.5.0",
+    "pymatgen",
+    "dash",
+    "dash_bootstrap_components",
+    "pymatviz","pymongo"
+]
+version = "2024.11.13"
+
 [tool.versioningit.vcs]
 method = "git"
 default-tag = "0.0.1"
