@@ -111,7 +111,26 @@ def main():
     # Define app layout
     app.layout = dbc.Container(
         [
-            dbc.Row([html.Div("MatPES Explorer", className="text-primary text-center fs-3")]),
+            dbc.Row(
+                [
+                    # html.Div("MatPES Explorer", className="text-primary text-center fs-3"),
+                    dbc.Col(
+                        [
+                            html.Img(
+                                src="https://github.com/materialsvirtuallab/matpes/blob"
+                                "/2b7f8de716289de8089504a63c6431c456268172/assets/logo.png?raw=true",
+                                width="50%",
+                            )
+                        ],
+                        width={"size": 8, "order": 1, "offset": 4},
+                    )
+                ]
+            ),
+            dbc.Row(
+                [
+                    html.Div("Explorer", className="text-primary text-center fs-3"),
+                ]
+            ),
             dbc.Row(
                 [
                     dbc.Col(
