@@ -10,7 +10,6 @@ import json
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
-import plotly.figure_factory as ff
 from dash import Dash, Input, Output, State, callback, dcc, html
 from pymatgen.core import Element
 from pymongo import MongoClient
@@ -75,28 +74,6 @@ def get_data(functional: str, element_filter: list, chemsys: str) -> pd.DataFram
     return df
 
 
-def get_dist_plot(data: pd.Series, label: str, ignore_nan: bool = True, nbins: int = 100):
-    """
-    Create a distribution plot for a given dataset.
-
-    Args:
-        data (pd.Series): The data to plot.
-        label (str): Label for the x-axis.
-        ignore_nan (bool): Whether to ignore NaN values.
-        nbins (int): Number of bins for the histogram.
-
-    Returns:
-        plotly.graph_objects.Figure: The distribution plot figure.
-    """
-    if ignore_nan:
-        data = data.dropna()
-    bin_size = (data.max() - data.min()) / nbins
-    fig = ff.create_distplot([data], [label], bin_size=bin_size, show_rug=False)
-    fig.update_layout(xaxis=dict(title=label), showlegend=False)
-    return fig
-
-
-# Callback to update visualizations
 @callback(
     [
         Output("ptheatmap", "figure"),
