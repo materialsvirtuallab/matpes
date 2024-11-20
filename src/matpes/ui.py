@@ -3,54 +3,25 @@
 from __future__ import annotations
 
 import collections
-import functools
 import itertools
 import json
+from typing import TYPE_CHECKING
 
 import dash_bootstrap_components as dbc
-import pandas as pd
 import plotly.express as px
 from dash import Dash, Input, Output, State, callback, dcc, html
 from pymatgen.core import Element
-from pymongo import MongoClient
 
+from matpes.db import MatPESDB
 from matpes.utils import pt_heatmap
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # Define constants
 FUNCTIONALS = ("PBE", "r2SCAN")
-MONGO_DB_NAME = "matpes"
 
-# Set up MongoDB client and database
-CLIENT = MongoClient()
-DB = CLIENT[MONGO_DB_NAME]
-
-
-@functools.lru_cache
-def get_df(functional: str) -> pd.DataFrame:
-    """
-    Retrieve data for the given functional from the MongoDB database.
-
-    Args:
-        functional (str): The functional to query (e.g., 'PBE').
-
-    Returns:
-        pd.DataFrame: Dataframe containing the functional's data.
-    """
-    collection = DB[functional]
-    return pd.DataFrame(
-        collection.find(
-            {},
-            projection=[
-                "elements",
-                "energy",
-                "chemsys",
-                "cohesive_energy_per_atom",
-                "formation_energy_per_atom",
-                "natoms",
-                "nelements",
-            ],
-        )
-    )
+DB = MatPESDB()
 
 
 def get_data(functional: str, element_filter: list, chemsys: str) -> pd.DataFrame:
@@ -65,7 +36,7 @@ def get_data(functional: str, element_filter: list, chemsys: str) -> pd.DataFram
     Returns:
         pd.DataFrame: Filtered data.
     """
-    df = get_df(functional)
+    df = DB.get_df(functional)
     if element_filter:
         df = df[df["elements"].apply(lambda x: set(x).issuperset(element_filter))]
     if chemsys:
