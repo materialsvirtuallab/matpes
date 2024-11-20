@@ -11,7 +11,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 import pymatviz as pmv
-from dash import Dash, Input, Output, callback, dcc, html, State
+from dash import Dash, Input, Output, State, callback, dcc, html
 from pymatgen.core import Element
 from pymongo import MongoClient
 
