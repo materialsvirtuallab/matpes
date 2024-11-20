@@ -24,7 +24,7 @@ jobs:
       - name: ruff
         run: |
           ruff --version
-          ruff check package
+          ruff check .
       - name: black
         run: |
           black --version
