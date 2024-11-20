@@ -163,3 +163,12 @@ exclude_lines = [
   "if TYPE_CHECKING:",
   "except PackageNotFoundError:"
 ]
+
+[tool.pyright]
+typeCheckingMode = "off"
+reportPossiblyUnboundVariable = true
+reportUnboundVariable = true
+reportMissingImports = false
+reportMissingModuleSource = false
+reportInvalidTypeForm = false
+exclude = ["**/tests"]
