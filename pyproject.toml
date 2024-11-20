@@ -47,9 +47,16 @@ dependencies = [
     "pymatgen",
     "dash",
     "dash_bootstrap_components",
-    "pymatviz","pymongo"
+    "pymongo"
 ]
-version = "2024.11.13"
+version = "0.0.1"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["matpes", "matpes.*"]
+
+[project.scripts]
+matpes_explorer = "matpes.ui:main"
 
 [tool.versioningit.vcs]
 method = "git"

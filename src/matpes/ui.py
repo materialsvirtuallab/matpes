@@ -10,10 +10,12 @@ import json
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
-import pymatviz as pmv
+import plotly.figure_factory as ff
 from dash import Dash, Input, Output, State, callback, dcc, html
 from pymatgen.core import Element
 from pymongo import MongoClient
+
+from matpes.utils import get_pt_heatmap
 
 FUNCTIONALS = ("PBE", "r2SCAN")
 
@@ -56,7 +58,7 @@ def get_data(functional, el, chemsys):
 
 # Initialize the Dash app with a Bootstrap theme
 external_stylesheets = [dbc.themes.CERULEAN]
-app = Dash(__name__, external_stylesheets=external_stylesheets)
+app = Dash("MatPES Explorer", external_stylesheets=external_stylesheets)
 
 # Define the app layout
 app.layout = dbc.Container(
@@ -67,7 +69,7 @@ app.layout = dbc.Container(
                 dbc.Col(
                     [
                         html.Label("Functional"),
-                        dcc.RadioItems(
+                        dcc.Dropdown(
                             options=[{"label": f, "value": f} for f in FUNCTIONALS], value="PBE", id="functional"
                         ),
                     ],
@@ -119,6 +121,13 @@ app.layout = dbc.Container(
 )
 
 
+def get_dist_plot(data, label, nbins=100):
+    fig = ff.create_distplot([data], [label], show_rug=False)
+
+    fig.update_layout(xaxis=dict(title=label), showlegend=False)
+    return fig
+
+
 # Define callback to update the heatmap based on selected functional
 @callback(
     [
@@ -135,16 +144,13 @@ def update_graph(functional, el_filter, chemsys_filter):
     df = get_data(functional, el_filter, chemsys_filter)
     el_count = {el.symbol: 0 for el in Element}
     el_count.update(collections.Counter(itertools.chain(*df["elements"])))
-    heatmap_figure = pmv.ptable_heatmap_plotly(el_count)
+    heatmap_figure = get_pt_heatmap(el_count, label="Count", log=True)
     return (
         heatmap_figure,
-        px.histogram(
-            df, x="cohesive_energy_per_atom", labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"}
-        ),
-        px.histogram(
-            df,
-            x="formation_energy_per_atom",
-            labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
+        get_dist_plot(df["cohesive_energy_per_atom"], "Cohesive Energy per Atom (eV/atom)"),
+        get_dist_plot(
+            df["formation_energy_per_atom"].dropna(),
+            "Formation Energy per Atom (eV/atom)",
         ),
         px.histogram(df, x="natoms"),
         px.histogram(df, x="nelements"),
@@ -174,5 +180,5 @@ def download(n_clicks, functional, el_filter, chemsys_filter):
 
 
 # Run the app
-if __name__ == "__main__":
+def main():
     app.run(debug=True)
