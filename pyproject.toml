@@ -13,7 +13,7 @@ authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
 maintainers = [
     { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
 ]
-description = """A UI for Exploring MatPES."""
+description = """Tools for working with MatPES."""
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 keywords = [
@@ -26,7 +26,7 @@ keywords = [
     "ai",
     "ml"
 ]
-license = { text = "MIT" }
+license = { text = "BSD-3-Clause" }
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
