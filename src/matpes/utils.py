@@ -34,6 +34,7 @@ def get_pt_df() -> pd.DataFrame:
                 "category": get_category(el),
             }
             for el in Element
+            if el.name not in ["D", "T"]
         ]
     df = pd.DataFrame(elements)
     df["label"] = df.apply(lambda row: f"{row['Z']}<br>{row['symbol']}", axis=1)
