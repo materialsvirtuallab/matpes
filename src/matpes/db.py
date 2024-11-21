@@ -19,6 +19,14 @@ class MatPESDB:
         client = MongoClient()
         self.db = client[dbname]
 
+    def get_json(self, functional: str, criteria: dict) -> list:
+        """
+        Args:
+            functional (str): The name of the functional to query.
+            criteria (dict): The criteria to query.
+        """
+        return list(self.db[functional].find(criteria))
+
     def get_df(self, functional: str) -> pd.DataFrame:
         """
         Retrieve data for the given functional from the MongoDB database.
@@ -41,6 +49,7 @@ class MatPESDB:
                     "formation_energy_per_atom",
                     "natoms",
                     "nelements",
+                    "bandgap",
                 ],
             )
         )
