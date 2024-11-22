@@ -147,12 +147,12 @@ def pt_heatmap(values: dict[str, float], label: str = "value", log: bool = False
     )
 
     fig.update_layout(
-        xaxis=dict(title="Group", range=[0.5, 18.5], dtick=1),
-        yaxis=dict(title="Period", range=[0.5, 10.5], dtick=1, autorange="reversed"),
+        xaxis=dict(title=None, range=[0.5, 18.5], dtick=1),
+        yaxis=dict(title=None, range=[0.5, 10.5], dtick=1, autorange="reversed"),
         showlegend=False,
         plot_bgcolor="white",
-        width=1100,
-        height=650,
+        width=1080,
+        height=640,
         font=dict(
             family="Arial",
             size=14,
@@ -160,6 +160,12 @@ def pt_heatmap(values: dict[str, float], label: str = "value", log: bool = False
             weight="bold",
         ),
     )
+
+    # Hide x-axis
+    fig.update_xaxes(showticklabels=False, showgrid=False)
+
+    # Hide y-axis
+    fig.update_yaxes(showticklabels=False, showgrid=False)
 
     if log:
         max_log = int(df[f"log10_{label}"].max())

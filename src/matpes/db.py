@@ -42,6 +42,8 @@ class MatPESDB:
             collection.find(
                 {},
                 projection=[
+                    "matpesid",
+                    "formula",
                     "elements",
                     "energy",
                     "chemsys",

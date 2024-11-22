@@ -115,6 +115,7 @@ lint.ignore = [
   "PT013",   # pytest-incorrect-pytest-import
   "RUF012",  # Disable checks for mutable class args. This is a non-problem.
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+    "ISC001"
 ]
 lint.pydocstyle.convention = "google"
 lint.isort.required-imports = ["from __future__ import annotations"]
