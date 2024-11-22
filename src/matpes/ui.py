@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING
 import dash_bootstrap_components as dbc
 import plotly.express as px
 from dash import Dash, Input, Output, State, callback, dcc, html
+from dash.dash_table import DataTable
+from dash.dash_table.Format import Format, Scheme
 from pymatgen.core import Element
 
 from matpes.db import MatPESDB
@@ -94,6 +96,8 @@ def update_sliders(functional):
         Output("form_energy_hist", "figure"),
         Output("natoms_hist", "figure"),
         Output("nelements_hist", "figure"),
+        Output("data-table", "columns"),
+        Output("data-table", "data"),
     ],
     [
         Input("functional", "value"),
@@ -114,6 +118,8 @@ def update_graph(
     )
     element_counts = collections.Counter(itertools.chain(*df["elements"]))
     heatmap_figure = pt_heatmap(element_counts, label="Count", log=True)
+
+    table_df = df.drop("elements", axis=1)
     return (
         heatmap_figure,
         px.histogram(
@@ -130,6 +136,21 @@ def update_graph(
         ),
         px.histogram(df, x="natoms"),
         px.histogram(df, x="nelements"),
+        [
+            {
+                "name": i,
+                "id": i,
+                "type": "numeric",
+                "format": Format(precision=4, scheme=Scheme.fixed),
+            }
+            if i in ["energy", "cohesive_energy_per_atom", "formation_energy_per_atom"]
+            else {
+                "name": i,
+                "id": i,
+            }
+            for i in table_df.columns
+        ],
+        table_df.to_dict("records"),
     )
 
 
@@ -279,7 +300,7 @@ def main():
                                 multi=True,
                             ),
                         ],
-                        width=1,
+                        width=2,
                     ),
                     dbc.Col(
                         [
@@ -321,14 +342,14 @@ def main():
                             html.Button("JSON", id="json-download"),
                             dcc.Download(id="download-json"),
                         ],
-                        width=2,
+                        width=1,
                     ),
                     dbc.Col(
                         [
                             html.Button("CSV", id="csv-download"),
                             dcc.Download(id="download-csv"),
                         ],
-                        width=2,
+                        width=1,
                     ),
                 ]
             ),
@@ -354,7 +375,7 @@ def main():
             dbc.Row(
                 dbc.Col(
                     html.Div(
-                        [dcc.Graph(id="ptheatmap")],
+                        [dcc.Graph(id="ptheatmap", figure=pt_heatmap({}, label=""))],
                         style={"marginLeft": "auto", "marginRight": "auto", "text-align": "center"},
                     ),
                     width=12,
@@ -372,6 +393,7 @@ def main():
                     dbc.Col(dcc.Graph(id="nelements_hist"), width=6),
                 ]
             ),
+            dbc.Row([DataTable(page_size=25, id="data-table")]),
         ]
     )
 

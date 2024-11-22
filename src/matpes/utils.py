@@ -114,10 +114,20 @@ def pt_heatmap(values: dict[str, float], label: str = "value", log: bool = False
     """
     df = get_pt_df()
     df[label] = df["symbol"].map(values)
+    hover_data = {
+        "Z": False,
+        "name": False,
+        "label": False,
+        label: True,
+        "X": False,
+        "group": False,
+        "period": False,
+    }
     if log:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=RuntimeWarning)
             df[f"log10_{label}"] = np.log10(df[label])
+            hover_data[f"log10_{label}"] = False
 
     fig = px.scatter(
         df,
@@ -125,16 +135,7 @@ def pt_heatmap(values: dict[str, float], label: str = "value", log: bool = False
         y="period",
         color=label if not log else f"log10_{label}",
         text="label",
-        hover_data={
-            "Z": False,
-            "name": False,
-            "label": False,
-            label: True,
-            "X": False,
-            "group": False,
-            "period": False,
-            f"log10_{label}": False,
-        },
+        hover_data=hover_data,
         color_continuous_scale=px.colors.sequential.Viridis,
     )
 

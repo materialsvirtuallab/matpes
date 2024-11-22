@@ -38,20 +38,21 @@ class MatPESDB:
             pd.DataFrame: Dataframe containing the data.
         """
         collection = self.db[functional]
+        properties = [
+            "matpesid",
+            "formula",
+            "elements",
+            "energy",
+            "chemsys",
+            "cohesive_energy_per_atom",
+            "formation_energy_per_atom",
+            "natoms",
+            "nelements",
+            "bandgap",
+        ]
         return pd.DataFrame(
             collection.find(
                 {},
-                projection=[
-                    "matpesid",
-                    "formula",
-                    "elements",
-                    "energy",
-                    "chemsys",
-                    "cohesive_energy_per_atom",
-                    "formation_energy_per_atom",
-                    "natoms",
-                    "nelements",
-                    "bandgap",
-                ],
+                projection=properties,
             )
-        )
+        )[properties]
