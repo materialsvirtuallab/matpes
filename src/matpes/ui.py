@@ -233,7 +233,8 @@ def display_click_data(clickdata, el_filter):
     """
     new_el_filter = el_filter or []
     if clickdata:
-        new_el_filter = {*new_el_filter, Element.from_Z(clickdata["points"][0]["pointNumber"] + 1).symbol}
+        z = clickdata["points"][0]["text"].split("<")[0]
+        new_el_filter = {*new_el_filter, Element.from_Z(int(z)).symbol}
     return list(new_el_filter)
 
 
