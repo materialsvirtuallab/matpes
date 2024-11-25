@@ -29,13 +29,17 @@ DB = MatPESDB()
 
 @functools.lru_cache
 def get_full_data(functional: str) -> pd.DataFrame:
-    """Cache data for each functional for more responsive UI."""
+    """Cache data for each functional for more responsive UI.
+
+    Args:
+        functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
+    """
     return DB.get_df(functional)
 
 
 def get_data(
     functional: str,
-    element_filter: list,
+    el_filter: list,
     chemsys_filter: str,
     min_coh_e_filter,
     max_coh_e_filter,
@@ -43,23 +47,23 @@ def get_data(
     max_form_e_filter,
 ) -> pd.DataFrame:
     """
-    Filter data based on the selected functional, element, and chemical system.
+    Filter data.
 
     Args:
-        functional (str): Functional to filter data for.
-        element_filter (list | None): Elements to filter (if any).
-        chemsys_filter (str | None): Chemical system to filter (if any).
-        min_coh_e_filter (float): Minimum cohesive energy filter.
-        max_coh_e_filter (float): Maximum cohesive energy filter.
-        min_form_e_filter (float): Minimum form energy filter.
-        max_form_e_filter (float): Maximum form energy filter.
+        functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
+        el_filter (list of str): A list of element symbols to filter the dataset by (e.g., ["Fe", "Ni"]).
+        chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
+        min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
+        max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
+        min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
+        max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
 
     Returns:
         pd.DataFrame: Filtered data.
     """
     df = get_full_data(functional)
-    if element_filter:
-        df = df[df["elements"].apply(lambda x: set(x).issuperset(element_filter))]
+    if el_filter:
+        df = df[df["elements"].apply(lambda x: set(x).issuperset(el_filter))]
     if chemsys_filter:
         sorted_chemsys = "-".join(sorted(chemsys_filter.split("-")))
         df = df[df["chemsys"] == sorted_chemsys]
@@ -82,7 +86,11 @@ def get_data(
     ],
 )
 def update_sliders(functional):
-    """Update sliders based on functional."""
+    """Update sliders based on functional.
+
+    Args:
+        functional (str): The functional used to filter the dataset (e.g., "PBE", "LDA").
+    """
     df = get_full_data(functional)
     coh_energy = df["cohesive_energy_per_atom"]
     form_energy = df["formation_energy_per_atom"]
@@ -107,51 +115,99 @@ def update_sliders(functional):
         Input("max_coh_e_filter", "value"),
         Input("min_form_e_filter", "value"),
         Input("max_form_e_filter", "value"),
+        # Input("display_options", "value"),
     ],
 )
-def update_graph(
-    functional, el_filter, chemsys_filter, min_coh_e_filter, max_coh_e_filter, min_form_e_filter, max_form_e_filter
+def display_data(
+    functional,
+    el_filter,
+    chemsys_filter,
+    min_coh_e_filter,
+    max_coh_e_filter,
+    min_form_e_filter,
+    max_form_e_filter,
+    # display_options,
 ):
-    """Update graphs based on user inputs."""
+    """
+    Update graphs and data tables based on user-provided filters and criteria.
+
+    This function processes the input filters and generates various visualizations and data structures,
+    including a heatmap, histograms, and a formatted data table. The data is derived from a dataset
+    filtered by the specified parameters.
+
+    Args:
+        functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
+        el_filter (list of str): A list of element symbols to filter the dataset by (e.g., ["Fe", "Ni"]).
+        chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
+        min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
+        max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
+        min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
+        max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
+
+    Returns:
+        tuple:
+            - heatmap_figure (plotly.graph_objects.Figure): A heatmap of element counts, displayed in log scale.
+            - cohesive_energy_histogram (plotly.graph_objects.Figure): A histogram of cohesive energy per atom.
+            - formation_energy_histogram (plotly.graph_objects.Figure): A histogram of formation energy per atom.
+            - natoms_histogram (plotly.graph_objects.Figure): A histogram of the number of atoms per entry.
+            - nelements_histogram (plotly.graph_objects.Figure): A histogram of the number of elements per entry.
+            - table_columns (list of dict): Column specifications for the data table.
+            - table_data (list of dict): Tabular data formatted as a list of dictionaries.
+    """
     df = get_data(
         functional, el_filter, chemsys_filter, min_coh_e_filter, max_coh_e_filter, min_form_e_filter, max_form_e_filter
     )
     element_counts = collections.Counter(itertools.chain(*df["elements"]))
     heatmap_figure = pt_heatmap(element_counts, label="Count", log=True)
-
     table_df = df.drop("elements", axis=1)
-    return (
-        heatmap_figure,
-        px.histogram(
-            df,
-            x="cohesive_energy_per_atom",
-            labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
-            nbins=100,
-        ),
-        px.histogram(
-            df,
-            x="formation_energy_per_atom",
-            labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
-            nbins=100,
-        ),
-        px.histogram(df, x="natoms"),
-        px.histogram(df, x="nelements"),
+    output = [heatmap_figure]
+    # display_options = display_options or []
+    # print(display_options)
+    # # if "Show Histograms" in display_options:
+    # #     print("here")
+    output.extend(
         [
-            {
-                "name": i,
-                "id": i,
-                "type": "numeric",
-                "format": Format(precision=4, scheme=Scheme.fixed),
-            }
-            if i in ["energy", "cohesive_energy_per_atom", "formation_energy_per_atom"]
-            else {
-                "name": i,
-                "id": i,
-            }
-            for i in table_df.columns
-        ],
-        table_df.to_dict("records"),
+            px.histogram(
+                df,
+                x="cohesive_energy_per_atom",
+                labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
+                nbins=100,
+            ),
+            px.histogram(
+                df,
+                x="formation_energy_per_atom",
+                labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
+                nbins=100,
+            ),
+            px.histogram(df, x="natoms"),
+            px.histogram(df, x="nelements"),
+        ]
     )
+    # else:
+    #     output.extend([None, None, None, None])
+    # if "Show Table" in display_options:
+    output.extend(
+        [
+            [
+                {
+                    "name": i,
+                    "id": i,
+                    "type": "numeric",
+                    "format": Format(precision=4, scheme=Scheme.fixed),
+                }
+                if i in ["energy", "cohesive_energy_per_atom", "formation_energy_per_atom"]
+                else {
+                    "name": i,
+                    "id": i,
+                }
+                for i in table_df.columns
+            ],
+            table_df.to_dict("records"),
+        ]
+    )
+    # else:
+    #     output.extend([None, None])
+    return output
 
 
 # Callback to download data
@@ -177,7 +233,19 @@ def download_json(
     min_form_e_filter,
     max_form_e_filter,
 ):
-    """Handle json download requests."""
+    """
+    Handle json download requests.
+
+    Args:
+        n_clicks (int): Number of clicks. Not really used.
+        functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
+        el_filter (list of str): A list of element symbols to filter the dataset by (e.g., ["Fe", "Ni"]).
+        chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
+        min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
+        max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
+        min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
+        max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
+    """
     criteria = {}
     if el_filter:
         criteria["elements"] = el_filter
@@ -215,7 +283,19 @@ def download_csv(
     min_form_e_filter,
     max_form_e_filter,
 ):
-    """Handle csv download requests."""
+    """
+    Handle csv download requests.
+
+    Args:
+        n_clicks (int): Number of clicks. Not really used.
+        functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
+        el_filter (list of str): A list of element symbols to filter the dataset by (e.g., ["Fe", "Ni"]).
+        chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
+        min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
+        max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
+        min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
+        max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
+    """
     df = get_data(
         functional, el_filter, chemsys_filter, min_coh_e_filter, max_coh_e_filter, min_form_e_filter, max_form_e_filter
     )
@@ -223,7 +303,7 @@ def download_csv(
 
 
 @callback(Output("el_filter", "value"), Input("ptheatmap", "clickData"), State("el_filter", "value"))
-def display_click_data(clickdata, el_filter):
+def update_el_filter_on_click(clickdata, el_filter):
     """
     Update el filter when PT table is clicked.
 
@@ -233,8 +313,11 @@ def display_click_data(clickdata, el_filter):
     """
     new_el_filter = el_filter or []
     if clickdata:
-        z = clickdata["points"][0]["text"].split("<")[0]
-        new_el_filter = {*new_el_filter, Element.from_Z(int(z)).symbol}
+        try:
+            z = clickdata["points"][0]["text"].split("<")[0]
+            new_el_filter = {*new_el_filter, Element.from_Z(int(z)).symbol}
+        except (ValueError, AttributeError):
+            pass
     return list(new_el_filter)
 
 
@@ -331,9 +414,24 @@ def main():
                     ),
                 ]
             ),
+            # dbc.Row(
+            #     [
+            #         html.Div("Options:"),
+            #     ],
+            # ),
+            # dbc.Row(
+            #     [
+            #         dbc.Col(
+            #             [
+            #                 dcc.Checklist(options=["Show Histograms", "Show Table"], id="display_options"),
+            #             ],
+            #             width=1,
+            #         ),
+            #     ]
+            # ),
             dbc.Row(
                 [
-                    html.Div("Download"),
+                    html.Div("Download:"),
                 ],
             ),
             dbc.Row(
