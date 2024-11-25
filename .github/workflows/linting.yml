@@ -20,17 +20,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          pip install ruff black mypy
+          pip install --upgrade ruff mypy pyright
+
       - name: ruff
         run: |
-          ruff --version
           ruff check .
-      - name: black
-        run: |
-          black --version
-          black --check --diff --color package
+          ruff format --check .
+
       - name: mypy
-        run: |
-          mypy --version
-          rm -rf .mypy_cache
-          mypy package
+        run: mypy src
+
+      - name: pyright
+        run: pyright
