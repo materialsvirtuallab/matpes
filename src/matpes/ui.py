@@ -100,12 +100,8 @@ def update_sliders(functional):
 @callback(
     [
         Output("ptheatmap", "figure"),
-        Output("coh_energy_hist", "figure"),
-        Output("form_energy_hist", "figure"),
-        Output("natoms_hist", "figure"),
-        Output("nelements_hist", "figure"),
-        Output("data-table", "columns"),
-        Output("data-table", "data"),
+        Output("stats-div", "children"),
+        Output("data-div", "children"),
     ],
     [
         Input("functional", "value"),
@@ -115,7 +111,7 @@ def update_sliders(functional):
         Input("max_coh_e_filter", "value"),
         Input("min_form_e_filter", "value"),
         Input("max_form_e_filter", "value"),
-        # Input("display_options", "value"),
+        Input("display_options", "value"),
     ],
 )
 def display_data(
@@ -126,7 +122,7 @@ def display_data(
     max_coh_e_filter,
     min_form_e_filter,
     max_form_e_filter,
-    # display_options,
+    display_options,
 ):
     """
     Update graphs and data tables based on user-provided filters and criteria.
@@ -143,70 +139,79 @@ def display_data(
         max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
         min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
         max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
+        display_options (list of str): A list of display options.
 
     Returns:
         tuple:
             - heatmap_figure (plotly.graph_objects.Figure): A heatmap of element counts, displayed in log scale.
-            - cohesive_energy_histogram (plotly.graph_objects.Figure): A histogram of cohesive energy per atom.
-            - formation_energy_histogram (plotly.graph_objects.Figure): A histogram of formation energy per atom.
-            - natoms_histogram (plotly.graph_objects.Figure): A histogram of the number of atoms per entry.
-            - nelements_histogram (plotly.graph_objects.Figure): A histogram of the number of elements per entry.
-            - table_columns (list of dict): Column specifications for the data table.
-            - table_data (list of dict): Tabular data formatted as a list of dictionaries.
+            - histograms of formation energies, cohesive energies, natoms, nlements.
+            - data table.
     """
     df = get_data(
         functional, el_filter, chemsys_filter, min_coh_e_filter, max_coh_e_filter, min_form_e_filter, max_form_e_filter
     )
     element_counts = collections.Counter(itertools.chain(*df["elements"]))
-    heatmap_figure = pt_heatmap(element_counts, label="Count", log=True)
+    output = [pt_heatmap(element_counts, label="Count", log=True)]
     table_df = df.drop("elements", axis=1)
-    output = [heatmap_figure]
-    # display_options = display_options or []
-    # print(display_options)
-    # # if "Show Histograms" in display_options:
-    # #     print("here")
-    output.extend(
-        [
-            px.histogram(
-                df,
-                x="cohesive_energy_per_atom",
-                labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
-                nbins=100,
-            ),
-            px.histogram(
-                df,
-                x="formation_energy_per_atom",
-                labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
-                nbins=100,
-            ),
-            px.histogram(df, x="natoms"),
-            px.histogram(df, x="nelements"),
-        ]
-    )
-    # else:
-    #     output.extend([None, None, None, None])
-    # if "Show Table" in display_options:
-    output.extend(
-        [
-            [
-                {
-                    "name": i,
-                    "id": i,
-                    "type": "numeric",
-                    "format": Format(precision=4, scheme=Scheme.fixed),
-                }
-                if i in ["energy", "cohesive_energy_per_atom", "formation_energy_per_atom"]
-                else {
-                    "name": i,
-                    "id": i,
-                }
-                for i in table_df.columns
-            ],
-            table_df.to_dict("records"),
-        ]
-    )
-    # else:
-    #     output.extend([None, None])
+    if display_options and "Show Histograms" in display_options:
+        output.append(
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(
+                            id="coh_energy_hist",
+                            figure=px.histogram(
+                                df,
+                                x="cohesive_energy_per_atom",
+                                labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
+                                nbins=100,
+                            ),
+                        ),
+                        width=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(
+                            id="form_energy_hist",
+                            figure=px.histogram(
+                                df,
+                                x="formation_energy_per_atom",
+                                labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
+                                nbins=100,
+                            ),
+                        ),
+                        width=6,
+                    ),
+                    dbc.Col(dcc.Graph(id="natoms_hist", figure=px.histogram(df, x="natoms")), width=6),
+                    dbc.Col(dcc.Graph(id="nelements_hist", figure=px.histogram(df, x="nelements")), width=6),
+                ]
+            )
+        )
+    else:
+        output.append("")
+    if display_options and "Show Table" in display_options:
+        output.append(
+            DataTable(
+                page_size=25,
+                id="data-table",
+                columns=[
+                    {
+                        "name": i,
+                        "id": i,
+                        "type": "numeric",
+                        "format": Format(precision=4, scheme=Scheme.fixed),
+                    }
+                    if i in ["energy", "cohesive_energy_per_atom", "formation_energy_per_atom"]
+                    else {
+                        "name": i,
+                        "id": i,
+                    }
+                    for i in table_df.columns
+                ],
+                data=table_df.to_dict("records"),
+            )
+        )
+    else:
+        output.append("")
     return output
 
 
@@ -414,21 +419,21 @@ def main():
                     ),
                 ]
             ),
-            # dbc.Row(
-            #     [
-            #         html.Div("Options:"),
-            #     ],
-            # ),
-            # dbc.Row(
-            #     [
-            #         dbc.Col(
-            #             [
-            #                 dcc.Checklist(options=["Show Histograms", "Show Table"], id="display_options"),
-            #             ],
-            #             width=1,
-            #         ),
-            #     ]
-            # ),
+            dbc.Row(
+                [
+                    html.Div("Options (note: enabling these will slow rendering)"),
+                ],
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            dcc.Checklist(options=["Show Histograms", "Show Table"], id="display_options"),
+                        ],
+                        width=4,
+                    ),
+                ]
+            ),
             dbc.Row(
                 [
                     html.Div("Download:"),
@@ -480,19 +485,9 @@ def main():
                     width=12,
                 )
             ),
-            dbc.Row(
-                [
-                    dbc.Col(dcc.Graph(id="coh_energy_hist"), width=6),
-                    dbc.Col(dcc.Graph(id="form_energy_hist"), width=6),
-                ]
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(dcc.Graph(id="natoms_hist"), width=6),
-                    dbc.Col(dcc.Graph(id="nelements_hist"), width=6),
-                ]
-            ),
-            dbc.Row([DataTable(page_size=25, id="data-table")]),
+            html.Div(id="stats-div"),
+            html.Div(id="data-div"),
+            # dbc.Row([DataTable(page_size=25, id="data-table")]),
         ]
     )
 
