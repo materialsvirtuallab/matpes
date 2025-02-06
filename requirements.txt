@@ -1,1 +1,1 @@
-git@github.com:materialsvirtuallab/matpes.git
+git+https://github.com/materialsvirtuallab/matpes.git
