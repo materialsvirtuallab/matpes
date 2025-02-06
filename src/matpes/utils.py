@@ -131,8 +131,8 @@ def pt_heatmap(
     for _, row in df.iterrows():
         group, period = row["group"], row["period"]
         grid[period - 1, group - 1] = row[label] if not log else row[f"log10_{label}"]
-        label_texts[period - 1, group - 1] = f'{row["Z"]}<br>{row["symbol"]}<br>{row[label]}'
-        hover_texts[period - 1, group - 1] = f'{row["Z"]}<br>{row["name"]}<br>{row[label]}'
+        label_texts[period - 1, group - 1] = f"{row['Z']}<br>{row['symbol']}<br>{row[label]}"
+        hover_texts[period - 1, group - 1] = f"{row['Z']}<br>{row['name']}<br>{row[label]}"
 
     # Create the plot
     fig = go.Figure()
