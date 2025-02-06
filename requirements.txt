@@ -3,4 +3,4 @@ plotly==5.24.1
 pymatgen==2025.1.24
 dash==2.18.2
 dash-core-components==2.0.0
-pymongo==4.6.1
+pymongo==4.6.3
