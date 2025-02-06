@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import pandas as pd
 from pymongo import MongoClient
 
@@ -16,8 +18,13 @@ class MatPESDB:
         Args:
             dbname (str): The name of the MatPES DB.
         """
-        client = MongoClient()
-        self.db = client[dbname]
+        client = MongoClient(
+            host=os.environ.get("MATPES_HOST", "127.0.0.1"),
+            username=os.environ.get("MATPES_USERNAME"),
+            password=os.environ.get("MATPES_PASSWORD"),
+            authSource="admin",
+        )
+        self.db = client.get_database("matpes")
 
     def get_json(self, functional: str, criteria: dict) -> list:
         """
@@ -25,7 +32,7 @@ class MatPESDB:
             functional (str): The name of the functional to query.
             criteria (dict): The criteria to query.
         """
-        return list(self.db[functional].find(criteria))
+        return list(self.db.get_collection(f"matpes_{functional.lower()}").find(criteria))
 
     def get_df(self, functional: str) -> pd.DataFrame:
         """
@@ -37,16 +44,16 @@ class MatPESDB:
         Returns:
             pd.DataFrame: Dataframe containing the data.
         """
-        collection = self.db[functional]
+        collection = self.db.get_collection(f"matpes_{functional.lower()}")
         properties = [
-            "matpesid",
-            "formula",
+            "matpes_id",
+            "formula_pretty",
             "elements",
             "energy",
             "chemsys",
             "cohesive_energy_per_atom",
             "formation_energy_per_atom",
-            "natoms",
+            "nsites",
             "nelements",
             "bandgap",
         ]

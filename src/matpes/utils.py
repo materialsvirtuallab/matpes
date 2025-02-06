@@ -128,7 +128,7 @@ def pt_heatmap(
     hover_texts = np.full((9, 18), "", dtype=object)
 
     # Fill grid with element symbols, hover text, and category colors
-    for _index, row in df.iterrows():
+    for _, row in df.iterrows():
         group, period = row["group"], row["period"]
         grid[period - 1, group - 1] = row[label] if not log else row[f"log10_{label}"]
         label_texts[period - 1, group - 1] = f'{row["Z"]}<br>{row["symbol"]}<br>{row[label]}'
@@ -136,6 +136,21 @@ def pt_heatmap(
 
     # Create the plot
     fig = go.Figure()
+
+    for el in Element:
+        if el.symbol not in values and (el.Z <= 92 or include_artificial):
+            fig.add_trace(
+                go.Heatmap(
+                    z=[-1],
+                    x=[get_group(el)],
+                    y=[get_period(el)],
+                    xgap=1,
+                    ygap=1,
+                    showscale=False,
+                    colorscale="Greys",
+                )
+            )
+
     fig.add_trace(
         go.Heatmap(
             z=grid,
@@ -144,7 +159,7 @@ def pt_heatmap(
             text=hover_texts,
             hoverinfo="text",
             showscale=True,
-            colorscale="Viridis",
+            colorscale="matter",
             xgap=1,
             ygap=1,
             coloraxis="coloraxis",
