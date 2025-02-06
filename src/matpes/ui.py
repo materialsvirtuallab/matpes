@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import collections
 import functools
 import itertools
@@ -328,6 +329,39 @@ def update_el_filter_on_click(clickdata, el_filter):
 
 def main():
     """Main entry point for MatPES Explorer UI."""
+    parser = argparse.ArgumentParser(
+        description="""MatPES Explorer is a Dash Interface for MatPES.""",
+        epilog="Author: Shyue Ping Ong",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--debug",
+        dest="debug",
+        action="store_true",
+        help="Whether to run in debug mode.",
+    )
+    parser.add_argument(
+        "-hh",
+        "--host",
+        dest="host",
+        type=str,
+        nargs="?",
+        default="0.0.0.0",
+        help="Host in which to run the server. Defaults to 0.0.0.0.",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        dest="port",
+        type=int,
+        nargs="?",
+        default=5000,
+        help="Port in which to run the server. Defaults to 5000.",
+    )
+
+    args = parser.parse_args()
+
     app = Dash("MatPES Explorer", external_stylesheets=[dbc.themes.CERULEAN], title="MatPES Explorer")
 
     # Define app layout
@@ -491,4 +525,4 @@ def main():
         ]
     )
 
-    app.run(debug=True)
+    app.run(debug=args.debug, host=args.host, port=args.port)
