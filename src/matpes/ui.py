@@ -375,7 +375,7 @@ def main():
                                 html.Img(
                                     src="https://github.com/materialsvirtuallab/matpes/blob"
                                     "/2b7f8de716289de8089504a63c6431c456268172/assets/logo.png?raw=true",
-                                    width="50%",
+                                    width="70%",
                                     style={
                                         "padding": "12px",
                                     },

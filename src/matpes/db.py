@@ -24,7 +24,8 @@ class MatPESDB:
             password=os.environ.get("MATPES_PASSWORD"),
             authSource="admin",
         )
-        self.db = client.get_database("matpes")
+        self.db = client.get_database(dbname)
+        print(self.db["pbe"].find_one({}))
 
     def get_json(self, functional: str, criteria: dict) -> list:
         """

@@ -47,7 +47,7 @@ dependencies = [
     "pymatgen",
     "dash",
     "dash_bootstrap_components",
-    "pymongo"
+    "pymongo>=4.11"
 ]
 version = "0.0.1"
 

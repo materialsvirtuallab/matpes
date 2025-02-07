@@ -1,2 +1,3 @@
 git+https://github.com/materialsvirtuallab/matpes.git
 numpy==1.26.4
+pymongo==4.11
