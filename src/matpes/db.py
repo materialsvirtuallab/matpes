@@ -32,7 +32,7 @@ class MatPESDB:
             functional (str): The name of the functional to query.
             criteria (dict): The criteria to query.
         """
-        return list(self.db.get_collection(f"matpes_{functional.lower()}").find(criteria))
+        return list(self.db.get_collection(functional.lower()).find(criteria))
 
     def get_df(self, functional: str) -> pd.DataFrame:
         """
@@ -44,7 +44,7 @@ class MatPESDB:
         Returns:
             pd.DataFrame: Dataframe containing the data.
         """
-        collection = self.db.get_collection(f"matpes_{functional.lower()}")
+        collection = self.db.get_collection(functional.lower())
         properties = [
             "matpes_id",
             "formula_pretty",

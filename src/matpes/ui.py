@@ -145,7 +145,7 @@ def display_data(
     Returns:
         tuple:
             - heatmap_figure (plotly.graph_objects.Figure): A heatmap of element counts, displayed in log scale.
-            - histograms of formation energies, cohesive energies, natoms, nlements.
+            - histograms of formation energies, cohesive energies, nsites, nlements.
             - data table.
     """
     df = get_data(
@@ -182,7 +182,7 @@ def display_data(
                         ),
                         width=6,
                     ),
-                    dbc.Col(dcc.Graph(id="natoms_hist", figure=px.histogram(df, x="natoms")), width=6),
+                    dbc.Col(dcc.Graph(id="nsites_hist", figure=px.histogram(df, x="nsites")), width=6),
                     dbc.Col(dcc.Graph(id="nelements_hist", figure=px.histogram(df, x="nelements")), width=6),
                 ]
             )
