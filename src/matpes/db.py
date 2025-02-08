@@ -25,7 +25,6 @@ class MatPESDB:
             authSource="admin",
         )
         self.db = client.get_database(dbname)
-        print(self.db["pbe"].find_one({}))
 
     def get_json(self, functional: str, criteria: dict) -> list:
         """
