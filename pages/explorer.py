@@ -15,8 +15,8 @@ from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Scheme
 from pymatgen.core import Element
 
-from matpes.db import MatPESDB
-from matpes.utils import pt_heatmap
+from .db import MatPESDB
+from .utils import pt_heatmap
 
 if TYPE_CHECKING:
     import pandas as pd

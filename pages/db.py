@@ -47,7 +47,7 @@ class MatPESDB:
         collection = self.db.get_collection(functional.lower())
         properties = [
             "matpes_id",
-            "formula_pretty",
+            # "formula_pretty",
             "elements",
             "energy",
             "chemsys",

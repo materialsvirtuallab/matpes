@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "matpes-ui"
+name = "matpes"
 authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
 maintainers = [
     { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
@@ -43,10 +43,6 @@ classifiers = [
 ]
 dependencies = [
     "pandas>=2",
-    "plotly>=4.5.0",
-    "pymatgen",
-    "dash",
-    "dash_bootstrap_components",
     "pymongo>=4.11"
 ]
 version = "0.0.1"
