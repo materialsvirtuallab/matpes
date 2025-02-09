@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-import argparse
 import collections
 import functools
 import itertools
 from typing import TYPE_CHECKING
 
+import dash
 import dash_bootstrap_components as dbc
 import plotly.express as px
-from dash import Dash, Input, Output, State, callback, dcc, html
+from dash import Input, Output, State, callback, dcc, html
 from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Scheme
 from pymatgen.core import Element
@@ -20,6 +20,8 @@ from matpes.utils import pt_heatmap
 
 if TYPE_CHECKING:
     import pandas as pd
+
+dash.register_page(__name__)
 
 # Define constants
 FUNCTIONALS = ("PBE", "r2SCAN")
@@ -330,202 +332,141 @@ def update_el_filter_on_click(clickdata, el_filter):
     return list(new_el_filter)
 
 
-def main():
-    """Main entry point for MatPES Explorer UI."""
-    parser = argparse.ArgumentParser(
-        description="""MatPES Explorer is a Dash Interface for MatPES.""",
-        epilog="Author: Shyue Ping Ong",
-    )
-
-    parser.add_argument(
-        "-d",
-        "--debug",
-        dest="debug",
-        action="store_true",
-        help="Whether to run in debug mode.",
-    )
-    parser.add_argument(
-        "-hh",
-        "--host",
-        dest="host",
-        type=str,
-        nargs="?",
-        default="0.0.0.0",
-        help="Host in which to run the server. Defaults to 0.0.0.0.",
-    )
-    parser.add_argument(
-        "-p",
-        "--port",
-        dest="port",
-        type=int,
-        nargs="?",
-        default=5000,
-        help="Port in which to run the server. Defaults to 5000.",
-    )
-
-    args = parser.parse_args()
-
-    app = Dash("MatPES Explorer", external_stylesheets=[dbc.themes.CERULEAN], title="MatPES Explorer")
-
-    # Define app layout
-    app.layout = dbc.Container(
-        [
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            html.Div(
-                                html.Img(
-                                    src="https://github.com/materialsvirtuallab/matpes/blob"
-                                    "/2b7f8de716289de8089504a63c6431c456268172/assets/logo.png?raw=true",
-                                    width="70%",
-                                    style={
-                                        "padding": "12px",
-                                    },
-                                ),
-                                className="text-primary text-center",
-                            )
-                        ],
-                        width={"size": 6, "offset": 3},
-                    ),
-                ]
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            html.Label("Functional"),
-                            dcc.Dropdown(
-                                id="functional",
-                                options=[{"label": f, "value": f} for f in FUNCTIONALS],
-                                value="PBE",
-                                clearable=False,
-                            ),
-                        ],
-                        width=2,
-                    )
-                ]
-            ),
-            dbc.Row(
-                [
-                    html.Div("Filters: "),
-                ],
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            html.Label("Element(s)"),
-                            dcc.Dropdown(
-                                id="el_filter",
-                                options=[
-                                    {"label": el.symbol, "value": el.symbol}
-                                    for el in Element
-                                    if el.name not in ("D", "T")
-                                ],
-                                multi=True,
-                            ),
-                        ],
-                        width=2,
-                    ),
-                    dbc.Col(
-                        [
-                            html.Div("Chemsys"),
-                            dcc.Input(
-                                id="chemsys_filter",
-                                placeholder="Li-Fe-O",
-                            ),
-                        ],
-                        width=2,
-                    ),
-                    dbc.Col(
-                        [
-                            html.Div("Coh. Energy (Min, Max)"),
-                            dcc.Input(0, type="number", id="min_coh_e_filter"),
-                            dcc.Input(10, type="number", id="max_coh_e_filter"),
-                        ],
-                        width=4,
-                    ),
-                    dbc.Col(
-                        [
-                            html.Div("Form. Energy (Min, Max)"),
-                            dcc.Input(0, type="number", id="min_form_e_filter"),
-                            dcc.Input(10, type="number", id="max_form_e_filter"),
-                        ],
-                        width=4,
-                    ),
-                ]
-            ),
-            dbc.Row(
-                [
-                    html.Div("Options (note: enabling these will slow rendering)"),
-                ],
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dcc.Checklist(options=["Show Histograms", "Show Table"], id="display_options"),
-                        ],
-                        width=4,
-                    ),
-                ]
-            ),
-            # dbc.Row(
-            #     [
-            #         html.Div("Download:"),
-            #     ],
-            # ),
-            # dbc.Row(
-            #     [
-            #         dbc.Col(
-            #             [
-            #                 html.Button("JSON", id="json-download"),
-            #                 dcc.Download(id="download-json"),
-            #             ],
-            #             width=1,
-            #         ),
-            #         dbc.Col(
-            #             [
-            #                 html.Button("CSV", id="csv-download"),
-            #                 dcc.Download(id="download-csv"),
-            #             ],
-            #             width=1,
-            #         ),
-            #     ]
-            # ),
-            html.Div(
-                [
-                    html.P("Help:"),
-                    html.Ul(
-                        [
-                            html.Li("Clicking on the PT adds an element to the element filter."),
-                            html.Li(
-                                "Element filter is restrictive, i.e., only data containing all selected elements + any "
-                                "other elements are shown."
-                            ),
-                            html.Li(
-                                "Chemsys filter: Only data within the chemsys are shown. Typically you should only"
-                                " use either element or chemsys but not both."
-                            ),
-                        ]
-                    ),
-                ],
-                style={"padding": 5},
-            ),
-            dbc.Row(
+# Define app layout
+layout = dbc.Container(
+    [
+        dbc.Row(
+            [
                 dbc.Col(
-                    html.Div(
-                        [dcc.Graph(id="ptheatmap", figure=pt_heatmap({}, label=""))],
-                        style={"marginLeft": "auto", "marginRight": "auto", "text-align": "center"},
-                    ),
-                    width=12,
+                    [
+                        html.Label("Functional"),
+                        dcc.Dropdown(
+                            id="functional",
+                            options=[{"label": f, "value": f} for f in FUNCTIONALS],
+                            value="PBE",
+                            clearable=False,
+                        ),
+                    ],
+                    width=2,
                 )
-            ),
-            html.Div(id="stats-div"),
-            html.Div(id="data-div"),
-            # dbc.Row([DataTable(page_size=25, id="data-table")]),
-        ]
-    )
-
-    app.run(debug=args.debug, host=args.host, port=args.port)
+            ]
+        ),
+        dbc.Row(
+            [
+                html.Div("Filters: "),
+            ],
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        html.Label("Element(s)"),
+                        dcc.Dropdown(
+                            id="el_filter",
+                            options=[
+                                {"label": el.symbol, "value": el.symbol} for el in Element if el.name not in ("D", "T")
+                            ],
+                            multi=True,
+                        ),
+                    ],
+                    width=2,
+                ),
+                dbc.Col(
+                    [
+                        html.Div("Chemsys"),
+                        dcc.Input(
+                            id="chemsys_filter",
+                            placeholder="Li-Fe-O",
+                        ),
+                    ],
+                    width=2,
+                ),
+                dbc.Col(
+                    [
+                        html.Div("Coh. Energy (Min, Max)"),
+                        dcc.Input(0, type="number", id="min_coh_e_filter"),
+                        dcc.Input(10, type="number", id="max_coh_e_filter"),
+                    ],
+                    width=4,
+                ),
+                dbc.Col(
+                    [
+                        html.Div("Form. Energy (Min, Max)"),
+                        dcc.Input(0, type="number", id="min_form_e_filter"),
+                        dcc.Input(10, type="number", id="max_form_e_filter"),
+                    ],
+                    width=4,
+                ),
+            ]
+        ),
+        dbc.Row(
+            [
+                html.Div("Options (note: enabling these will slow rendering)"),
+            ],
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        dcc.Checklist(options=["Show Histograms", "Show Table"], id="display_options"),
+                    ],
+                    width=4,
+                ),
+            ]
+        ),
+        # dbc.Row(
+        #     [
+        #         html.Div("Download:"),
+        #     ],
+        # ),
+        # dbc.Row(
+        #     [
+        #         dbc.Col(
+        #             [
+        #                 html.Button("JSON", id="json-download"),
+        #                 dcc.Download(id="download-json"),
+        #             ],
+        #             width=1,
+        #         ),
+        #         dbc.Col(
+        #             [
+        #                 html.Button("CSV", id="csv-download"),
+        #                 dcc.Download(id="download-csv"),
+        #             ],
+        #             width=1,
+        #         ),
+        #     ]
+        # ),
+        html.Div(
+            [
+                html.P("Help:"),
+                html.Ul(
+                    [
+                        html.Li("Clicking on the PT adds an element to the element filter."),
+                        html.Li(
+                            "Element filter is restrictive, i.e., only data containing all selected elements + any "
+                            "other elements are shown."
+                        ),
+                        html.Li(
+                            "Chemsys filter: Only data within the chemsys are shown. Typically you should only"
+                            " use either element or chemsys but not both."
+                        ),
+                    ]
+                ),
+            ],
+            style={"padding": 5},
+        ),
+        dbc.Row(
+            dbc.Col(
+                html.Div(
+                    [dcc.Graph(id="ptheatmap", figure=pt_heatmap({}, label=""))],
+                    style={"marginLeft": "auto", "marginRight": "auto", "text-align": "center"},
+                ),
+                width=12,
+            )
+        ),
+        html.Div(id="stats-div"),
+        html.Div(id="data-div"),
+        # dbc.Row([DataTable(page_size=25, id="data-table")]),
+    ]
+)

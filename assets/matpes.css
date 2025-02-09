@@ -1,0 +1,24 @@
+#navbar {
+    background-color: #000;
+}
+
+#navbar li {
+    float: left;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#navbar a {
+  display: block;
+  padding: 8px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #fff;
+
+    text-align: center;
+}
+
+#navbar a:hover {
+  color: orange;
+}

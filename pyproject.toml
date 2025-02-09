@@ -56,7 +56,7 @@ where = ["src"]
 include = ["matpes", "matpes.*"]
 
 [project.scripts]
-matpes_explorer = "matpes.ui:main"
+matpes_explorer = "matpes.app:main"
 
 [tool.versioningit.vcs]
 method = "git"
