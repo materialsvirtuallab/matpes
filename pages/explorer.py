@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import collections
-import functools
 import itertools
 from pathlib import Path
 
@@ -26,15 +25,15 @@ FUNCTIONALS = ("PBE", "r2SCAN")
 DATADIR = Path(__file__).absolute().parent
 
 
-@functools.lru_cache
-def get_full_data(functional: str) -> pd.DataFrame:
-    """Cache data for each functional for more responsive UI.
-
-    Args:
-        functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
-    """
-    return pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
-    # return DB.get_df(functional)
+# @functools.lru_cache
+# def get_full_data(functional: str) -> pd.DataFrame:
+#     """Cache data for each functional for more responsive UI.
+#
+#     Args:
+#         functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
+#     """
+#     return pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
+#     # return DB.get_df(functional)
 
 
 def get_data(
@@ -61,7 +60,7 @@ def get_data(
     Returns:
         pd.DataFrame: Filtered data.
     """
-    df = get_full_data(functional)
+    df = pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
     if el_filter:
         df = df[df["elements"].apply(lambda x: set(x).issuperset(el_filter))]
     if chemsys_filter:
@@ -91,7 +90,7 @@ def update_sliders(functional):
     Args:
         functional (str): The functional used to filter the dataset (e.g., "PBE", "LDA").
     """
-    df = get_full_data(functional)
+    df = pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
     coh_energy = df["cohesive_energy_per_atom"]
     form_energy = df["formation_energy_per_atom"]
     return coh_energy.min(), coh_energy.max(), form_energy.min(), form_energy.max()
@@ -164,7 +163,7 @@ def display_data(
                                 df,
                                 x="cohesive_energy_per_atom",
                                 labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
-                                nbins=100,
+                                nbins=30,
                             ),
                         ),
                         width=6,
@@ -176,7 +175,7 @@ def display_data(
                                 df,
                                 x="formation_energy_per_atom",
                                 labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
-                                nbins=100,
+                                nbins=30,
                             ),
                         ),
                         width=6,
