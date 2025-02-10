@@ -5,28 +5,25 @@ from __future__ import annotations
 import collections
 import functools
 import itertools
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
+import pandas as pd
 import plotly.express as px
 from dash import Input, Output, State, callback, dcc, html
 from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Scheme
 from pymatgen.core import Element
 
-from .db import MatPESDB
 from .utils import pt_heatmap
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 dash.register_page(__name__)
 
 # Define constants
 FUNCTIONALS = ("PBE", "r2SCAN")
 
-DB = MatPESDB()
+DATADIR = Path(__file__).absolute().parent
 
 
 @functools.lru_cache
@@ -36,7 +33,8 @@ def get_full_data(functional: str) -> pd.DataFrame:
     Args:
         functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
     """
-    return DB.get_df(functional)
+    return pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
+    # return DB.get_df(functional)
 
 
 def get_data(
