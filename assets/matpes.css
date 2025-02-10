@@ -1,29 +1,39 @@
 #navbar {
-    background-color: #000;
+    background-color: #2f86e7;
+    margin-bottom: 30px;
+}
+
+#navbar ul{
+    padding-left: 0rem;
 }
 
 #navbar li {
     float: left;
     list-style-type: none;
     margin: 0;
-    padding: 0;
+    padding: 0.75rem;
 }
 
 #navbar a {
   display: block;
-  padding: 8px;
     text-decoration: none;
-    font-size: 22px;
-    color: #fff;
-
-    text-align: center;
+    font-size: 1.75rem;
+    color: #ffffff;
 }
 
 #navbar a:hover {
-  color: orange;
+  color: #ffbf00;
 }
 
 .section-title {
     text-align: center;
     color: #000;
+}
+
+#header-logo {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    max-height: 4.5rem;
+    display: block;
+    float: right;
 }

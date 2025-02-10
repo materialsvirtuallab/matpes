@@ -15,4 +15,6 @@ readme = Path(__file__).parent.absolute() / ".." / "README.md"
 with open(readme, encoding="utf-8") as f:
     MARKDOWN_CONTENT = f.read()
 
+MARKDOWN_CONTENT = "\n".join(MARKDOWN_CONTENT.split("\n")[2:])
+
 layout = dbc.Container([html.Div([dcc.Markdown(MARKDOWN_CONTENT)])])
