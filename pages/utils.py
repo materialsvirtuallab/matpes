@@ -193,9 +193,9 @@ def pt_heatmap(
         title=None,
         xaxis=dict(title=None),  # Maintain 1:1 aspect ratio
         yaxis=dict(title=None, scaleanchor="x", scaleratio=1.33, autorange="reversed"),
-        plot_bgcolor="white",
         width=1200,
         height=900,
+        template="plotly_dark",
     )
 
     if log:
@@ -207,7 +207,7 @@ def pt_heatmap(
                     tickmode="array",
                     tickvals=list(range(1, max_log + 1)),
                     ticktext=[f"1e{i}" for i in range(1, max_log + 1)],
-                    tickfont=dict(size=14, family="Arial", color="black"),
+                    tickfont=dict(size=14, family="Arial"),
                 )
             )
         )

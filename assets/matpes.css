@@ -4,11 +4,14 @@
 
 .section-title {
     text-align: center;
-    color: #000;
 }
 
 #header-logo {
     height: 50px;
     display: block;
     float: right;
+}
+
+.navlink {
+    font-size: 1.2rem;
 }

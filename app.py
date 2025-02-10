@@ -11,29 +11,56 @@ from dash import Dash, dcc, html
 app = Dash(
     "MatPES",
     use_pages=True,
-    external_stylesheets=[dbc.themes.ZEPHYR],
+    external_stylesheets=[dbc.themes.DARKLY],
     title="MatPES",
 )
 
 navbar = dbc.Navbar(
     dbc.Container(
         [
-            dbc.Row(
-                [
-                    dbc.Col(html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo")),
-                    dbc.Col(html.A(dbc.NavbarBrand("MatPES", className="ms-2"), href="/")),
-                ]
-                + [
-                    dbc.Col(dbc.NavLink(page["name"], className="ms-2 text-light", href=page["relative_path"]))
-                    for page in dash.page_registry.values()
-                    # ]
-                    # + [
-                    #     dbc.Col(dbc.Button("PBE", color="primary", className="me-1")),
-                    #     dbc.Col(dbc.Button("R2SCAN", color="secondary", className="me-1")),
-                ],
-                align="center",
-                className="g-0",
-                style={"textDecoration": "none"},
+            dbc.Nav(
+                dbc.Row(
+                    [
+                        dbc.Col(html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo")),
+                        dbc.Col(html.A(dbc.NavbarBrand("MatPES", className="ms-2"), href="/")),
+                    ]
+                    + [
+                        dbc.Col(
+                            dbc.NavLink(
+                                page["name"],
+                                className="ms-2 text-light navlink",
+                                href=page["relative_path"],
+                                active="exact",
+                            )
+                        )
+                        for page in dash.page_registry.values()
+                    ]
+                    + [
+                        dbc.Col(
+                            dbc.Button(
+                                "PBE",
+                                href="matpes_pbe.json.gz",
+                                external_link=True,
+                                color="success",
+                                className="ms-2",
+                                disabled=True,
+                            )
+                        ),
+                        dbc.Col(
+                            dbc.Button(
+                                "R2SCAN",
+                                href="matpes_r2scan.json.gz",
+                                external_link=True,
+                                color="warning",
+                                className="ms-2",
+                                disabled=True,
+                            )
+                        ),
+                    ],
+                    align="center",
+                    className="g-0",
+                    style={"textDecoration": "none"},
+                )
             )
         ]
     ),
