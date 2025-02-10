@@ -11,40 +11,39 @@ from dash import Dash, dcc, html
 app = Dash(
     "MatPES",
     use_pages=True,
-    external_stylesheets=[dbc.themes.CERULEAN],
+    external_stylesheets=[dbc.themes.ZEPHYR],
     title="MatPES",
 )
 
-app.layout = html.Div(
-    [
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.Ul(
-                        [
-                            html.Li(dcc.Link(page["name"], href=page["relative_path"]))
-                            for page in dash.page_registry.values()
-                        ]
-                    ),
-                    width={"size": 6, "offset": 2},
-                ),
-                dbc.Col(
-                    html.A(
-                        html.Img(
-                            src=dash.get_asset_url("logo.png"),
-                            alt="MatPES",
-                            id="header-logo",
-                        ),
-                        href="/",
-                    ),
-                    width={"size": 2},
-                ),
-            ],
-            id="navbar",
-        ),
-        dash.page_container,
-    ]
+navbar = dbc.Navbar(
+    dbc.Container(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo")),
+                    dbc.Col(html.A(dbc.NavbarBrand("MatPES", className="ms-2"), href="/")),
+                ]
+                + [
+                    dbc.Col(dbc.NavLink(page["name"], className="ms-2 text-light", href=page["relative_path"]))
+                    for page in dash.page_registry.values()
+                    # ]
+                    # + [
+                    #     dbc.Col(dbc.Button("PBE", color="primary", className="me-1")),
+                    #     dbc.Col(dbc.Button("R2SCAN", color="secondary", className="me-1")),
+                ],
+                align="center",
+                className="g-0",
+                style={"textDecoration": "none"},
+            )
+        ]
+    ),
+    color="primary",
+    dark=True,
 )
+
+content = html.Div(children=dash.page_container, id="page-content")
+
+app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
 server = app.server
 

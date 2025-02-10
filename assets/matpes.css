@@ -1,28 +1,5 @@
-#navbar {
-    background-color: #2f86e7;
-    margin-bottom: 30px;
-}
-
-#navbar ul{
-    padding-left: 0rem;
-}
-
-#navbar li {
-    float: left;
-    list-style-type: none;
-    margin: 0;
-    padding: 0.75rem;
-}
-
-#navbar a {
-  display: block;
-    text-decoration: none;
-    font-size: 1.75rem;
-    color: #ffffff;
-}
-
-#navbar a:hover {
-  color: #ffbf00;
+#page-content {
+    margin-top: 2rem;
 }
 
 .section-title {
@@ -31,9 +8,7 @@
 }
 
 #header-logo {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    max-height: 4.5rem;
+    height: 50px;
     display: block;
     float: right;
 }
