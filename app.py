@@ -23,19 +23,8 @@ navbar = dbc.Navbar(
                     [
                         dbc.Col(html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo")),
                         dbc.Col(html.A(dbc.NavbarBrand("MatPES", className="ms-2"), href="/")),
-                    ]
-                    + [
-                        dbc.Col(
-                            dbc.NavLink(
-                                page["name"],
-                                className="ms-2 text-light navlink",
-                                href=page["relative_path"],
-                                active="exact",
-                            )
-                        )
-                        for page in dash.page_registry.values()
-                    ]
-                    + [
+                        dbc.Col(dbc.NavLink("Home", className="ms-2", href="/", active="exact")),
+                        dbc.Col(dbc.NavLink("Explorer", className="me-auto", href="/explorer", active="exact")),
                         dbc.Col(
                             dbc.Button(
                                 "PBE",
@@ -60,8 +49,9 @@ navbar = dbc.Navbar(
                     align="center",
                     className="g-0",
                     style={"textDecoration": "none"},
-                )
-            )
+                ),
+                navbar=True,
+            ),
         ]
     ),
     color="primary",
