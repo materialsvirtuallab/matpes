@@ -19,37 +19,45 @@ navbar = dbc.Navbar(
     dbc.Container(
         [
             dbc.Nav(
-                dbc.Row(
-                    [
-                        dbc.Col(html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo")),
-                        dbc.Col(html.A(dbc.NavbarBrand("MatPES", className="ms-2"), href="/")),
-                        dbc.Col(dbc.NavLink("Home", className="ms-2", href="/", active="exact")),
-                        dbc.Col(dbc.NavLink("Explorer", className="me-auto", href="/explorer", active="exact")),
-                        dbc.Col(
-                            dbc.Button(
-                                "PBE",
-                                href="matpes_pbe.json.gz",
-                                external_link=True,
-                                color="success",
-                                className="ms-2",
-                                disabled=True,
-                            )
-                        ),
-                        dbc.Col(
-                            dbc.Button(
-                                "R2SCAN",
-                                href="matpes_r2scan.json.gz",
-                                external_link=True,
-                                color="warning",
-                                className="ms-2",
-                                disabled=True,
-                            )
-                        ),
-                    ],
-                    align="center",
-                    className="g-0",
-                    style={"textDecoration": "none"},
-                ),
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo")),
+                            dbc.Col(dbc.NavbarBrand("MatPES", className="ms-2")),
+                            dbc.Col(dbc.NavLink("Home", className="ms-2", href="/", active="exact")),
+                            dbc.Col(dbc.NavLink("Explorer", className="me-auto", href="/explorer", active="exact")),
+                        ],
+                        align="center",
+                        className="g-0",
+                        style={"text-decoration": "none"},
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                dbc.Button(
+                                    "PBE",
+                                    href="matpes_pbe.json.gz",
+                                    external_link=True,
+                                    color="success",
+                                    className="ms-2",
+                                    disabled=True,
+                                ),
+                            ),
+                            dbc.Col(
+                                dbc.Button(
+                                    "R2SCAN",
+                                    href="matpes_r2scan.json.gz",
+                                    external_link=True,
+                                    color="warning",
+                                    className="ms-2",
+                                    disabled=True,
+                                ),
+                            ),
+                        ],
+                        align="center",
+                        className="g-0",
+                    ),
+                ],
                 navbar=True,
             ),
         ]

@@ -7,10 +7,11 @@
 }
 
 #header-logo {
-    height: 50px;
+    height: 30px;
     display: block;
     float: right;
 }
+
 
 .navlink {
     font-size: 1.2rem;
