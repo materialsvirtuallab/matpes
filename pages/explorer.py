@@ -25,17 +25,6 @@ FUNCTIONALS = ("PBE", "r2SCAN")
 DATADIR = Path(__file__).absolute().parent
 
 
-# @functools.lru_cache
-# def get_full_data(functional: str) -> pd.DataFrame:
-#     """Cache data for each functional for more responsive UI.
-#
-#     Args:
-#         functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
-#     """
-#     return pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
-#     # return DB.get_df(functional)
-
-
 def get_data(
     functional: str,
     el_filter: list,
@@ -98,7 +87,7 @@ def update_sliders(functional):
 
 @callback(
     [
-        Output("ptheatmap", "figure"),
+        Output("pt-div", "children"),
         Output("stats-div", "children"),
         Output("data-div", "children"),
     ],
@@ -150,43 +139,55 @@ def display_data(
         functional, el_filter, chemsys_filter, min_coh_e_filter, max_coh_e_filter, min_form_e_filter, max_form_e_filter
     )
     element_counts = collections.Counter(itertools.chain(*df["elements"]))
-    output = [pt_heatmap(element_counts, label="Count", log=True)]
-    table_df = df.drop("elements", axis=1)
-    if display_options and "Show Histograms" in display_options:
-        output.append(
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dcc.Graph(
-                            id="coh_energy_hist",
-                            figure=px.histogram(
-                                df,
-                                x="cohesive_energy_per_atom",
-                                labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
-                                nbins=30,
-                            ),
-                        ),
-                        width=6,
+    nstructures = len(df)
+    output = [
+        dbc.Row(
+            [
+                html.H2(f"Elemental Heatmap of {nstructures:,} Structures in Dataset", className="section-title"),
+                dbc.Col(
+                    html.Div(
+                        [dcc.Graph(id="ptheatmap", figure=pt_heatmap(element_counts, label="Count", log=True))],
+                        style={"marginLeft": "auto", "marginRight": "auto", "text-align": "center"},
                     ),
-                    dbc.Col(
-                        dcc.Graph(
-                            id="form_energy_hist",
-                            figure=px.histogram(
-                                df,
-                                x="formation_energy_per_atom",
-                                labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
-                                nbins=30,
-                            ),
-                        ),
-                        width=6,
-                    ),
-                    dbc.Col(dcc.Graph(id="nsites_hist", figure=px.histogram(df, x="nsites")), width=6),
-                    dbc.Col(dcc.Graph(id="nelements_hist", figure=px.histogram(df, x="nelements")), width=6),
-                ]
-            )
+                    width=12,
+                ),
+            ]
         )
-    else:
-        output.append("")
+    ]
+    table_df = df.drop("elements", axis=1)
+    output.append(
+        dbc.Row(
+            [
+                html.H2("Property distribution of dataset", className="section-title"),
+                dbc.Col(
+                    dcc.Graph(
+                        id="coh_energy_hist",
+                        figure=px.histogram(
+                            df,
+                            x="cohesive_energy_per_atom",
+                            labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
+                            nbins=30,
+                        ),
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(
+                        id="form_energy_hist",
+                        figure=px.histogram(
+                            df,
+                            x="formation_energy_per_atom",
+                            labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
+                            nbins=30,
+                        ),
+                    ),
+                    width=6,
+                ),
+                dbc.Col(dcc.Graph(id="nsites_hist", figure=px.histogram(df, x="nsites")), width=6),
+                dbc.Col(dcc.Graph(id="nelements_hist", figure=px.histogram(df, x="nelements")), width=6),
+            ]
+        )
+    )
     if display_options and "Show Table" in display_options:
         output.append(
             DataTable(
@@ -197,7 +198,7 @@ def display_data(
                         "name": i,
                         "id": i,
                         "type": "numeric",
-                        "format": Format(precision=4, scheme=Scheme.fixed),
+                        "format": Format(precision=3, scheme=Scheme.fixed),
                     }
                     if i in ["energy", "cohesive_energy_per_atom", "formation_energy_per_atom"]
                     else {
@@ -405,7 +406,7 @@ layout = dbc.Container(
             [
                 dbc.Col(
                     [
-                        dcc.Checklist(options=["Show Histograms", "Show Table"], id="display_options"),
+                        dcc.Checklist(options=["Show Table"], id="display_options"),
                     ],
                     width=4,
                 ),
@@ -453,15 +454,7 @@ layout = dbc.Container(
             ],
             style={"padding": 5},
         ),
-        dbc.Row(
-            dbc.Col(
-                html.Div(
-                    [dcc.Graph(id="ptheatmap", figure=pt_heatmap({}, label=""))],
-                    style={"marginLeft": "auto", "marginRight": "auto", "text-align": "center"},
-                ),
-                width=12,
-            )
-        ),
+        html.Div([html.H1("Loading...")], id="pt-div"),
         html.Div(id="stats-div"),
         html.Div(id="data-div"),
         # dbc.Row([DataTable(page_size=25, id="data-table")]),

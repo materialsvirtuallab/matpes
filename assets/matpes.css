@@ -22,3 +22,8 @@
 #navbar a:hover {
   color: orange;
 }
+
+.section-title {
+    text-align: center;
+    color: #000;
+}
