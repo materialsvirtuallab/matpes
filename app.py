@@ -20,78 +20,36 @@ navbar = dbc.NavbarSimple(
         dbc.Nav(
             [
                 html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo"),
-                dbc.NavbarBrand("MatPES"),
+                dbc.NavbarBrand("MatPES", className="ms-2"),
                 dbc.NavItem(dbc.NavLink("Home", href="/", active="exact")),
                 dbc.NavItem(dbc.NavLink("Explorer", href="/explorer", active="exact")),
-                dbc.NavItem(
-                    dbc.Button(
-                        "PBE",
-                        href="matpes_pbe.json.gz",
-                        external_link=True,
-                        color="success",
-                        className="ms-2",
-                        disabled=True,
-                    )
-                ),
-            ]
+                # dbc.NavItem(
+                #     dbc.Button(
+                #         "PBE",
+                #         href="matpes_pbe.json.gz",
+                #         external_link=True,
+                #         color="success",
+                #         className="ms-2",
+                #         disabled=True,
+                #     )
+                # ),
+                # dbc.NavItem(
+                #     dbc.Button(
+                #         "r2SCAN",
+                #         href="matpes_r2scan.json.gz",
+                #         external_link=True,
+                #         color="warning",
+                #         className="ms-2",
+                #         disabled=True,
+                #     )
+                # ),
+            ],
         ),
     ],
     color="primary",
     dark=True,
     links_left=True,
 )
-
-
-# navbar = dbc.Navbar(
-#     dbc.Container(
-#         [
-#             dbc.Nav(
-#                 [
-#                     dbc.Row(
-#                         [
-#                             dbc.Col(html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo")),
-#                             dbc.Col(dbc.NavbarBrand("MatPES", className="ms-2")),
-#                             dbc.Col(dbc.NavLink("Home", className="ms-2", href="/", active="exact")),
-#                             dbc.Col(dbc.NavLink("Explorer", className="me-auto", href="/explorer", active="exact")),
-#                         ],
-#                         align="center",
-#                         className="g-0",
-#                         style={"text-decoration": "none"},
-#                     ),
-#                     dbc.Row(
-#                         [
-#                             dbc.Col(
-#                                 dbc.Button(
-#                                     "PBE",
-#                                     href="matpes_pbe.json.gz",
-#                                     external_link=True,
-#                                     color="success",
-#                                     className="ms-2",
-#                                     disabled=True,
-#                                 ),
-#                             ),
-#                             dbc.Col(
-#                                 dbc.Button(
-#                                     "R2SCAN",
-#                                     href="matpes_r2scan.json.gz",
-#                                     external_link=True,
-#                                     color="warning",
-#                                     className="ms-2",
-#                                     disabled=True,
-#                                 ),
-#                             ),
-#                         ],
-#                         align="center",
-#                         className="g-0",
-#                     ),
-#                 ],
-#                 navbar=True,
-#             ),
-#         ]
-#     ),
-#     color="primary",
-#     dark=True,
-# )
 
 content = html.Div(children=dash.page_container, id="page-content")
 
