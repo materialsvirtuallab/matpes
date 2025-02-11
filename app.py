@@ -23,6 +23,7 @@ navbar = dbc.NavbarSimple(
                 dbc.NavbarBrand("MatPES.ai", className="ms-2"),
                 dbc.NavItem(dbc.NavLink("Home", href="/", active="exact")),
                 dbc.NavItem(dbc.NavLink("Explorer", href="/explorer", active="exact")),
+                dbc.NavItem(dbc.NavLink("Dataset", href="/dataset", active="exact")),
                 dbc.NavItem(dbc.NavLink("Benchmarks", href="/benchmarks", active="exact")),
                 dbc.NavItem(
                     dbc.ButtonGroup(
