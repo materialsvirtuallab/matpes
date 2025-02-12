@@ -167,7 +167,6 @@ def display_data(
                             x="cohesive_energy_per_atom",
                             labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
                             nbins=30,
-                            template="plotly_dark",
                         ),
                     ),
                     width=6,
@@ -180,16 +179,13 @@ def display_data(
                             x="formation_energy_per_atom",
                             labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
                             nbins=30,
-                            template="plotly_dark",
                         ),
                     ),
                     width=6,
                 ),
+                dbc.Col(dcc.Graph(id="nsites_hist", figure=px.histogram(df, x="nsites")), width=6),
                 dbc.Col(
-                    dcc.Graph(id="nsites_hist", figure=px.histogram(df, x="nsites", template="plotly_dark")), width=6
-                ),
-                dbc.Col(
-                    dcc.Graph(id="nelements_hist", figure=px.histogram(df, x="nelements", template="plotly_dark")),
+                    dcc.Graph(id="nelements_hist", figure=px.histogram(df, x="nelements")),
                     width=6,
                 ),
             ]

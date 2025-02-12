@@ -6,8 +6,10 @@ import argparse
 
 import dash
 import dash_bootstrap_components as dbc
+import plotly.io as pio
 from dash import Dash, dcc, html
 
+pio.templates.default = "plotly_dark"
 app = Dash(
     "MatPES",
     use_pages=True,
