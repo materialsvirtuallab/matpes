@@ -143,7 +143,7 @@ def display_data(
     output = [
         dbc.Row(
             [
-                html.H2(f"Elemental Heatmap of {nstructures:,} Structures in Dataset", className="section-title"),
+                html.H4(f"Elemental Heatmap of {nstructures:,} Structures in Dataset", className="section-title"),
                 dbc.Col(
                     html.Div(
                         [dcc.Graph(id="ptheatmap", figure=pt_heatmap(element_counts, label="Count", log=True))],
@@ -158,7 +158,7 @@ def display_data(
     output.append(
         dbc.Row(
             [
-                html.H2("Property distribution of dataset", className="section-title"),
+                html.H4("Property distribution of dataset", className="section-title"),
                 dbc.Col(
                     dcc.Graph(
                         id="coh_energy_hist",
@@ -216,102 +216,6 @@ def display_data(
     else:
         output.append("")
     return output
-
-
-# # Callback to download data
-# @callback(
-#     Output("download-json", "data"),
-#     Input("json-download", "n_clicks"),
-#     State("functional", "value"),
-#     State("el_filter", "value"),
-#     State("chemsys_filter", "value"),
-#     State("min_coh_e_filter", "value"),
-#     State("max_coh_e_filter", "value"),
-#     State("min_form_e_filter", "value"),
-#     State("max_form_e_filter", "value"),
-#     prevent_initial_call=True,
-# )
-# def download_json(
-#     n_clicks,
-#     functional,
-#     el_filter,
-#     chemsys_filter,
-#     min_coh_e_filter,
-#     max_coh_e_filter,
-#     min_form_e_filter,
-#     max_form_e_filter,
-# ):
-#     """
-#     Handle json download requests.
-#
-#     Args:
-#         n_clicks (int): Number of clicks. Not really used.
-#         functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
-#         el_filter (list of str): A list of element symbols to filter the dataset by (e.g., ["Fe", "Ni"]).
-#         chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
-#         min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
-#         max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
-#         min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
-#         max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
-#     """
-#     criteria = {}
-#     if el_filter:
-#         criteria["elements"] = el_filter
-#     if chemsys_filter:
-#         criteria["chemsys"] = "-".join(sorted(chemsys_filter.split("-")))
-#     criteria["cohesive_energy_per_atom"] = {"$gte": min_coh_e_filter, "$lte": max_coh_e_filter}
-#     criteria["formation_energy_per_atom"] = {"$gte": min_form_e_filter, "$lte": max_form_e_filter}
-#     data = DB.get_json(functional, criteria)
-#     for entry in data:
-#         entry.pop("_id", None)  # Remove MongoDB's internal ID
-#     return dict(
-#         content=json.dumps(data), filename=f"matpes_{functional}_{el_filter or 'all'}_{chemsys_filter or 'all'}.json"
-#     )
-#
-#
-# @callback(
-#     Output("download-csv", "data"),
-#     Input("csv-download", "n_clicks"),
-#     State("functional", "value"),
-#     State("el_filter", "value"),
-#     State("chemsys_filter", "value"),
-#     State("min_coh_e_filter", "value"),
-#     State("max_coh_e_filter", "value"),
-#     State("min_form_e_filter", "value"),
-#     State("max_form_e_filter", "value"),
-#     prevent_initial_call=True,
-# )
-# def download_csv(
-#     n_clicks,
-#     functional,
-#     el_filter,
-#     chemsys_filter,
-#     min_coh_e_filter,
-#     max_coh_e_filter,
-#     min_form_e_filter,
-#     max_form_e_filter,
-# ):
-#     """
-#     Handle csv download requests.
-#
-#     Args:
-#         n_clicks (int): Number of clicks. Not really used.
-#         functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
-#         el_filter (list of str): A list of element symbols to filter the dataset by (e.g., ["Fe", "Ni"]).
-#         chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
-#         min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
-#         max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
-#         min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
-#         max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
-#     """
-#     df = get_data(
-#         functional, el_filter, chemsys_filter, min_coh_e_filter, max_coh_e_filter, min_form_e_filter,
-#         max_form_e_filter
-#     )
-#     return dict(
-#         content=df.to_csv(),
-#         filename=f"matpes_{functional}_{el_filter or 'all'}_{chemsys_filter or 'all'}.csv"
-#     )
 
 
 @callback(Output("el_filter", "value"), Input("ptheatmap", "clickData"), State("el_filter", "value"))
@@ -415,29 +319,6 @@ layout = dbc.Container(
                 ),
             ]
         ),
-        # dbc.Row(
-        #     [
-        #         html.Div("Download:"),
-        #     ],
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(
-        #             [
-        #                 html.Button("JSON", id="json-download"),
-        #                 dcc.Download(id="download-json"),
-        #             ],
-        #             width=1,
-        #         ),
-        #         dbc.Col(
-        #             [
-        #                 html.Button("CSV", id="csv-download"),
-        #                 dcc.Download(id="download-csv"),
-        #             ],
-        #             width=1,
-        #         ),
-        #     ]
-        # ),
         html.Div(
             [
                 html.P("Help:"),

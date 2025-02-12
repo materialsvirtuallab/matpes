@@ -195,7 +195,6 @@ def pt_heatmap(
         yaxis=dict(title=None, scaleanchor="x", scaleratio=1.33, autorange="reversed"),
         width=1200,
         height=900,
-        template="plotly_dark",
     )
 
     if log:
