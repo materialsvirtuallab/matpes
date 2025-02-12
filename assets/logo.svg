@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="311.6875 135.44478 1018.7372 368.5" width="1018.7372" height="368.5">
+  <defs>
+    <radialGradient cx="0" cy="0" r="1" id="Gradient" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff9300"/>
+      <stop offset=".3469351" stop-color="#ff2600"/>
+      <stop offset="1" stop-color="#fffc00"/>
+    </radialGradient>
+    <radialGradient id="Obj_Gradient" xl:href="#Gradient" gradientTransform="translate(1204.8003 326.9448) scale(176.95272)"/>
+    <radialGradient cx="0" cy="0" r="1" id="Gradient_2" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="black"/>
+      <stop offset=".8829928" stop-color="#323232"/>
+      <stop offset="1" stop-color="#5e5e5e"/>
+    </radialGradient>
+    <radialGradient id="Obj_Gradient_2" xl:href="#Gradient_2" gradientTransform="translate(1240.3184 279.62564) scale(26.542908)"/>
+    <radialGradient id="Obj_Gradient_3" xl:href="#Gradient_2" gradientTransform="translate(1166.2885 373.17408) scale(26.542908)"/>
+  </defs>
+  <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>Canvas 1</title>
+    <g id="Canvas_1_Layer_1">
+      <title>Layer 1</title>
+      <g id="Graphic_8">
+        <circle cx="1204.8003" cy="326.9448" r="125.124668686626" fill="url(#Obj_Gradient)"/>
+        <circle cx="1204.8003" cy="326.9448" r="125.124668686626" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_13">
+        <circle cx="1240.3184" cy="279.62564" r="18.768700302994" fill="url(#Obj_Gradient_2)"/>
+      </g>
+      <g id="Graphic_15">
+        <circle cx="1166.2885" cy="373.17408" r="18.768700302994" fill="url(#Obj_Gradient_3)"/>
+      </g>
+      <g id="Line_11">
+        <title>Line</title>
+        <path d="M 1207.6743 233.10143 C 1207.6743 233.10143 1168.6531 256.95296 1175.863 293.5429 C 1183.0728 330.13286 1224.111 326.20612 1233.1233 362.25533 C 1242.1356 398.30454 1207.6743 420.78813 1207.6743 420.78813" stroke="black" stroke-linecap="square" stroke-linejoin="bevel" stroke-width="7"/>
+      </g>
+    </g>
+  </g>
+</svg>

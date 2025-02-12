@@ -19,7 +19,7 @@ navbar = dbc.NavbarSimple(
     children=[
         dbc.Nav(
             [
-                html.Img(src=dash.get_asset_url("logo.png"), alt="MatPES", id="header-logo"),
+                html.Img(src=dash.get_asset_url("logo.svg"), alt="MatPES", id="header-logo"),
                 dbc.NavbarBrand("MatPES.ai", className="ms-2"),
                 dbc.NavItem(dbc.NavLink("Home", href="/", active="exact")),
                 dbc.NavItem(dbc.NavLink("Explorer", href="/explorer", active="exact")),
