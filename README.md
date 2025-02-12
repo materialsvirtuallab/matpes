@@ -3,7 +3,8 @@
 
 #### Welcome
 
-Welcome to MatPES, a foundational potential energy surface (PES) dataset for materials.
+Welcome to MatPES, a foundational potential energy surface (PES) dataset for materials. This is a collaboration between
+the [Materials Virtual Lab] and the [Materials Project].
 
 Machine learning interatomic potentials (MLIPs) have revolutionized the field of computational materials science.
 MLIPs use ML to reproduce the PES (energies, forces, and stresses) of a collection of atoms, typically computed
@@ -71,6 +72,7 @@ Aaron Kaplan, Runze Liu, Ji Qi, Tsz Wai Ko, Bowen Deng, Gerbrand Ceder, Kristin 
 A foundational potential energy surface dataset for materials. Submitted.
 ```
 
+[Materials Virtual Lab]: http://materialsvirtuallab.org
 [pymatgen]: https://pymatgen.org
 [Materials Project]: https://materialsproject.org
 [MatGL]: https://matgl.ai

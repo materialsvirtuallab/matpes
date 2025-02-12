@@ -44,7 +44,44 @@ navbar = dbc.NavbarSimple(
 
 content = html.Div(children=dash.page_container, id="page-content")
 
-app.layout = html.Div([dcc.Location(id="url"), navbar, content])
+footer_style = {
+    "border-top": "1px solid #111",  # Add a border at the top
+    "text-align": "center",  # Center-align the text
+    "padding": "10px",  # Add some padding for spacing
+    "font-size": "0.7rem",
+}
+
+footer = html.Footer(["© ", html.A("Materials Virtual Lab", href="http://materialsvirtuallab.org")], style=footer_style)
+
+app.index_string = """<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-0P0W73YK15"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-0P0W73YK15');
+        </script>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>"""
+
+app.layout = html.Div([dcc.Location(id="url"), navbar, content, footer])
+
 
 server = app.server
 
