@@ -158,7 +158,7 @@ def display_data(
     output.append(
         dbc.Row(
             [
-                html.H4("Property distribution of dataset", className="section-title"),
+                html.H4("Property Distribution", className="section-title"),
                 dbc.Col(
                     dcc.Graph(
                         id="coh_energy_hist",
