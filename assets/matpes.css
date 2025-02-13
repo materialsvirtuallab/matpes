@@ -4,7 +4,6 @@
 
 .section-title {
     text-align: center;
-    color: white;
 }
 
 #header-logo {
@@ -13,13 +12,11 @@
     float: right;
 }
 
-
-.navlink {
-    font-size: 1.2rem;
+#download-brand {
+    font-size: 1rem;
 }
 
-
-h4 {
-    font-weight: bold;
-    text-decoration: underline;
+.nav-link-item {
+    font-size: 1.2rem;
+    color: white;
 }

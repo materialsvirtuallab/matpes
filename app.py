@@ -9,40 +9,72 @@ import dash_bootstrap_components as dbc
 import plotly.io as pio
 from dash import Dash, dcc, html
 
-pio.templates.default = "plotly_dark"
+pio.templates.default = "plotly"
 app = Dash(
     "MatPES",
     use_pages=True,
-    external_stylesheets=[dbc.themes.DARKLY],
+    external_stylesheets=[dbc.themes.LITERA],
     title="MatPES",
 )
 
-navbar = dbc.NavbarSimple(
-    children=[
-        dbc.Nav(
-            [
-                dbc.NavbarBrand("MatPES.ai"),
-                dbc.NavItem(dbc.NavLink("Home", href="/", active="exact")),
-                dbc.NavItem(dbc.NavLink("Explorer", href="/explorer", active="exact")),
-                dbc.NavItem(dbc.NavLink("Dataset", href="/dataset", active="exact")),
-                dbc.NavItem(dbc.NavLink("Benchmarks", href="/benchmarks", active="exact")),
-                html.Img(src=dash.get_asset_url("logo.svg"), alt="MatPES", id="header-logo"),
-                dbc.NavItem(
-                    dbc.ButtonGroup(
-                        [
-                            dbc.Button("PBE", href="matpes_pbe.json.gz", className="ms-2", color="danger"),
-                            dbc.Button("r2SCAN", href="matpes_r2scan.json.gz", color="warning"),
-                        ],
-                        className="me-1",
-                    ),
-                ),
-            ],
+download_bar = dbc.Row(
+    [
+        dbc.Col(
+            dbc.NavbarBrand("Download", id="download-brand"),
+        ),
+        dbc.Col(
+            dbc.Button("PBE", href="matpes_pbe.json.gz", className="ms-2", color="danger"),
+        ),
+        dbc.Col(
+            dbc.Button("r2SCAN", href="matpes_r2scan.json.gz", className="ms-2", color="warning"),
+            width="auto",
         ),
     ],
+    className="g-0 ms-auto flex-nowrap mt-3 mt-md-0",
+    align="center",
+)
+
+navbar = dbc.Navbar(
+    dbc.Container(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.Img(src=dash.get_asset_url("logo.svg"), alt="MatPES", id="header-logo"),
+                    ),
+                    dbc.Col(html.A(dbc.NavbarBrand("MatPES.ai", className="ms-2"), href="/")),
+                ],
+                align="center",
+                className="g-0",
+            ),
+            dbc.Collapse(
+                dbc.Row(
+                    [dbc.Col(dbc.NavLink("Home", href="/", className="ms-2 nav-link-item", active="exact"))]
+                    + [
+                        dbc.Col(
+                            dbc.NavLink(name, href=f"/{name.lower()}", className="ms-2 nav-link-item", active="exact")
+                        )
+                        for name in ("Explorer", "Dataset", "Benchmarks")
+                    ],
+                    align="center",
+                    className="g-0",
+                ),
+                is_open=False,
+                navbar=True,
+            ),
+            dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
+            dbc.Collapse(
+                download_bar,
+                id="navbar-collapse",
+                is_open=False,
+                navbar=True,
+            ),
+        ]
+    ),
     color="primary",
     dark=True,
-    links_left=True,
 )
+
 
 content = html.Div(children=dash.page_container, id="page-content")
 
