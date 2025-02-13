@@ -14,9 +14,14 @@
 
 #download-brand {
     font-size: 1rem;
+    color: #eee;
 }
 
 .nav-link-item {
     font-size: 1.2rem;
     color: white;
+}
+
+.download-button {
+    width: 6rem;
 }

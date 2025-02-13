@@ -23,14 +23,26 @@ download_bar = dbc.Row(
             dbc.NavbarBrand("Download", id="download-brand"),
         ),
         dbc.Col(
-            dbc.Button("PBE", href="matpes_pbe.json.gz", className="ms-2", color="danger"),
+            dbc.Button(
+                "PBE",
+                href="matpes_pbe.json.gz",
+                class_name="ms-2 download-button",
+                color="danger",
+                external_link=True,
+            ),
         ),
         dbc.Col(
-            dbc.Button("r2SCAN", href="matpes_r2scan.json.gz", className="ms-2", color="warning"),
+            dbc.Button(
+                "r2SCAN",
+                href="matpes_r2scan.json.gz",
+                class_name="ms-2 download-button",
+                color="warning",
+                external_link=True,
+            ),
             width="auto",
         ),
     ],
-    className="g-0 ms-auto flex-nowrap mt-3 mt-md-0",
+    class_name="g-0 ms-auto flex-nowrap mt-3 mt-md-0",
     align="center",
 )
 
@@ -42,22 +54,22 @@ navbar = dbc.Navbar(
                     dbc.Col(
                         html.Img(src=dash.get_asset_url("logo.svg"), alt="MatPES", id="header-logo"),
                     ),
-                    dbc.Col(html.A(dbc.NavbarBrand("MatPES.ai", className="ms-2"), href="/")),
+                    dbc.Col(html.A(dbc.NavbarBrand("MatPES.ai", class_name="ms-2"), href="/")),
                 ],
                 align="center",
-                className="g-0",
+                class_name="g-0",
             ),
             dbc.Collapse(
                 dbc.Row(
-                    [dbc.Col(dbc.NavLink("Home", href="/", className="ms-2 nav-link-item", active="exact"))]
+                    [dbc.Col(dbc.NavLink("Home", href="/", class_name="ms-2 nav-link-item", active="exact"))]
                     + [
                         dbc.Col(
-                            dbc.NavLink(name, href=f"/{name.lower()}", className="ms-2 nav-link-item", active="exact")
+                            dbc.NavLink(name, href=f"/{name.lower()}", class_name="ms-2 nav-link-item", active="exact")
                         )
                         for name in ("Explorer", "Dataset", "Benchmarks")
                     ],
                     align="center",
-                    className="g-0",
+                    class_name="g-0",
                 ),
                 is_open=False,
                 navbar=True,
