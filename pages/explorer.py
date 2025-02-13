@@ -143,7 +143,7 @@ def display_data(
     output = [
         dbc.Row(
             [
-                html.H4(f"Elemental Heatmap of {nstructures:,} Structures in Dataset", className="section-title"),
+                html.H4(f"Elemental Heatmap of {nstructures:,} Structures", className="section-title"),
                 dbc.Col(
                     html.Div(
                         [dcc.Graph(id="ptheatmap", figure=pt_heatmap(element_counts, label="Count", log=True))],

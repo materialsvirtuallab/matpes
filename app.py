@@ -21,16 +21,16 @@ navbar = dbc.NavbarSimple(
     children=[
         dbc.Nav(
             [
-                html.Img(src=dash.get_asset_url("logo.svg"), alt="MatPES", id="header-logo"),
-                dbc.NavbarBrand("MatPES.ai", className="ms-2"),
+                dbc.NavbarBrand("MatPES.ai"),
                 dbc.NavItem(dbc.NavLink("Home", href="/", active="exact")),
                 dbc.NavItem(dbc.NavLink("Explorer", href="/explorer", active="exact")),
                 dbc.NavItem(dbc.NavLink("Dataset", href="/dataset", active="exact")),
                 dbc.NavItem(dbc.NavLink("Benchmarks", href="/benchmarks", active="exact")),
+                html.Img(src=dash.get_asset_url("logo.svg"), alt="MatPES", id="header-logo"),
                 dbc.NavItem(
                     dbc.ButtonGroup(
                         [
-                            dbc.Button("PBE", href="matpes_pbe.json.gz", color="danger"),
+                            dbc.Button("PBE", href="matpes_pbe.json.gz", className="ms-2", color="danger"),
                             dbc.Button("r2SCAN", href="matpes_r2scan.json.gz", color="warning"),
                         ],
                         className="me-1",

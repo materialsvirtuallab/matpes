@@ -1,7 +1,7 @@
 [![GitHub license](https://img.shields.io/github/license/materialsvirtuallab/matpes)](https://github.com/materialsvirtuallab/matpes/blob/main/LICENSE)
 [![Linting](https://github.com/materialsvirtuallab/matpes/workflows/Linting/badge.svg)](https://github.com/materialsvirtuallab/matpes/workflows/Linting/badge.svg)
 
-#### Welcome
+#### Introduction
 
 Welcome to MatPES, a foundational potential energy surface (PES) dataset for materials. This is a collaboration between
 the [Materials Virtual Lab] and the [Materials Project].

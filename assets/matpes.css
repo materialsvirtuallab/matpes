@@ -4,6 +4,7 @@
 
 .section-title {
     text-align: center;
+    color: white;
 }
 
 #header-logo {
@@ -15,4 +16,10 @@
 
 .navlink {
     font-size: 1.2rem;
+}
+
+
+h4 {
+    font-weight: bold;
+    text-decoration: underline;
 }
