@@ -9,7 +9,7 @@ import dash_bootstrap_components as dbc
 import plotly.io as pio
 from dash import Dash, Input, Output, State, dcc, html
 
-pio.templates.default = "plotly"
+pio.templates.default = "plotly_white"
 app = Dash(
     "MatPES",
     use_pages=True,
@@ -63,11 +63,11 @@ navbar = dbc.Navbar(
             dbc.Collapse(
                 [
                     dbc.Row(
-                        [dbc.Col(dbc.NavLink("Home", href="/", class_name="ms-2 nav-link-item", active="exact"))]
+                        [dbc.Col(dbc.NavLink("Home", href="/", class_name="ms-4 nav-link-item", active="exact"))]
                         + [
                             dbc.Col(
                                 dbc.NavLink(
-                                    name, href=f"/{name.lower()}", class_name="ms-2 nav-link-item", active="exact"
+                                    name, href=f"/{name.lower()}", class_name="ms-4 nav-link-item", active="exact"
                                 )
                             )
                             for name in ("Explorer", "Dataset", "Benchmarks")
