@@ -7,7 +7,7 @@ import argparse
 import dash
 import dash_bootstrap_components as dbc
 import plotly.io as pio
-from dash import Dash, dcc, html
+from dash import Dash, Input, Output, State, dcc, html
 
 pio.templates.default = "plotly"
 app = Dash(
@@ -59,24 +59,24 @@ navbar = dbc.Navbar(
                 align="center",
                 class_name="g-0",
             ),
-            dbc.Collapse(
-                dbc.Row(
-                    [dbc.Col(dbc.NavLink("Home", href="/", class_name="ms-2 nav-link-item", active="exact"))]
-                    + [
-                        dbc.Col(
-                            dbc.NavLink(name, href=f"/{name.lower()}", class_name="ms-2 nav-link-item", active="exact")
-                        )
-                        for name in ("Explorer", "Dataset", "Benchmarks")
-                    ],
-                    align="center",
-                    class_name="g-0",
-                ),
-                is_open=False,
-                navbar=True,
-            ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
             dbc.Collapse(
-                download_bar,
+                [
+                    dbc.Row(
+                        [dbc.Col(dbc.NavLink("Home", href="/", class_name="ms-2 nav-link-item", active="exact"))]
+                        + [
+                            dbc.Col(
+                                dbc.NavLink(
+                                    name, href=f"/{name.lower()}", class_name="ms-2 nav-link-item", active="exact"
+                                )
+                            )
+                            for name in ("Explorer", "Dataset", "Benchmarks")
+                        ],
+                        align="center",
+                        class_name="g-0",
+                    ),
+                    download_bar,
+                ],
                 id="navbar-collapse",
                 is_open=False,
                 navbar=True,
@@ -130,6 +130,18 @@ app.layout = html.Div([dcc.Location(id="url"), navbar, content, footer])
 
 
 server = app.server
+
+
+@app.callback(
+    Output("navbar-collapse", "is_open"),
+    [Input("navbar-toggler", "n_clicks")],
+    [State("navbar-collapse", "is_open")],
+)
+def toggle_navbar_collapse(n, is_open):
+    """Toggle navbar collapse on small screens."""
+    if n:
+        return not is_open
+    return is_open
 
 
 def main():
