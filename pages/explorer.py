@@ -290,7 +290,7 @@ layout = dbc.Container(
         ),
         html.Div(
             [
-                html.P("Help:"),
+                html.Div("Help:"),
                 html.Ul(
                     [
                         html.Li("Clicking on the PT adds an element to the element filter."),
