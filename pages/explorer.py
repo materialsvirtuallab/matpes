@@ -155,7 +155,7 @@ def display_data(
                             df,
                             x="cohesive_energy_per_atom",
                             labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
-                            nbins=30,
+                            nbins=50,
                         ),
                     ),
                     width=12,
