@@ -31,8 +31,6 @@ def get_data(
     chemsys_filter: str,
     min_coh_e_filter,
     max_coh_e_filter,
-    min_form_e_filter,
-    max_form_e_filter,
 ) -> pd.DataFrame:
     """
     Filter data.
@@ -43,8 +41,6 @@ def get_data(
         chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
         min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
         max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
-        min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
-        max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
 
     Returns:
         pd.DataFrame: Filtered data.
@@ -57,17 +53,13 @@ def get_data(
         df = df[df["chemsys"] == sorted_chemsys]
 
     df = df[min_coh_e_filter <= df["cohesive_energy_per_atom"]]
-    df = df[df["cohesive_energy_per_atom"] <= max_coh_e_filter]
-    df = df[min_form_e_filter <= df["formation_energy_per_atom"]]
-    return df[df["formation_energy_per_atom"] <= max_form_e_filter]
+    return df[df["cohesive_energy_per_atom"] <= max_coh_e_filter]
 
 
 @callback(
     [
         Output("min_coh_e_filter", "value"),
         Output("max_coh_e_filter", "value"),
-        Output("min_form_e_filter", "value"),
-        Output("max_form_e_filter", "value"),
     ],
     [
         Input("functional", "value"),
@@ -81,8 +73,7 @@ def update_sliders(functional):
     """
     df = pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
     coh_energy = df["cohesive_energy_per_atom"]
-    form_energy = df["formation_energy_per_atom"]
-    return coh_energy.min(), coh_energy.max(), form_energy.min(), form_energy.max()
+    return coh_energy.min(), coh_energy.max()
 
 
 @callback(
@@ -97,8 +88,6 @@ def update_sliders(functional):
         Input("chemsys_filter", "value"),
         Input("min_coh_e_filter", "value"),
         Input("max_coh_e_filter", "value"),
-        Input("min_form_e_filter", "value"),
-        Input("max_form_e_filter", "value"),
         Input("display_options", "value"),
     ],
 )
@@ -108,8 +97,6 @@ def display_data(
     chemsys_filter,
     min_coh_e_filter,
     max_coh_e_filter,
-    min_form_e_filter,
-    max_form_e_filter,
     display_options,
 ):
     """
@@ -125,8 +112,6 @@ def display_data(
         chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
         min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
         max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
-        min_form_e_filter (float): Minimum formation energy per atom to include in the dataset.
-        max_form_e_filter (float): Maximum formation energy per atom to include in the dataset.
         display_options (list of str): A list of display options.
 
     Returns:
@@ -136,7 +121,11 @@ def display_data(
             - data table.
     """
     df = get_data(
-        functional, el_filter, chemsys_filter, min_coh_e_filter, max_coh_e_filter, min_form_e_filter, max_form_e_filter
+        functional,
+        el_filter,
+        chemsys_filter,
+        min_coh_e_filter,
+        max_coh_e_filter,
     )
     element_counts = collections.Counter(itertools.chain(*df["elements"]))
     nstructures = len(df)
@@ -169,19 +158,7 @@ def display_data(
                             nbins=30,
                         ),
                     ),
-                    width=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        id="form_energy_hist",
-                        figure=px.histogram(
-                            df,
-                            x="formation_energy_per_atom",
-                            labels={"formation_energy_per_atom": "Formation Energy per Atom (eV/atom)"},
-                            nbins=30,
-                        ),
-                    ),
-                    width=6,
+                    width=12,
                 ),
                 dbc.Col(dcc.Graph(id="nsites_hist", figure=px.histogram(df, x="nsites")), width=6),
                 dbc.Col(
@@ -203,7 +180,7 @@ def display_data(
                         "type": "numeric",
                         "format": Format(precision=3, scheme=Scheme.fixed),
                     }
-                    if i in ["energy", "cohesive_energy_per_atom", "formation_energy_per_atom"]
+                    if i in ["energy", "cohesive_energy_per_atom"]
                     else {
                         "name": i,
                         "id": i,
@@ -294,14 +271,6 @@ layout = dbc.Container(
                     ],
                     width=4,
                 ),
-                dbc.Col(
-                    [
-                        html.Div("Form. Energy (Min, Max)"),
-                        dcc.Input(0, type="number", id="min_form_e_filter"),
-                        dcc.Input(10, type="number", id="max_form_e_filter"),
-                    ],
-                    width=4,
-                ),
             ]
         ),
         dbc.Row(
@@ -341,6 +310,5 @@ layout = dbc.Container(
         html.Div([html.H1("Loading...")], id="pt-div"),
         html.Div(id="stats-div"),
         html.Div(id="data-div"),
-        # dbc.Row([DataTable(page_size=25, id="data-table")]),
     ]
 )

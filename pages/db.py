@@ -52,10 +52,10 @@ class MatPESDB:
             "energy",
             "chemsys",
             "cohesive_energy_per_atom",
-            "formation_energy_per_atom",
+            # "formation_energy_per_atom",
             "nsites",
             "nelements",
-            "bandgap",
+            # "bandgap",
         ]
         return pd.DataFrame(
             collection.find(
