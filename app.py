@@ -25,7 +25,7 @@ download_bar = dbc.Row(
         dbc.Col(
             dbc.Button(
                 "PBE",
-                href="matpes_pbe.json.gz",
+                href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-20240214-PBE.zip",
                 class_name="ms-2 download-button",
                 color="danger",
                 external_link=True,
@@ -34,7 +34,7 @@ download_bar = dbc.Row(
         dbc.Col(
             dbc.Button(
                 "r2SCAN",
-                href="matpes_r2scan.json.gz",
+                href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-20240214-r2SCAN.zip",
                 class_name="ms-2 download-button",
                 color="warning",
                 external_link=True,
