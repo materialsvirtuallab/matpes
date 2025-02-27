@@ -127,7 +127,7 @@ def display_data(
         min_coh_e_filter,
         max_coh_e_filter,
     )
-    element_counts = collections.Counter(itertools.chain(*df["elements"]))
+    element_counts = collections.Counter(itertools.chain.from_iterable(df["elements"]))
     nstructures = len(df)
     output = [
         dbc.Row(
