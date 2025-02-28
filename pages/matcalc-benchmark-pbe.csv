@@ -1,0 +1,8 @@
+Dataset,Architecture,Distance Mean,E_form MAE (meV/atom),log(K_VRH) MAE,log(G_VRH) MAE,C_V MAE (J/mol/K),f_UMLIP/f_DFT,log(sigma) MAE,T_1/2^term (K),t_step (ms/step/atom)
+MatPES,M3GNet,0.41,108,0.35,0.49,28.07,0.97,,1636,1.96
+MatPES,CHGNet,0.43,79,0.32,0.42,22.88,0.91,,,4.92
+MatPES,TensorNet,0.37,80,0.27,0.38,13.58,0.93,0.36,1852,3.01
+MPF,M3GNet,0.59,98,0.3,1,30.87,0.77,,1136,2.09
+MPF,TensorNet,0.58,103,0.32,0.86,18.64,0.75,1.45,1348,1.8
+MPtrj,CHGNet,0.51,92,0.25,0.74,24.04,0.83,,,4.4
+OMat24,TensorNet,0.31,53,0.24,0.38,6.06,0.96,0.34,1430,3.12

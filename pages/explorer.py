@@ -11,8 +11,6 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 from dash import Input, Output, State, callback, dcc, html
-from dash.dash_table import DataTable
-from dash.dash_table.Format import Format, Scheme
 from pymatgen.core import Element
 
 from .utils import pt_heatmap
@@ -80,7 +78,7 @@ def update_sliders(functional):
     [
         Output("pt-div", "children"),
         Output("stats-div", "children"),
-        Output("data-div", "children"),
+        # Output("data-div", "children"),
     ],
     [
         Input("functional", "value"),
@@ -88,7 +86,7 @@ def update_sliders(functional):
         Input("chemsys_filter", "value"),
         Input("min_coh_e_filter", "value"),
         Input("max_coh_e_filter", "value"),
-        Input("display_options", "value"),
+        # Input("display_options", "value"),
     ],
 )
 def display_data(
@@ -97,7 +95,7 @@ def display_data(
     chemsys_filter,
     min_coh_e_filter,
     max_coh_e_filter,
-    display_options,
+    # display_options,
 ):
     """
     Update graphs and data tables based on user-provided filters and criteria.
@@ -112,13 +110,13 @@ def display_data(
         chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
         min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
         max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
-        display_options (list of str): A list of display options.
+        # display_options (list of str): A list of display options.
 
     Returns:
         tuple:
             - heatmap_figure (plotly.graph_objects.Figure): A heatmap of element counts, displayed in log scale.
             - histograms of formation energies, cohesive energies, nsites, nlements.
-            - data table.
+            # - data table.
     """
     df = get_data(
         functional,
@@ -143,7 +141,39 @@ def display_data(
             ]
         )
     ]
-    table_df = df.drop("elements", axis=1)
+    # table_df = df.drop("elements", axis=1)
+
+    ecoh_fig = px.histogram(
+        df,
+        x="cohesive_energy_per_atom",
+        labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
+        nbins=100,
+        color_discrete_sequence=px.colors.qualitative.Plotly,
+    )
+    forces_fig = px.histogram(
+        itertools.chain.from_iterable(df["abs_forces"]),
+        labels={"value": "Absolute Forces (eV/A)"},
+        nbins=100,
+        color_discrete_sequence=px.colors.qualitative.Plotly[1:],
+    )
+    forces_fig.update_yaxes(title_text="Count", type="log")
+    forces_fig.update_layout(showlegend=False)
+
+    nsites_fig = px.histogram(
+        df,
+        x="nsites",
+        color_discrete_sequence=px.colors.qualitative.Plotly[1:],
+    )
+
+    nsites_fig.update_yaxes(title_text="Count", type="log")
+    nsites_fig.update_layout(showlegend=False)
+
+    nelements_fig = px.histogram(
+        df,
+        x="nelements",
+        color_discrete_sequence=px.colors.qualitative.Plotly,
+    )
+
     output.append(
         dbc.Row(
             [
@@ -151,47 +181,52 @@ def display_data(
                 dbc.Col(
                     dcc.Graph(
                         id="coh_energy_hist",
-                        figure=px.histogram(
-                            df,
-                            x="cohesive_energy_per_atom",
-                            labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
-                            nbins=50,
-                        ),
+                        figure=ecoh_fig,
                     ),
-                    width=12,
+                    width=6,
                 ),
-                dbc.Col(dcc.Graph(id="nsites_hist", figure=px.histogram(df, x="nsites")), width=6),
                 dbc.Col(
-                    dcc.Graph(id="nelements_hist", figure=px.histogram(df, x="nelements")),
+                    dcc.Graph(id="abs_forces_hist", figure=forces_fig),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(id="nsites_hist", figure=nsites_fig),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(
+                        id="nelements_hist",
+                        figure=nelements_fig,
+                    ),
                     width=6,
                 ),
             ]
         )
     )
-    if display_options and "Show Table" in display_options:
-        output.append(
-            DataTable(
-                page_size=25,
-                id="data-table",
-                columns=[
-                    {
-                        "name": i,
-                        "id": i,
-                        "type": "numeric",
-                        "format": Format(precision=3, scheme=Scheme.fixed),
-                    }
-                    if i in ["energy", "cohesive_energy_per_atom"]
-                    else {
-                        "name": i,
-                        "id": i,
-                    }
-                    for i in table_df.columns
-                ],
-                data=table_df.to_dict("records"),
-            )
-        )
-    else:
-        output.append("")
+    # if display_options and "Show Table" in display_options:
+    #     output.append(
+    #         DataTable(
+    #             page_size=25,
+    #             id="data-table",
+    #             columns=[
+    #                 {
+    #                     "name": i,
+    #                     "id": i,
+    #                     "type": "numeric",
+    #                     "format": Format(precision=3, scheme=Scheme.fixed),
+    #                 }
+    #                 if i in ["energy", "cohesive_energy_per_atom"]
+    #                 else {
+    #                     "name": i,
+    #                     "id": i,
+    #                 }
+    #                 for i in table_df.columns
+    #             ],
+    #             data=table_df.to_dict("records"),
+    #         )
+    #     )
+    # else:
+    #     output.append("")
     return output
 
 
@@ -269,25 +304,25 @@ layout = dbc.Container(
                         dcc.Input(0, type="number", id="min_coh_e_filter"),
                         dcc.Input(10, type="number", id="max_coh_e_filter"),
                     ],
-                    width=4,
+                    width=6,
                 ),
             ]
         ),
-        dbc.Row(
-            [
-                html.Div("Options (note: enabling these will slow rendering)"),
-            ],
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        dcc.Checklist(options=["Show Table"], id="display_options"),
-                    ],
-                    width=4,
-                ),
-            ]
-        ),
+        # dbc.Row(
+        #     [
+        #         html.Div("Options (note: enabling these will slow rendering)"),
+        #     ],
+        # ),
+        # dbc.Row(
+        #     [
+        #         dbc.Col(
+        #             [
+        #                 dcc.Checklist(options=["Show Table"], id="display_options"),
+        #             ],
+        #             width=4,
+        #         ),
+        #     ]
+        # ),
         html.Div(
             [
                 html.Div("Help:"),
@@ -309,6 +344,6 @@ layout = dbc.Container(
         ),
         html.Div([html.H1("Loading...")], id="pt-div"),
         html.Div(id="stats-div"),
-        html.Div(id="data-div"),
+        # html.Div(id="data-div"),
     ]
 )
