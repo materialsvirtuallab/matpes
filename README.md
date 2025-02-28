@@ -45,9 +45,16 @@ The aims of MatPES are three-fold:
 ##### Download
 
 You can download the entire MatPES dataset at [MatPES.ai](https://matpes.ai).
-(note: links are not functional until the publication).
+(note: links are not functional until publication).
 
-We have also provided a simple tool to extract subsets of the data, e.g., by elements or chemical system.
+We have also provided a simple tool to extract subsets of the data, e.g., by elements or chemical system, via the
+`matpes` package.
+
+```shell
+pip install matpes
+```
+
+Example code
 
 ##### Exploring
 
