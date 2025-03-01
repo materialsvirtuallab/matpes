@@ -45,19 +45,41 @@ package. We will release the equilibrium and near-equilibrium benchmark datasets
 [MatCalc repository](https://github.com/materialsvirtuallab/matcalc) together with benchmarking tools.
 """
 
-LEGEND = """
-Legend:
-- Formation energy per atom E_form: meV/atom
-- Bulk modulus K_VRH: GPa
-- Shear modulus G_VRH: GPa
-- Constant volume heat capacity C_V: J/mol/K
-- Ionic conductivity sigma: mS/cm
-- Median termination temperature T_1/2^term: K
-- Time per MD timestep t_step: ms/step/atom
+LEGEND = r"""
+Matcalc-Benchmark metrics can be divided into three categories: equilibrium, near-equilibrium, and molecular dynamics
+properties.
+
+| Task                                     | Symbol| Units | Functional   | Test Source   | Number |
+|------------------------------------------|-------|-------|--------------|--------------------|--------|
+| **Equilibrium**                          |       |       |              |                    |        |
+| Structural similarity                    | \|v\| | -     |PBE           | WBM[^1]  | 1, 000  |
+|                                          |       | - |  RRSCAN      | GNoME[^2] | 1,000  |
+| Formation energy per atom | E_form       | meV/atom | PBE         | WBM                           | 1,000  |
+|                                          | meV/atom | RRSCAN      | GNoME                           | 1,000  |
+| **Near-equilibrium**                     |             |                                          |        |
+| Bulk modulus | K_VRH    | GPa | PBE         | [MP]                   | 3,959  |
+| Shear modulus | G_VRH   | GPa| PBE         | [MP]                                       | 3,959  |
+| Constant volume heat capacity | C_V |J/mol/K| PBE         | Alexandria[^3]       | 1,170  |
+| Off-equilibrium force | \|F_i\| |--| PBE         | WBM high energy states[^4] | 979    |
+| **Molecular dynamics**                   |             |                                          |        |
+| Median termination temp | T_{1/2}^term | K |  PBE & RRSCAN | [MVL]                              | 172    |
+| Ionic conductivity | \sigma        | mS/cm | PBE         | [MVL]                                | 698    |
+| Time per atom per time step | t_step|  ms/step/atom | PBE & RRSCAN | [MVL]                                | 1      |
+
+The time per atom per time step (t_step) was computed using MD simulations conducted on a single Intel Xeon Gold core
+for a system of 64 Si atoms under ambient conditions (300 K and 1 bar) over 50 ps with a 1 fs time step.
+
+[^1]: Wang, H.-C.; Botti, S.; Marques, M. A. L. Predicting stable crystalline compounds using chemical similarity. npj Computational Materials 2021, 7, 1–9.
+[^2]: Merchant, A.; Batzner, S.; Schoenholz, S. S.; Aykol, M.; Cheon, G.; Cubuk, E. D. Scaling deep learning for materials discovery. Nature 2023, 624, 80–85.
+[^3] Loew, A.; Sun, D.; Wang, H.-C.; Botti, S.; Marques, M. A. L. Universa Machine Learning Interatomic Potentials are Ready for Phonons. 2024; Arxiv: 2412.16551.
+[^4]: Deng, B.; Choi, Y.; Zhong, P.; Riebesell, J.; Anand, S.; Li, Z.; Jun, K.; Persson, K. A.; Ceder, G. Overcoming systematic softening in universal machine learning interatomic potentials by fine-tuning. 2024; Arxiv:2405.07105.
+
+[MP]: http://materialsproject.org
+[MVL]: http://materialsvirtuallab.org
 """
 
 
-def get_best(df, i):
+def get_sorted(df, i):
     """
     Determine the best value from a specified column in a DataFrame.
 
@@ -70,12 +92,11 @@ def get_best(df, i):
         i (str): The name of the column to determine the best value from.
 
     Returns:
-        float: The best value from the specified column, determined either as the
-        maximum or minimum value.
+        Sorted list of values from the specified column.
     """
     if i in ("f_UMLIP/f_DFT", "T_1/2^term (K)"):
-        return df[i].max()
-    return df[i].min()
+        return sorted(df[i].dropna(), reverse=True)
+    return sorted(df[i].dropna())
 
 
 def create_graphs(df):
@@ -115,6 +136,9 @@ def create_graphs(df):
     return dbc.Row(cols)
 
 
+table_styles = []
+
+
 layout = dbc.Container(
     [
         dbc.Col(
@@ -130,14 +154,36 @@ layout = dbc.Container(
                 data=pbe_df.to_dict("records"),
                 style_data_conditional=[
                     {
+                        "if": {"row_index": "odd"},
+                        "backgroundColor": "rgb(220, 220, 220)",
+                    }
+                ]
+                + [
+                    {
                         "if": {
-                            "filter_query": f"{{{i}}} = {get_best(pbe_df, i)}",
+                            "filter_query": f"{{{i}}} = {get_sorted(pbe_df, i)[0]}",
                             "column_id": i,
                         },
                         "font-weight": "bold",
+                        "color": "white",
+                        "background-color": "green",
+                    }
+                    for i in pbe_df.columns[2:]
+                ]
+                + [
+                    {
+                        "if": {
+                            "filter_query": f"{{{i}}} = {get_sorted(pbe_df, i)[1]}",
+                            "column_id": i,
+                        },
+                        "font-weight": "bold",
+                        "color": "white",
+                        "background-color": "#50C878",
                     }
                     for i in pbe_df.columns[2:]
                 ],
+                style_header={"backgroundColor": "rgb(210, 210, 210)", "color": "black", "fontWeight": "bold"},
+                sort_action="native",
             ),
             width=12,
         ),
@@ -154,17 +200,40 @@ layout = dbc.Container(
                 data=r2scan_df.to_dict("records"),
                 style_data_conditional=[
                     {
+                        "if": {"row_index": "odd"},
+                        "backgroundColor": "rgb(220, 220, 220)",
+                    }
+                ]
+                + [
+                    {
                         "if": {
-                            "filter_query": f"{{{i}}} = {get_best(r2scan_df, i)}",
+                            "filter_query": f"{{{i}}} = {get_sorted(r2scan_df, i)[0]}",
                             "column_id": i,
                         },
                         "font-weight": "bold",
+                        "color": "white",
+                        "background-color": "green",
+                    }
+                    for i in r2scan_df.columns[2:]
+                ]
+                + [
+                    {
+                        "if": {
+                            "filter_query": f"{{{i}}} = {get_sorted(r2scan_df, i)[1]}",
+                            "column_id": i,
+                        },
+                        "font-weight": "bold",
+                        "color": "white",
+                        "background-color": "#50C878",
                     }
                     for i in r2scan_df.columns[2:]
                 ],
+                style_header={"backgroundColor": "rgb(210, 210, 210)", "color": "black", "fontWeight": "bold"},
+                sort_action="native",
             ),
             width=6,
         ),
+        dbc.Col(html.H4("Overview of Matcalc-Benchmark Metrics"), width=12, style={"padding-top": "30px"}),
         dbc.Col(
             html.Div([dcc.Markdown(LEGEND)]),
             width=12,
