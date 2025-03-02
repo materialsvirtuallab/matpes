@@ -38,7 +38,7 @@ def download(args):
     ------
     None
     """
-    get_data(functional=args.functional)
+    get_data(functional=args.functional, return_json=False)
     print(f">>> Successfully downloaded data for {args.functional}.")
 
 

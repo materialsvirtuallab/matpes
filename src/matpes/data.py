@@ -8,11 +8,12 @@ import os
 from typing import Literal
 
 import requests
+from tqdm import tqdm
 
 from matpes import MATPES_SRC
 
 
-def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version="20240214"):
+def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version: str = "20240214", return_json: bool = True):
     """
     Downloads and reads a JSON dataset file if not already present locally. The file
     is expected to be hosted at a remote location, and the function will use the
@@ -24,6 +25,7 @@ def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version="20240214"):
         functional (str): The functional type used for labeling the dataset.
                           Defaults to "PBE".
         version (str): The version string for the dataset. Defaults to "20240214".
+        return_json (bool): Whether to return JSON or not. Defaults to True.
 
     Returns:
         dict: A dictionary representation of the JSON dataset contents.
@@ -36,12 +38,23 @@ def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version="20240214"):
 
     if not os.path.exists(fname):
         url = f"{MATPES_SRC}/{fname}"
+        print(f"Downloading from {url}...")
+
+        # Streaming, so we can iterate over the response.
         response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            with open(fname, "wb") as file:
-                for chunk in response.iter_content(chunk_size=8192):
-                    file.write(chunk)
-        else:
+
+        # Sizes in bytes.
+        total_size = int(response.headers.get("content-length", 0))
+        block_size = 1024
+
+        with tqdm(total=total_size, unit="B", unit_scale=True) as progress_bar, open(fname, "wb") as file:
+            for data in response.iter_content(block_size):
+                progress_bar.update(len(data))
+                file.write(data)
+
+        if total_size != 0 and progress_bar.n != total_size:
             raise RuntimeError(f"Failed to download {url}. Status code: {response.status_code}")
-    with gzip.open(fname, "r") as f:
-        return json.load(f)
+    if return_json:
+        with gzip.open(fname, "r") as f:
+            return json.load(f)
+    return None
