@@ -94,7 +94,7 @@ footer_style = {
     "border-top": "1px solid #111",  # Add a border at the top
     "text-align": "center",  # Center-align the text
     "padding": "10px",  # Add some padding for spacing
-    "font-size": "0.7rem",
+    "font-size": "0.8rem",
 }
 
 footer = html.Footer(["© ", html.A("Materials Virtual Lab", href="http://materialsvirtuallab.org")], style=footer_style)

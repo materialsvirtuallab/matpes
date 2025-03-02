@@ -290,7 +290,7 @@ layout = dbc.Container(
                 ),
                 dbc.Col(
                     [
-                        html.Div("Chemsys"),
+                        html.Div("Chemical System"),
                         dcc.Input(
                             id="chemsys_filter",
                             placeholder="e.g., Li-Fe-O",
@@ -304,8 +304,8 @@ layout = dbc.Container(
             [
                 html.Div(
                     "By default, statistics of the entire dataset are shown. Filtering by chemical system will "
-                    "also provide a table showing basic information about the formulas and properties. You can click on"
-                    "the periodic table cell to set the chemical system as well. Filtering is done on the fly."
+                    "also display a table with basic information about the entries in that system. You can click on"
+                    " the cells in the periodic table to set the chemical system as well. Filtering is done on the fly."
                 ),
             ],
             width=12,

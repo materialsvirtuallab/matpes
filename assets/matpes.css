@@ -3,6 +3,7 @@
 }
 
 .section-title {
+    padding-top: 1rem;
     text-align: center;
 }
 
@@ -31,8 +32,7 @@
 
 }
 
-#customers {
-  font-family: Arial, Helvetica, sans-serif;
+#matcalc-benchmark-legends {
   border-collapse: collapse;
   width: 100%;
 }
