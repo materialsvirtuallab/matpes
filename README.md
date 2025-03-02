@@ -12,8 +12,8 @@ using an ab initio method such as density functional theory (DFT).
 This enables the simulation of materials at much larger length and longer time scales at near-ab initio accuracy.
 
 One of the most exciting developments in the past few years is the emergence of universal MLIPs (uMLIPs, aka materials
-foundational models), with near-complete coverage of the periodic table of elements. Examples include M3GNet,[^1]
-CHGNet,[^2] MACE,[^3] to name a few. uMLIPs have broad applications, including materials discovery and the
+foundational models), with near-complete coverage of the periodic table of elements. Examples include [M3GNet],
+[CHGNet], [MACE], to name a few. uMLIPs have broad applications, including materials discovery and the
 prediction of PES-derived properties such as elastic constants, phonon dispersion, etc.
 
 However, most current uMLIPs were trained on DFT relaxation calculations from the [Materials Project].
@@ -33,9 +33,9 @@ The aims of MatPES are three-fold:
 
 1. **Accuracy.** The data in MatPES was computed using static DFT calculations with stringent converegence criteria.
    Please refer to the `MatPESStaticSet` in [pymatgen] for details.
-2. **Diversity.** The structures in MatPES are robustly sampled from 300K MD simulations using the original M3GNet
-   uMLIP.[^1] MatPES uses a modified version of DImensionality-Reduced Encoded Clusters with sTratified (DIRECT)
-   sampling to ensure comprehensive coverage of structures and local environments.[^4]
+2. **Diversity.** The structures in MatPES are robustly sampled from 300K MD simulations using the original [M3GNet]
+   uMLIP. MatPES uses a modified version of DImensionality-Reduced Encoded Clusters with sTratified ([DIRECT])
+   sampling to ensure comprehensive coverage of structures and local environments.
 3. **Quality.** MatPES contains not only data computed using the PBE functional, but also the revised regularized SCAN
    (r2SCAN) meta-GGA functional. The r2SCAN functional recovers all 17 exact constraints presently known for
    meta-GGA functionals and has shown good transferable accuracy across diverse bonding and chemistries.
@@ -47,14 +47,31 @@ The aims of MatPES are three-fold:
 You can download the entire MatPES dataset at [MatPES.ai](https://matpes.ai).
 (note: links are not functional until publication).
 
-We have also provided a simple tool to extract subsets of the data, e.g., by elements or chemical system, via the
-`matpes` package.
+##### MatPES tool
+
+We have also provided a simple library to work with MatPES. Using this tool, you can download the MatPES dataset
+and extract subsets of the data, e.g., by elements or chemical system.
+
+Install the latest version of the `matpes` library using pip.
 
 ```shell
 pip install matpes
 ```
 
-Example code
+The `matpes` tool comes with a command-line interface for working with the matpes dataset.
+
+```shell
+# Download the PBE dataset to the current directory
+matpes download pbe
+
+# You should see a MatPES-PBE-20240214.json.gz file in your directory.
+
+# Extract all entries in the Fe-O chemical system
+matpes data -i MatPES-PBE-20240214.json.gz --chemsys Fe-O -o Fe-O.json.gz
+```
+
+The `matpes.db` module also provides functionality to create your own MongoDB database with the MatPES downloaded data,
+which is extremely useful if you are going to be working with the data (e.g., querying, adding entries, etc.) a lot.
 
 ##### Exploring
 
@@ -83,15 +100,7 @@ A foundational potential energy surface dataset for materials. Submitted.
 [pymatgen]: https://pymatgen.org
 [Materials Project]: https://materialsproject.org
 [MatGL]: https://matgl.ai
-
-[^1]: Chen, C.; Ong, S. P. A Universal Graph Deep Learning Interatomic Potential for the Periodic Table. Nat Comput
-      Sci 2022, 2 (11), 718-728. DOI: [10.1038/s43588-022-00349-3](http://dx.doi.org/10.1038/s43588-022-00349-3).
-[^2]: Deng, B.; Zhong, P.; Jun, K.; Riebesell, J.; Han, K.; Bartel, C. J.; Ceder, G. CHGNet as a Pretrained Universal
-      Neural Network Potential for Charge-Informed Atomistic Modelling. Nat Mach Intell 2023, 5 (9), 1031-1041.
-      DOI: [10.1038/s42256-023-00716-3](http://doi.org/10.1038/s42256-023-00716-3).
-[^3]: Batatia, I.; Kovacs, D. P.; Simm, G.; Ortner, C.; Csanyi, G. MACE: Higher Order Equivariant Message Passing
-      Neural Networks for Fast and Accurate Force Fields. Advances in Neural Information Processing Systems 2022, 35,
-      11423-11436.
-[^4]: Qi, J.; Ko, T. W.; Wood, B. C.; Pham, T. A.; Ong, S. P. Robust Training of Machine Learning Interatomic
-      Potentials with Dimensionality Reduction and Stratified Sampling. npj Computational Materials 2024, 10 (43), 1-11.
-      DOI: [10.1038/s41524-024-01227-4](https//doi.org/10.1038/s41524-024-01227-4).
+[M3GNet]: http://dx.doi.org/10.1038/s43588-022-00349-3
+[CHGNet]: http://doi.org/10.1038/s42256-023-00716-3
+[MACE]: https://proceedings.neurips.cc/paper_files/paper/2022/hash/4a36c3c51af11ed9f34615b81edb5bbc-Abstract-Conference.html
+[DIRECT]: https//doi.org/10.1038/s41524-024-01227-4
