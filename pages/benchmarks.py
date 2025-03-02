@@ -6,8 +6,10 @@ from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
+import numpy as np
 import pandas as pd
 from dash import dash_table, dcc, html
+from dash.dash_table.Format import Format, Scheme
 
 dash.register_page(__name__, path="/benchmarks")
 
@@ -45,6 +47,11 @@ package. We will release the equilibrium and near-equilibrium benchmark datasets
 [MatCalc repository](https://github.com/materialsvirtuallab/matcalc) together with benchmarking tools.
 """
 
+TABLE_NOTE = """
+All values not statistically significant from the best value in each column are highlighted in green. Statistical
+significance is determined using a paired t-test with 0.05 alpha level.
+"""
+
 LEGEND = r"""
 Matcalc-Benchmark metrics can be divided into three categories: equilibrium, near-equilibrium, and molecular dynamics
 properties.
@@ -54,16 +61,16 @@ properties.
 | **Equilibrium**                          |       |       |              |                    |        |
 | Structural similarity                    | \|v\| | -     |PBE           | WBM[^1]  | 1, 000  |
 |                                          |       | - |  RRSCAN      | GNoME[^2] | 1,000  |
-| Formation energy per atom | E_form       | meV/atom | PBE         | WBM                           | 1,000  |
-|                                          | meV/atom | RRSCAN      | GNoME                           | 1,000  |
+| Formation energy per atom | Ef       | eV/atom | PBE         | WBM                           | 1,000  |
+|                                          | eV/atom | RRSCAN      | GNoME                           | 1,000  |
 | **Near-equilibrium**                     |             |                                          |        |
 | Bulk modulus | K_VRH    | GPa | PBE         | [MP]                   | 3,959  |
 | Shear modulus | G_VRH   | GPa| PBE         | [MP]                                       | 3,959  |
 | Constant volume heat capacity | C_V |J/mol/K| PBE         | Alexandria[^3]       | 1,170  |
-| Off-equilibrium force | \|F_i\| |--| PBE         | WBM high energy states[^4] | 979    |
+| Off-equilibrium force | F/F_DFT |--| PBE         | WBM high energy states[^4] | 979    |
 | **Molecular dynamics**                   |             |                                          |        |
-| Median termination temp | T_{1/2}^term | K |  PBE & RRSCAN | [MVL]                              | 172    |
-| Ionic conductivity | \sigma        | mS/cm | PBE         | [MVL]                                | 698    |
+| Median termination temp | T_1/2^term | K |  PBE & RRSCAN | [MVL]                              | 172    |
+| Ionic conductivity | sigma        | mS/cm | PBE         | [MVL]                                | 698    |
 | Time per atom per time step | t_step|  ms/step/atom | PBE & RRSCAN | [MVL]                                | 1      |
 
 The time per atom per time step (t_step) was computed using MD simulations conducted on a single Intel Xeon Gold core
@@ -123,20 +130,95 @@ def create_graphs(df):
 
     cols = []
     for i in df.columns[2:]:
-        fig = px.bar(df, x="Dataset", y=i, color="Architecture", barmode="group")
-        cols.append(
-            dbc.Col(
-                dcc.Graph(
-                    id=f"{i}_hist",
-                    figure=fig,
-                ),
-                width=6,
+        if not (i.endswith("STDAE") or "diff" in i):
+            fig = px.bar(df, x="Dataset", y=i, color="Architecture", barmode="group")
+            cols.append(
+                dbc.Col(
+                    dcc.Graph(
+                        id=f"{i}_hist",
+                        figure=fig,
+                    ),
+                    width=6,
+                )
             )
-        )
     return dbc.Row(cols)
 
 
-table_styles = []
+def gen_data_table(df):
+    """
+    Generates a Dash DataTable with specific configurations for displaying benchmarking
+    data from a Pandas DataFrame. The table filters out certain columns, formats numeric
+    data, and applies conditional styling to rows and columns based on specified criteria.
+
+    Parameters:
+        df (pd.DataFrame): The Pandas DataFrame containing data to display in the table.
+        Columns in the DataFrame will be filtered and styled based on the function's logic.
+
+    Returns:
+        dash.dash_table.DataTable: A Dash DataTable object configured with the data, styling,
+        and sorting properties derived from the input DataFrame.
+    """
+    cols = [c for c in df.columns if c if not ("diff" in c or "STDAE" in c)]
+    return dash_table.DataTable(
+        id="pbe-benchmarks-table",
+        columns=[
+            {
+                "name": i,
+                "id": i,
+                "type": "numeric",
+                "format": Format(precision=2, scheme=Scheme.decimal, nully="-"),
+            }
+            for i in cols
+        ],
+        data=df.to_dict("records"),
+        style_data_conditional=[
+            {
+                "if": {"row_index": "odd"},
+                "backgroundColor": "rgb(220, 220, 220)",
+            }
+        ]
+        + [
+            {
+                "if": {"column_id": i, "row_index": np.where(~df[f"{i.split(' ')[0]} sig_diff_rel"])[0]},
+                "font-weight": "bold",
+                "color": "white",
+                "background-color": "green",
+            }
+            for i in cols
+            if i.endswith("MAE")
+        ]
+        + [
+            {
+                "if": {
+                    "filter_query": "{{T_1/2^term}} = {}".format(df["T_1/2^term"].max()),
+                    "column_id": "T_1/2^term",
+                },
+                "font-weight": "bold",
+                "color": "white",
+                "background-color": "green",
+            },
+            {
+                "if": {
+                    "filter_query": "{{f/f_DFT}} = {}".format(pbe_df["f/f_DFT"].max()),
+                    "column_id": "f/f_DFT",
+                },
+                "font-weight": "bold",
+                "color": "white",
+                "background-color": "green",
+            },
+            {
+                "if": {
+                    "filter_query": "{{t_step}} = {}".format(df["t_step"].min()),
+                    "column_id": "t_step",
+                },
+                "font-weight": "bold",
+                "color": "white",
+                "background-color": "green",
+            },
+        ],
+        style_header={"backgroundColor": "rgb(210, 210, 210)", "color": "black", "fontWeight": "bold"},
+        sort_action="native",
+    )
 
 
 layout = dbc.Container(
@@ -148,43 +230,11 @@ layout = dbc.Container(
         dbc.Col(html.H4("PBE", className="section-title"), width=12),
         create_graphs(pbe_df),
         dbc.Col(
-            dash_table.DataTable(
-                id="pbe-benchmarks-table",
-                columns=[{"name": i.split("(")[0] if "log" not in i else i, "id": i} for i in pbe_df.columns],
-                data=pbe_df.to_dict("records"),
-                style_data_conditional=[
-                    {
-                        "if": {"row_index": "odd"},
-                        "backgroundColor": "rgb(220, 220, 220)",
-                    }
-                ]
-                + [
-                    {
-                        "if": {
-                            "filter_query": f"{{{i}}} = {get_sorted(pbe_df, i)[0]}",
-                            "column_id": i,
-                        },
-                        "font-weight": "bold",
-                        "color": "white",
-                        "background-color": "green",
-                    }
-                    for i in pbe_df.columns[2:]
-                ]
-                + [
-                    {
-                        "if": {
-                            "filter_query": f"{{{i}}} = {get_sorted(pbe_df, i)[1]}",
-                            "column_id": i,
-                        },
-                        "font-weight": "bold",
-                        "color": "white",
-                        "background-color": "#50C878",
-                    }
-                    for i in pbe_df.columns[2:]
-                ],
-                style_header={"backgroundColor": "rgb(210, 210, 210)", "color": "black", "fontWeight": "bold"},
-                sort_action="native",
-            ),
+            gen_data_table(pbe_df),
+            width=12,
+        ),
+        dbc.Col(
+            html.Div(TABLE_NOTE),
             width=12,
         ),
         dbc.Col(
@@ -232,6 +282,10 @@ layout = dbc.Container(
                 sort_action="native",
             ),
             width=6,
+        ),
+        dbc.Col(
+            html.Div(TABLE_NOTE),
+            width=12,
         ),
         dbc.Col(html.H4("Overview of Matcalc-Benchmark Metrics"), width=12, style={"padding-top": "30px"}),
         dbc.Col(

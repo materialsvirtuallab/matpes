@@ -58,18 +58,38 @@ class MatPESDB:
         """
         return list(self.db.get_collection(functional.lower()).find(criteria))
 
-    def get_df(self, functional: str) -> pd.DataFrame:
+    def get_df(self, functional: str, criteria=None, projection=None) -> pd.DataFrame:
         """
-        Retrieve data for the given functional from the MongoDB database.
+        Retrieve a pandas DataFrame from a MongoDB collection based on the provided
+        criteria and projection.
 
-        Args:
-            functional (str): The functional to query (e.g., 'PBE').
+        This method queries a MongoDB collection corresponding to the specified
+        functional argument. It uses given criteria and projection to filter and
+        retrieve the desired data, returning the results in the form of a pandas
+        DataFrame. If no criteria or projection is provided, it uses default values.
+
+        Parameters:
+        functional: str
+            The name of the collection to query, corresponding to a specific
+            functional. The string is converted to lowercase.
+        criteria: dict, optional
+            A dictionary to filter the query results. Defaults to an empty
+            dictionary if not provided.
+        projection: list[str], optional
+            A list of strings specifying the fields to include in the query
+            results. Defaults to a predefined list of fields if not provided.
 
         Returns:
-            pd.DataFrame: Dataframe containing the data.
+        pd.DataFrame
+            A pandas DataFrame containing the retrieved data with the specified
+            projection fields.
+
+        Raises:
+        None
         """
         collection = self.db.get_collection(functional.lower())
-        properties = [
+        criteria = criteria or {}
+        projection = projection or [
             "matpes_id",
             "formula_pretty",
             "elements",
@@ -77,14 +97,14 @@ class MatPESDB:
             "chemsys",
             "cohesive_energy_per_atom",
             "formation_energy_per_atom",
-            "forces",
+            "abs_forces",
             "nsites",
             "nelements",
             "bandgap",
         ]
         return pd.DataFrame(
             collection.find(
-                {},
-                projection=properties,
+                criteria,
+                projection=projection,
             )
-        )[properties]
+        )[projection]

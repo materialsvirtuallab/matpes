@@ -4,16 +4,25 @@ from __future__ import annotations
 
 import collections
 import itertools
+import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import dash
 import dash_bootstrap_components as dbc
-import pandas as pd
+import numpy as np
 import plotly.express as px
-from dash import Input, Output, State, callback, dcc, html
+from dash import Input, Output, callback, dcc, html
+from dash.dash_table import DataTable
+from dash.dash_table.Format import Format, Scheme
 from pymatgen.core import Element
 
+from matpes.db import MatPESDB
+
 from .utils import pt_heatmap
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 dash.register_page(__name__)
 
@@ -25,77 +34,73 @@ DATADIR = Path(__file__).absolute().parent
 
 def get_data(
     functional: str,
-    el_filter: list,
-    chemsys_filter: str,
-    min_coh_e_filter,
-    max_coh_e_filter,
+    chemsys: str,
 ) -> pd.DataFrame:
     """
     Filter data.
 
     Args:
         functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
-        el_filter (list of str): A list of element symbols to filter the dataset by (e.g., ["Fe", "Ni"]).
-        chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
-        min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
-        max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
+        chemsys (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
 
     Returns:
         pd.DataFrame: Filtered data.
     """
-    df = pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
-    if el_filter:
-        df = df[df["elements"].apply(lambda x: set(x).issuperset(el_filter))]
-    if chemsys_filter:
-        sorted_chemsys = "-".join(sorted(chemsys_filter.split("-")))
-        df = df[df["chemsys"] == sorted_chemsys]
+    matpes = MatPESDB()
+    return matpes.get_df(
+        functional,
+        criteria={"chemsys": chemsys},
+        projection=[
+            "formula_pretty",
+            "elements",
+            "cohesive_energy_per_atom",
+            "abs_forces",
+            "nsites",
+            "nelements",
+        ],
+    )
 
-    df = df[min_coh_e_filter <= df["cohesive_energy_per_atom"]]
-    return df[df["cohesive_energy_per_atom"] <= max_coh_e_filter]
 
+def validate_chemsys(chemsys):
+    """
+    Validates and normalizes a chemical system string.
 
-@callback(
-    [
-        Output("min_coh_e_filter", "value"),
-        Output("max_coh_e_filter", "value"),
-    ],
-    [
-        Input("functional", "value"),
-    ],
-)
-def update_sliders(functional):
-    """Update sliders based on functional.
+    This function checks whether the given chemical system string is valid and
+    converts it into a normalized format where the chemical elements are sorted
+    alphabetically. If the string is invalid, it returns None.
 
     Args:
-        functional (str): The functional used to filter the dataset (e.g., "PBE", "LDA").
+        chemsys (str): A string representing a chemical system, where the elements
+            are separated by a hyphen (e.g., "H-O-C").
+
+    Returns:
+        str or None: A normalized and sorted version of the chemical system string
+            if valid. Returns None if the input is invalid.
     """
-    df = pd.read_pickle(DATADIR / f"{functional.lower()}_stats.pkl")
-    coh_energy = df["cohesive_energy_per_atom"]
-    return coh_energy.min(), coh_energy.max()
+    try:
+        toks = chemsys.split("-")
+        for sym in toks:
+            Element(sym)
+        return "-".join(sorted(toks))
+    except:  # noqa: E722
+        pass
+    return None
 
 
 @callback(
     [
         Output("pt-div", "children"),
         Output("stats-div", "children"),
-        # Output("data-div", "children"),
+        Output("data-div", "children"),
     ],
     [
         Input("functional", "value"),
-        Input("el_filter", "value"),
         Input("chemsys_filter", "value"),
-        Input("min_coh_e_filter", "value"),
-        Input("max_coh_e_filter", "value"),
-        # Input("display_options", "value"),
     ],
 )
 def display_data(
     functional,
-    el_filter,
     chemsys_filter,
-    min_coh_e_filter,
-    max_coh_e_filter,
-    # display_options,
 ):
     """
     Update graphs and data tables based on user-provided filters and criteria.
@@ -106,34 +111,44 @@ def display_data(
 
     Args:
         functional (str): The functional used to filter the dataset (e.g., "PBE", "r2SCAN").
-        el_filter (list of str): A list of element symbols to filter the dataset by (e.g., ["Fe", "Ni"]).
         chemsys_filter (list of str): A list of chemical systems to filter by (e.g., ["Fe-O", "Ni-Mn"]).
-        min_coh_e_filter (float): Minimum cohesive energy per atom to include in the dataset.
-        max_coh_e_filter (float): Maximum cohesive energy per atom to include in the dataset.
-        # display_options (list of str): A list of display options.
 
     Returns:
         tuple:
             - heatmap_figure (plotly.graph_objects.Figure): A heatmap of element counts, displayed in log scale.
             - histograms of formation energies, cohesive energies, nsites, nlements.
-            # - data table.
+            - data table.
     """
-    df = get_data(
-        functional,
-        el_filter,
-        chemsys_filter,
-        min_coh_e_filter,
-        max_coh_e_filter,
-    )
-    element_counts = collections.Counter(itertools.chain.from_iterable(df["elements"]))
-    nstructures = len(df)
+    chemsys = validate_chemsys(chemsys_filter)
+    df = None
+    if chemsys:
+        df = get_data(
+            functional,
+            chemsys,
+        )
+        data = {"nstructures": len(df)}
+        data["element_counts"] = dict(collections.Counter(itertools.chain.from_iterable(df["elements"])))
+        for c in ["cohesive_energy_per_atom", "nsites"]:
+            counts, bins = np.histogram(df[c], bins=50)
+            data[c] = {"counts": counts.tolist(), "bins": bins.tolist()}
+        counts, bins = np.histogram(list(itertools.chain(*df["abs_forces"])), bins=50)
+        data["abs_forces"] = {"counts": counts.tolist(), "bins": bins.tolist()}
+        counts, bins = np.histogram(df["nelements"], bins=np.arange(0.5, 9.5, 1))
+
+        data["nelements"] = {"counts": counts.tolist(), "bins": bins.tolist()}
+    else:
+        with open(DATADIR / f"{functional.lower()}_stats.json") as f:
+            data = json.load(f)
+    nstructures = data["nstructures"]
+    el_counts = collections.defaultdict(int)
+    el_counts.update(data["element_counts"])
     output = [
         dbc.Row(
             [
                 html.H4(f"Elemental Heatmap of {nstructures:,} Structures", className="section-title"),
                 dbc.Col(
                     html.Div(
-                        [dcc.Graph(id="ptheatmap", figure=pt_heatmap(element_counts, label="Count", log=True))],
+                        [dcc.Graph(id="ptheatmap", figure=pt_heatmap(el_counts, label="Count", log=True))],
                         style={"marginLeft": "auto", "marginRight": "auto", "text-align": "center"},
                     ),
                     width=12,
@@ -141,37 +156,41 @@ def display_data(
             ]
         )
     ]
-    # table_df = df.drop("elements", axis=1)
 
-    ecoh_fig = px.histogram(
-        df,
-        x="cohesive_energy_per_atom",
-        labels={"cohesive_energy_per_atom": "Cohesive Energy per Atom (eV/atom)"},
-        nbins=100,
+    def get_bin_mid(bins):
+        bins = np.array(bins)
+        return (bins[:-1] + bins[1:]) / 2
+
+    ecoh_fig = px.bar(
+        x=get_bin_mid(data["cohesive_energy_per_atom"]["bins"]),
+        y=data["cohesive_energy_per_atom"]["counts"],
+        labels={"x": "Cohesive Energy per Atom (eV/atom)", "y": "Count"},
         color_discrete_sequence=px.colors.qualitative.Plotly,
     )
-    forces_fig = px.histogram(
-        itertools.chain.from_iterable(df["abs_forces"]),
-        labels={"value": "Absolute Forces (eV/A)"},
-        nbins=100,
+    forces_fig = px.bar(
+        x=get_bin_mid(data["abs_forces"]["bins"]),
+        y=data["abs_forces"]["counts"],
+        labels={"x": "Absolute Forces (eV/A)", "y": "Count"},
         color_discrete_sequence=px.colors.qualitative.Plotly[1:],
     )
     forces_fig.update_yaxes(title_text="Count", type="log")
     forces_fig.update_layout(showlegend=False)
 
-    nsites_fig = px.histogram(
-        df,
-        x="nsites",
-        color_discrete_sequence=px.colors.qualitative.Plotly[1:],
+    nsites_fig = px.bar(
+        x=get_bin_mid(data["nsites"]["bins"]),
+        y=data["nsites"]["counts"],
+        labels={"x": "nsites", "y": "Count"},
+        color_discrete_sequence=px.colors.qualitative.Plotly[2:],
     )
 
     nsites_fig.update_yaxes(title_text="Count", type="log")
     nsites_fig.update_layout(showlegend=False)
 
-    nelements_fig = px.histogram(
-        df,
-        x="nelements",
-        color_discrete_sequence=px.colors.qualitative.Plotly,
+    nelements_fig = px.bar(
+        x=get_bin_mid(data["nelements"]["bins"]),
+        y=data["nelements"]["counts"],
+        labels={"x": "nelements", "y": "Count"},
+        color_discrete_sequence=px.colors.qualitative.Plotly[3:],
     )
 
     output.append(
@@ -203,50 +222,33 @@ def display_data(
             ]
         )
     )
-    # if display_options and "Show Table" in display_options:
-    #     output.append(
-    #         DataTable(
-    #             page_size=25,
-    #             id="data-table",
-    #             columns=[
-    #                 {
-    #                     "name": i,
-    #                     "id": i,
-    #                     "type": "numeric",
-    #                     "format": Format(precision=3, scheme=Scheme.fixed),
-    #                 }
-    #                 if i in ["energy", "cohesive_energy_per_atom"]
-    #                 else {
-    #                     "name": i,
-    #                     "id": i,
-    #                 }
-    #                 for i in table_df.columns
-    #             ],
-    #             data=table_df.to_dict("records"),
-    #         )
-    #     )
-    # else:
-    #     output.append("")
+    if chemsys:
+        table_df = df.drop("elements", axis=1)
+        table_df = table_df.drop("abs_forces", axis=1)
+        output.append(
+            DataTable(
+                page_size=25,
+                id="data-table",
+                columns=[
+                    {
+                        "name": i,
+                        "id": i,
+                        "type": "numeric",
+                        "format": Format(precision=3, scheme=Scheme.fixed),
+                    }
+                    if i in ["energy", "cohesive_energy_per_atom"]
+                    else {
+                        "name": i,
+                        "id": i,
+                    }
+                    for i in table_df.columns
+                ],
+                data=table_df.to_dict("records"),
+            )
+        )
+    else:
+        output.append("")
     return output
-
-
-@callback(Output("el_filter", "value"), Input("ptheatmap", "clickData"), State("el_filter", "value"))
-def update_el_filter_on_click(clickdata, el_filter):
-    """
-    Update el filter when PT table is clicked.
-
-    Args:
-        clickdata (dict): Click data.
-        el_filter (dict): Element filter.
-    """
-    new_el_filter = el_filter or []
-    if clickdata:
-        try:
-            z = clickdata["points"][0]["text"].split("<")[0]
-            new_el_filter = {*new_el_filter, Element.from_Z(int(z)).symbol}
-        except (ValueError, AttributeError):
-            pass
-    return list(new_el_filter)
 
 
 # Define app layout
@@ -265,85 +267,31 @@ layout = dbc.Container(
                         ),
                     ],
                     width=2,
-                )
-            ]
-        ),
-        dbc.Row(
-            [
-                html.Div("Filters: "),
-            ],
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        html.Label("Element(s)"),
-                        dcc.Dropdown(
-                            id="el_filter",
-                            options=[
-                                {"label": el.symbol, "value": el.symbol} for el in Element if el.name not in ("D", "T")
-                            ],
-                            multi=True,
-                        ),
-                    ],
-                    width=2,
                 ),
                 dbc.Col(
                     [
                         html.Div("Chemsys"),
                         dcc.Input(
                             id="chemsys_filter",
-                            placeholder="Li-Fe-O",
+                            placeholder="e.g., Li-Fe-O",
                         ),
                     ],
                     width=2,
                 ),
-                dbc.Col(
-                    [
-                        html.Div("Coh. Energy (Min, Max)"),
-                        dcc.Input(0, type="number", id="min_coh_e_filter"),
-                        dcc.Input(10, type="number", id="max_coh_e_filter"),
-                    ],
-                    width=6,
-                ),
-            ]
+            ],
         ),
-        # dbc.Row(
-        #     [
-        #         html.Div("Options (note: enabling these will slow rendering)"),
-        #     ],
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(
-        #             [
-        #                 dcc.Checklist(options=["Show Table"], id="display_options"),
-        #             ],
-        #             width=4,
-        #         ),
-        #     ]
-        # ),
-        html.Div(
+        dbc.Col(
             [
-                html.Div("Help:"),
-                html.Ul(
-                    [
-                        html.Li("Clicking on the PT adds an element to the element filter."),
-                        html.Li(
-                            "Element filter is restrictive, i.e., only data containing all selected elements + any "
-                            "other elements are shown."
-                        ),
-                        html.Li(
-                            "Chemsys filter: Only data within the chemsys are shown. Typically you should only"
-                            " use either element or chemsys but not both."
-                        ),
-                    ]
+                html.Div(
+                    "By default, statistics of the entire dataset are shown. Filtering by chemical system will "
+                    "also provide a table showing basic information about the formulas and properties. The filtering "
+                    "is updated on the fly as you type."
                 ),
             ],
-            style={"padding": 5},
+            width=12,
         ),
         html.Div([html.H1("Loading...")], id="pt-div"),
         html.Div(id="stats-div"),
-        # html.Div(id="data-div"),
+        html.Div(id="data-div"),
     ]
 )
