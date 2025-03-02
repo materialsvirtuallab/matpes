@@ -12,7 +12,7 @@ import dash
 import dash_bootstrap_components as dbc
 import numpy as np
 import plotly.express as px
-from dash import Input, Output, callback, dcc, html
+from dash import Input, Output, State, callback, dcc, html
 from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Scheme
 from pymatgen.core import Element
@@ -85,6 +85,26 @@ def validate_chemsys(chemsys):
     except:  # noqa: E722
         pass
     return None
+
+
+@callback(Output("chemsys_filter", "value"), Input("ptheatmap", "clickData"), State("chemsys_filter", "value"))
+def update_chemsys_filter_on_click(clickdata, chemsys_filter):
+    """
+    Update chemsys_filter when PT table is clicked.
+
+    Args:
+        clickdata (dict): Click data.
+        chemsys_filter (dict): Element filter.
+    """
+    new_chemsys_filter = chemsys_filter or ""
+    chemsys = new_chemsys_filter.split("-")
+    if clickdata:
+        try:
+            z = clickdata["points"][0]["text"].split("<")[0]
+            chemsys.append(Element.from_Z(int(z)).symbol)
+        except (ValueError, AttributeError):
+            pass
+    return "-".join(sorted(set(chemsys))).strip("-")
 
 
 @callback(
@@ -284,8 +304,8 @@ layout = dbc.Container(
             [
                 html.Div(
                     "By default, statistics of the entire dataset are shown. Filtering by chemical system will "
-                    "also provide a table showing basic information about the formulas and properties. The filtering "
-                    "is updated on the fly as you type."
+                    "also provide a table showing basic information about the formulas and properties. You can click on"
+                    "the periodic table cell to set the chemical system as well. Filtering is done on the fly."
                 ),
             ],
             width=12,
