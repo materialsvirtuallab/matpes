@@ -1,4 +1,4 @@
-"""pymatgen documentation build configuration file, created by
+"""matpes documentation build configuration file, created by
 sphinx-quickstart on Tue Nov 15 00:13:52 2011.
 
 This file is execfile()d with the current directory set to its containing dir.
@@ -16,11 +16,11 @@ import inspect
 import os
 import sys
 
-from pymatgen.core import __author__, __file__, __version__
+from matpes import __file__, __version__
 
-project = "pymatgen"
-copyright = "2011, Materials Project"  # noqa: A001
-author = __author__
+project = "matpes"
+copyright = "2025, Materials Virtual Lab"
+author = "Materials Virtual Lab & Materials Project"
 
 
 # -- General configuration ---------------------------------------------------
@@ -63,8 +63,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "pymatgen"
-copyright = f"2011, {__author__}"  # noqa: A001
+project = "matpes"
+copyright = f"2011, {author}"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -192,10 +192,10 @@ html_css_files = [
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "pymatgendoc"
+htmlhelp_basename = "matpesdoc"
 
 html_theme_options = {
-    "canonical_url": "https://pymatgen.org",
+    "canonical_url": "https://matpes.org",
     "logo_only": True,
     "display_version": True,
     "prev_next_buttons_location": None,
@@ -211,7 +211,7 @@ html_theme_options = {
 html_context = {
     "display_github": True,
     "github_user": "materialsproject",
-    "github_repo": "pymatgen",
+    "github_repo": "matpes",
     "github_version": "master",
     "conf_py_path": "/docs_rst/",
 }
@@ -230,7 +230,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "pymatgen.tex", "pymatgen Documentation", __author__, "manual"),
+    ("index", "matpes.tex", "matpes Documentation", author, "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -258,7 +258,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "pymatgen", "pymatgen Documentation", [__author__], 1)]
+man_pages = [("index", "matpes", "matpes Documentation", [author], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -272,10 +272,10 @@ man_pages = [("index", "pymatgen", "pymatgen Documentation", [__author__], 1)]
 texinfo_documents = [
     (
         "index",
-        "pymatgen",
-        "pymatgen Documentation",
-        __author__,
-        "pymatgen",
+        "matpes",
+        "matpes Documentation",
+        author,
+        "matpes",
         "One line description of project.",
         "Miscellaneous",
     ),
@@ -294,9 +294,9 @@ texinfo_documents = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = "pymatgen"
-epub_author = __author__
-epub_publisher = "Pymatgen Development Team"
+epub_title = "matpes"
+epub_author = author
+epub_publisher = "matpes Development Team"
 epub_copyright = copyright
 
 # The language of the text. It defaults to the language option
@@ -356,10 +356,10 @@ def linkcode_resolve(domain, info):
 
     try:
         rel_path, line_start, line_end = find_source()
-        # __file__ is imported from pymatgen.core
-        filename = f"pymatgen/core/{rel_path}#L{line_start}-L{line_end}"
+        # __file__ is imported from matpes.core
+        filename = f"matpes/core/{rel_path}#L{line_start}-L{line_end}"
     except Exception:
         # no need to be relative to core here as module includes full path.
         filename = info["module"].replace(".", "/") + ".py"
 
-    return f"https://github.com/materialsproject/pymatgen/blob/v{__version__}/src/{filename}"
+    return f"https://github.com/materialsproject/matpes/blob/v{__version__}/src/{filename}"
