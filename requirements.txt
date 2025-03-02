@@ -5,3 +5,4 @@ dash==2.18.2
 dash-bootstrap-components==1.6.0
 plotly==6.0.0
 pymatgen==2025.1.24
+matpes==0.0.1
