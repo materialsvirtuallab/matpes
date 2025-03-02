@@ -42,9 +42,9 @@ MPtrj, and OMat24 datasets. The sizes of the datasets are:
 We welcome the contribution of other UMLIPs to be added to this MatCalc-Benchmark. To ensure a fair comparison, we
 will require all UMLIPs included in the benchmark to provide **information about training dataset size, training cost,
 and the number of parameters**, in addition to the performance metrics below. The easiest way to run the benchmark is to
-implement an ASE compatible calculator, which can then be used with the [MatCalc](https://github.com/materialsvirtuallab/matcalc)
-package. We will release the equilibrium and near-equilibrium benchmark datasets soon in the
-[MatCalc repository](https://github.com/materialsvirtuallab/matcalc) together with benchmarking tools.
+implement an ASE compatible calculator, which can then be used with the
+[MatCalc](https://github.com/materialsvirtuallab/matcalc) package. We will release the equilibrium and
+near-equilibrium benchmark datasets soon in the MatCalc repository together with benchmarking tools.
 """
 
 TABLE_NOTE = """
@@ -59,15 +59,15 @@ properties.
 | Task                                     | Symbol| Units | Functional   | Test Source   | Number |
 |------------------------------------------|-------|-------|--------------|--------------------|--------|
 | **Equilibrium**                          |       |       |              |                    |        |
-| Structural similarity                    | \|v\| | -     |PBE           | WBM[^1]  | 1, 000  |
-|                                          |       | - |  RRSCAN      | GNoME[^2] | 1,000  |
-| Formation energy per atom | Ef       | eV/atom | PBE         | WBM                           | 1,000  |
-|                                          | eV/atom | RRSCAN      | GNoME                           | 1,000  |
+| Structural similarity                    | \|v\| | -     |PBE           | [WBM]  | 1, 000  |
+|                                          |       | - |  RRSCAN      | [GNoME] | 1,000  |
+| Formation energy per atom | Ef       | eV/atom | PBE         | [WBM]                           | 1,000  |
+|                                      |    | eV/atom | RRSCAN      | [GNoME]                           | 1,000  |
 | **Near-equilibrium**                     |             |                                          |        |
 | Bulk modulus | K_VRH    | GPa | PBE         | [MP]                   | 3,959  |
 | Shear modulus | G_VRH   | GPa| PBE         | [MP]                                       | 3,959  |
-| Constant volume heat capacity | C_V |J/mol/K| PBE         | Alexandria[^3]       | 1,170  |
-| Off-equilibrium force | F/F_DFT |--| PBE         | WBM high energy states[^4] | 979    |
+| Constant volume heat capacity | C_V |J/mol/K| PBE         | [Alexandria]       | 1,170  |
+| Off-equilibrium force | F/F_DFT |--| PBE         | [WBM high energy states] | 979    |
 | **Molecular dynamics**                   |             |                                          |        |
 | Median termination temp | T_1/2^term | K |  PBE & RRSCAN | [MVL]                              | 172    |
 | Ionic conductivity | sigma        | mS/cm | PBE         | [MVL]                                | 698    |
@@ -76,11 +76,10 @@ properties.
 The time per atom per time step (t_step) was computed using MD simulations conducted on a single Intel Xeon Gold core
 for a system of 64 Si atoms under ambient conditions (300 K and 1 bar) over 50 ps with a 1 fs time step.
 
-[^1]: Wang, H.-C.; Botti, S.; Marques, M. A. L. Predicting stable crystalline compounds using chemical similarity. npj Computational Materials 2021, 7, 1–9.
-[^2]: Merchant, A.; Batzner, S.; Schoenholz, S. S.; Aykol, M.; Cheon, G.; Cubuk, E. D. Scaling deep learning for materials discovery. Nature 2023, 624, 80–85.
-[^3] Loew, A.; Sun, D.; Wang, H.-C.; Botti, S.; Marques, M. A. L. Universa Machine Learning Interatomic Potentials are Ready for Phonons. 2024; Arxiv: 2412.16551.
-[^4]: Deng, B.; Choi, Y.; Zhong, P.; Riebesell, J.; Anand, S.; Li, Z.; Jun, K.; Persson, K. A.; Ceder, G. Overcoming systematic softening in universal machine learning interatomic potentials by fine-tuning. 2024; Arxiv:2405.07105.
-
+[WBM]: https://doi.org/10.1038/s41524-020-00481-6
+[GNoME]: https://doi.org/10.1038/s41586-023-06735-9
+[Alexandria]: https://doi.org/10.48550/arXiv.2412.16551
+[WBM high energy states]: https://doi.org/10.48550/arXiv.2405.07105
 [MP]: http://materialsproject.org
 [MVL]: http://materialsvirtuallab.org
 """
