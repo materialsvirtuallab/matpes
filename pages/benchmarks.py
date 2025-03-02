@@ -288,7 +288,7 @@ layout = dbc.Container(
         ),
         dbc.Col(html.H4("Overview of Matcalc-Benchmark Metrics"), width=12, style={"padding-top": "30px"}),
         dbc.Col(
-            html.Div([dcc.Markdown(LEGEND)]),
+            html.Div([dcc.Markdown(LEGEND)], id="matcalc-benchmark-legend"),
             width=12,
             style={"padding-top": "10px"},
         ),

@@ -25,3 +25,31 @@
 .download-button {
     width: 6rem;
 }
+
+#matcalc-benchmark-legend table {
+    width: 100%;
+
+}
+
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#matcalc-benchmark-legends td, #matcalc-benchmark-legend th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#matcalc-benchmark-legend tr:nth-child(even){background-color: #f2f2f2;}
+
+#matcalc-benchmark-legend tr:hover {background-color: #ddd;}
+
+#matcalc-benchmark-legend th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
