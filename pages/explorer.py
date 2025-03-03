@@ -31,6 +31,8 @@ FUNCTIONALS = ("PBE", "r2SCAN")
 
 DATADIR = Path(__file__).absolute().parent
 
+DEFAULT_FIG_LAYOUT = dict(font=dict(size=18))
+
 
 def get_data(
     functional: str,
@@ -187,6 +189,7 @@ def display_data(
         labels={"x": "Cohesive Energy per Atom (eV/atom)", "y": "Count"},
         color_discrete_sequence=px.colors.qualitative.Plotly,
     )
+    ecoh_fig.update_layout(**DEFAULT_FIG_LAYOUT)
     forces_fig = px.bar(
         x=get_bin_mid(data["abs_forces"]["bins"]),
         y=data["abs_forces"]["counts"],
@@ -194,7 +197,7 @@ def display_data(
         color_discrete_sequence=px.colors.qualitative.Plotly[1:],
     )
     forces_fig.update_yaxes(title_text="Count", type="log")
-    forces_fig.update_layout(showlegend=False)
+    forces_fig.update_layout(showlegend=False, **DEFAULT_FIG_LAYOUT)
 
     nsites_fig = px.bar(
         x=get_bin_mid(data["nsites"]["bins"]),
@@ -204,7 +207,7 @@ def display_data(
     )
 
     nsites_fig.update_yaxes(title_text="Count", type="log")
-    nsites_fig.update_layout(showlegend=False)
+    nsites_fig.update_layout(showlegend=False, **DEFAULT_FIG_LAYOUT)
 
     nelements_fig = px.bar(
         x=get_bin_mid(data["nelements"]["bins"]),
@@ -212,6 +215,7 @@ def display_data(
         labels={"x": "nelements", "y": "Count"},
         color_discrete_sequence=px.colors.qualitative.Plotly[3:],
     )
+    nelements_fig.update_layout(showlegend=False, **DEFAULT_FIG_LAYOUT)
 
     output.append(
         dbc.Row(

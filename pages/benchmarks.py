@@ -8,6 +8,7 @@ import dash
 import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
+import plotly.express as px
 from dash import dash_table, dcc, html
 from dash.dash_table.Format import Format, Scheme
 
@@ -49,7 +50,8 @@ near-equilibrium benchmark datasets soon in the MatCalc repository together with
 
 TABLE_NOTE = """
 All values not statistically significant from the best value in each column are highlighted in green. Statistical
-significance is determined using a paired t-test with 0.05 alpha level.
+significance is determined using a [paired t-test](https://en.wikipedia.org/wiki/Paired_difference_test) with 0.05
+alpha level.
 """
 
 LEGEND = r"""
@@ -125,12 +127,13 @@ def create_graphs(df):
                                                    graphs represent the bar charts of
                                                    the DataFrame's numerical columns.
     """
-    import plotly.express as px
+    layout = dict(font=dict(size=18))
 
     cols = []
     for i in df.columns[2:]:
         if not (i.endswith("STDAE") or "diff" in i):
             fig = px.bar(df, x="Dataset", y=i, color="Architecture", barmode="group")
+            fig.update_layout(**layout)
             cols.append(
                 dbc.Col(
                     dcc.Graph(
