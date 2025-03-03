@@ -58,22 +58,22 @@ LEGEND = r"""
 Matcalc-Benchmark metrics can be divided into three categories: equilibrium, near-equilibrium, and molecular dynamics
 properties.
 
-| Task                                     | Symbol| Units | Functional   | Test Source   | Number |
-|------------------------------------------|-------|-------|--------------|--------------------|--------|
-| **Equilibrium**                          |       |       |              |                    |        |
-| Structural similarity                    | \|v\| | -     |PBE           | [WBM]  | 1, 000  |
-|                                          |       | - |  RRSCAN      | [GNoME] | 1,000  |
-| Formation energy per atom | Ef       | eV/atom | PBE         | [WBM]                           | 1,000  |
-|                                      |    | eV/atom | RRSCAN      | [GNoME]                           | 1,000  |
-| **Near-equilibrium**                     |             |                                          |        |
-| Bulk modulus | K_VRH    | GPa | PBE         | [MP]                   | 3,959  |
-| Shear modulus | G_VRH   | GPa| PBE         | [MP]                                       | 3,959  |
-| Constant volume heat capacity | C_V |J/mol/K| PBE         | [Alexandria]       | 1,170  |
-| Off-equilibrium force | F/F_DFT |--| PBE         | [WBM high energy states] | 979    |
-| **Molecular dynamics**                   |             |                                          |        |
-| Median termination temp | T_1/2^term | K |  PBE & RRSCAN | [MVL]                              | 172    |
-| Ionic conductivity | sigma        | mS/cm | PBE         | [MVL]                                | 698    |
-| Time per atom per time step | t_step|  ms/step/atom | PBE & RRSCAN | [MVL]                                | 1      |
+| Task                          | Symbol     | Units        | Functional   | Test Source              | Number |
+|-------------------------------|------------|--------------|--------------|--------------------------|--------|
+| **Equilibrium**               |            |              |              |                          |        |
+| Structural similarity         | \|v\|      | -            | PBE          | [WBM]                    | 1, 000 |
+|                               |            | -            | RRSCAN       | [GNoME]                  | 1,000  |
+| Formation energy per atom     | Ef         | eV/atom      | PBE          | [WBM]                    | 1,000  |
+|                               |            | eV/atom      | RRSCAN       | [GNoME]                  | 1,000  |
+| **Near-equilibrium**          |            |              |              |                          |        |
+| Bulk modulus                  | K_VRH      | GPa          | PBE          | [MP]                     | 3,959  |
+| Shear modulus                 | G_VRH      | GPa          | PBE          | [MP]                     | 3,959  |
+| Constant volume heat capacity | C_V        | J/mol/K      | PBE          | [Alexandria]             | 1,170  |
+| Off-equilibrium force         | F/F_DFT    | --           | PBE          | [WBM high energy states] | 979    |
+| **Molecular dynamics**        |            |              |              |                          |        |
+| Median termination temp       | T_1/2^term | K            | PBE & RRSCAN | [MVL]                    | 172    |
+| Ionic conductivity            | sigma      | mS/cm        | PBE          | [MVL]                    | 698    |
+| Time per atom per time step   | t_step     | ms/step/atom | PBE & RRSCAN | [MVL]                    | 1      |
 
 The time per atom per time step (t_step) was computed using MD simulations conducted on a single Intel Xeon Gold core
 for a system of 64 Si atoms under ambient conditions (300 K and 1 bar) over 50 ps with a 1 fs time step.
@@ -246,44 +246,8 @@ layout = dbc.Container(
         ),
         create_graphs(r2scan_df),
         dbc.Col(
-            dash_table.DataTable(
-                id="r2scan-benchmarks-table",
-                columns=[{"name": i.split("(")[0] if "log" not in i else i, "id": i} for i in r2scan_df.columns],
-                data=r2scan_df.to_dict("records"),
-                style_data_conditional=[
-                    {
-                        "if": {"row_index": "odd"},
-                        "backgroundColor": "rgb(220, 220, 220)",
-                    }
-                ]
-                + [
-                    {
-                        "if": {
-                            "filter_query": f"{{{i}}} = {get_sorted(r2scan_df, i)[0]}",
-                            "column_id": i,
-                        },
-                        "font-weight": "bold",
-                        "color": "white",
-                        "background-color": "#633D9Caa",
-                    }
-                    for i in r2scan_df.columns[2:]
-                ]
-                + [
-                    {
-                        "if": {
-                            "filter_query": f"{{{i}}} = {get_sorted(r2scan_df, i)[1]}",
-                            "column_id": i,
-                        },
-                        "font-weight": "bold",
-                        "color": "white",
-                        "background-color": "#633D9Caa",
-                    }
-                    for i in r2scan_df.columns[2:]
-                ],
-                style_header={"backgroundColor": "#633D9C", "color": "white", "fontWeight": "bold"},
-                sort_action="native",
-            ),
-            width=6,
+            gen_data_table(r2scan_df),
+            width=12,
         ),
         dbc.Col(
             html.Div(dcc.Markdown(TABLE_NOTE)),

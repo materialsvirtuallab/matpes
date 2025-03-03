@@ -34,6 +34,7 @@
 
 .download-button {
     width: 6rem;
+    border-radius: 0.5rem;
 }
 
 #matcalc-benchmark-legend table {
