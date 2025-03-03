@@ -12,6 +12,7 @@ import dash
 import dash_bootstrap_components as dbc
 import numpy as np
 import plotly.express as px
+import plotly.io as pio
 from dash import Input, Output, State, callback, dcc, html
 from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Scheme
@@ -173,18 +174,20 @@ def display_data(
         bins = np.array(bins)
         return (bins[:-1] + bins[1:]) / 2
 
+    current_template = pio.templates[pio.templates.default]
+    colorway = current_template.layout.colorway
     ecoh_fig = px.bar(
         x=get_bin_mid(data["cohesive_energy_per_atom"]["bins"]),
         y=data["cohesive_energy_per_atom"]["counts"],
         labels={"x": "Cohesive Energy per Atom (eV/atom)", "y": "Count"},
-        color_discrete_sequence=px.colors.qualitative.Plotly,
+        color_discrete_sequence=colorway,
     )
     ecoh_fig.update_layout(**DEFAULT_FIG_LAYOUT)
     forces_fig = px.bar(
         x=get_bin_mid(data["abs_forces"]["bins"]),
         y=data["abs_forces"]["counts"],
         labels={"x": "Absolute Forces (eV/A)", "y": "Count"},
-        color_discrete_sequence=px.colors.qualitative.Plotly[1:],
+        color_discrete_sequence=colorway[1:],
     )
     forces_fig.update_yaxes(title_text="Count", type="log")
     forces_fig.update_layout(showlegend=False, **DEFAULT_FIG_LAYOUT)
@@ -193,7 +196,7 @@ def display_data(
         x=get_bin_mid(data["nsites"]["bins"]),
         y=data["nsites"]["counts"],
         labels={"x": "nsites", "y": "Count"},
-        color_discrete_sequence=px.colors.qualitative.Plotly[2:],
+        color_discrete_sequence=colorway[2:],
     )
 
     nsites_fig.update_yaxes(title_text="Count", type="log")
@@ -203,7 +206,7 @@ def display_data(
         x=get_bin_mid(data["nelements"]["bins"]),
         y=data["nelements"]["counts"],
         labels={"x": "nelements", "y": "Count"},
-        color_discrete_sequence=px.colors.qualitative.Plotly[3:],
+        color_discrete_sequence=current_template.layout.colorway[3:],
     )
     nelements_fig.update_layout(showlegend=False, **DEFAULT_FIG_LAYOUT)
 
@@ -319,7 +322,6 @@ layout = dbc.Container(
                 ),
             ]
         ),
-        html.Div([html.H1("Loading...")], id="pt-div"),
         html.Div(id="stats-div"),
         html.Div(id="data-div"),
     ]

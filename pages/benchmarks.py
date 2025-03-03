@@ -184,7 +184,7 @@ def gen_data_table(df):
                 "if": {"column_id": i, "row_index": np.where(~df[f"{i.split(' ')[0]} sig_diff_rel"])[0]},
                 "font-weight": "bold",
                 "color": "white",
-                "background-color": "green",
+                "background-color": "#633D9Caa",
             }
             for i in cols
             if i.endswith("MAE")
@@ -197,7 +197,7 @@ def gen_data_table(df):
                 },
                 "font-weight": "bold",
                 "color": "white",
-                "background-color": "green",
+                "background-color": "#633D9Caa",
             },
             {
                 "if": {
@@ -206,7 +206,7 @@ def gen_data_table(df):
                 },
                 "font-weight": "bold",
                 "color": "white",
-                "background-color": "green",
+                "background-color": "#633D9Caa",
             },
             {
                 "if": {
@@ -215,10 +215,10 @@ def gen_data_table(df):
                 },
                 "font-weight": "bold",
                 "color": "white",
-                "background-color": "green",
+                "background-color": "#633D9Caa",
             },
         ],
-        style_header={"backgroundColor": "rgb(210, 210, 210)", "color": "black", "fontWeight": "bold"},
+        style_header={"backgroundColor": "#633D9C", "color": "white", "fontWeight": "bold"},
         sort_action="native",
     )
 
@@ -236,7 +236,7 @@ layout = dbc.Container(
             width=12,
         ),
         dbc.Col(
-            html.Div(TABLE_NOTE),
+            html.Div(dcc.Markdown(TABLE_NOTE)),
             width=12,
         ),
         dbc.Col(
@@ -264,7 +264,7 @@ layout = dbc.Container(
                         },
                         "font-weight": "bold",
                         "color": "white",
-                        "background-color": "green",
+                        "background-color": "#633D9Caa",
                     }
                     for i in r2scan_df.columns[2:]
                 ]
@@ -276,17 +276,17 @@ layout = dbc.Container(
                         },
                         "font-weight": "bold",
                         "color": "white",
-                        "background-color": "#50C878",
+                        "background-color": "#633D9Caa",
                     }
                     for i in r2scan_df.columns[2:]
                 ],
-                style_header={"backgroundColor": "rgb(210, 210, 210)", "color": "black", "fontWeight": "bold"},
+                style_header={"backgroundColor": "#633D9C", "color": "white", "fontWeight": "bold"},
                 sort_action="native",
             ),
             width=6,
         ),
         dbc.Col(
-            html.Div(TABLE_NOTE),
+            html.Div(dcc.Markdown(TABLE_NOTE)),
             width=12,
         ),
         dbc.Col(html.H4("Overview of Matcalc-Benchmark Metrics"), width=12, style={"padding-top": "30px"}),

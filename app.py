@@ -6,10 +6,11 @@ import argparse
 
 import dash
 import dash_bootstrap_components as dbc
-import plotly.io as pio
 from dash import Dash, Input, Output, State, dcc, html
+from dash_bootstrap_templates import load_figure_template
 
-pio.templates.default = "plotly_white"
+load_figure_template("pulse")
+
 app = Dash(
     "MatPES",
     use_pages=True,
