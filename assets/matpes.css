@@ -23,6 +23,15 @@
     color: white;
 }
 
+.nav-link:hover {
+    color: #ddd;
+}
+
+
+.nav-link.active {
+    color: #ddd;
+}
+
 .download-button {
     width: 6rem;
 }

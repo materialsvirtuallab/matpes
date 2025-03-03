@@ -13,7 +13,7 @@ pio.templates.default = "plotly_white"
 app = Dash(
     "MatPES",
     use_pages=True,
-    external_stylesheets=[dbc.themes.LITERA],
+    external_stylesheets=[dbc.themes.PULSE],
     title="MatPES",
 )
 

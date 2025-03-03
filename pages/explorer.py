@@ -111,8 +111,12 @@ def update_chemsys_filter_on_click(clickdata, chemsys_filter):
 
 @callback(
     [
-        Output("pt-div", "children"),
-        Output("stats-div", "children"),
+        Output("heatmap-title", "children"),
+        Output("ptheatmap", "figure"),
+        Output("coh_energy_hist", "figure"),
+        Output("abs_forces_hist", "figure"),
+        Output("nsites_hist", "figure"),
+        Output("nelements_hist", "figure"),
         Output("data-div", "children"),
     ],
     [
@@ -164,20 +168,6 @@ def display_data(
     nstructures = data["nstructures"]
     el_counts = collections.defaultdict(int)
     el_counts.update(data["element_counts"])
-    output = [
-        dbc.Row(
-            [
-                html.H4(f"Elemental Heatmap of {nstructures:,} Structures", className="section-title"),
-                dbc.Col(
-                    html.Div(
-                        [dcc.Graph(id="ptheatmap", figure=pt_heatmap(el_counts, label="Count", log=True))],
-                        style={"marginLeft": "auto", "marginRight": "auto", "text-align": "center"},
-                    ),
-                    width=12,
-                ),
-            ]
-        )
-    ]
 
     def get_bin_mid(bins):
         bins = np.array(bins)
@@ -217,35 +207,15 @@ def display_data(
     )
     nelements_fig.update_layout(showlegend=False, **DEFAULT_FIG_LAYOUT)
 
-    output.append(
-        dbc.Row(
-            [
-                html.H4("Property Distribution", className="section-title"),
-                dbc.Col(
-                    dcc.Graph(
-                        id="coh_energy_hist",
-                        figure=ecoh_fig,
-                    ),
-                    width=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(id="abs_forces_hist", figure=forces_fig),
-                    width=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(id="nsites_hist", figure=nsites_fig),
-                    width=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        id="nelements_hist",
-                        figure=nelements_fig,
-                    ),
-                    width=6,
-                ),
-            ]
-        )
-    )
+    output = [
+        f"Elemental Heatmap ({nstructures:,} structures)",
+        pt_heatmap(el_counts, label="Count", log=True),
+        ecoh_fig,
+        forces_fig,
+        nsites_fig,
+        nelements_fig,
+    ]
+
     if chemsys:
         table_df = df.drop("elements", axis=1)
         table_df = table_df.drop("abs_forces", axis=1)
@@ -313,6 +283,41 @@ layout = dbc.Container(
                 ),
             ],
             width=12,
+        ),
+        dbc.Row(
+            [
+                html.H4("Elemental Heatmap", id="heatmap-title", className="section-title"),
+                dbc.Col(
+                    html.Div(
+                        [dcc.Graph(id="ptheatmap")],
+                        style={"marginLeft": "auto", "marginRight": "auto", "text-align": "center"},
+                    ),
+                    width=12,
+                ),
+            ]
+        ),
+        dbc.Row(
+            [
+                html.H4("Property Distribution", className="section-title"),
+                dbc.Col(
+                    dcc.Graph(
+                        id="coh_energy_hist",
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(id="abs_forces_hist"),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(id="nsites_hist"),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(id="nelements_hist"),
+                    width=6,
+                ),
+            ]
         ),
         html.Div([html.H1("Loading...")], id="pt-div"),
         html.Div(id="stats-div"),
