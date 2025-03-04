@@ -42,7 +42,7 @@ The aims of MatPES are three-fold:
 
 The workflow used to generate the MatPES dataset is shown below.
 
-![MatPES Workflow](assets/MatPES_workflow.png)
+![matpes_workflow](assets/MatPES_workflow.png)
 
 #### How to use MatPES
 
