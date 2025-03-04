@@ -50,7 +50,7 @@ near-equilibrium benchmark datasets soon in the MatCalc repository together with
 """
 
 TABLE_NOTE = """
-All values not statistically significant from the best value in each column are highlighted in green. Statistical
+For MAEs, all values not statistically different from the best value in each column are highlighted. Statistical
 significance is determined using a [paired t-test](https://en.wikipedia.org/wiki/Paired_difference_test) with 0.05
 alpha level.
 """
