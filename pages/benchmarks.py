@@ -9,7 +9,7 @@ import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
 import plotly.express as px
-from dash import dash_table, dcc, html
+from dash import Input, Output, callback, dash_table, dcc, html
 from dash.dash_table.Format import Format, Scheme
 
 dash.register_page(__name__, path="/benchmarks")
@@ -25,12 +25,13 @@ INTRO_CONTENT = """
 The MatCalc-Benchmark is designed to evaluate the performance of different universal machine learning interatomic
 potentials (UMLIPs) on a balanced set of equilibrium, near-equilibrium and molecular dynamics properties of materials.
 
-In addition to the property metrics below, it is important to consider the training data size and the number of
+In addition to the property metrics, it is important to consider the training data size and the number of
 parameters of the UMLIPs. Large datasets are difficult to train with, requiring large amounts of CPU/GPU resources.
 For instance, the training time for TensorNet on the MatPES-PBE dataset is about 15 minutes per epoch on a single
 Nvidia RTX A6000 GPU, while that for the same model on the OMat24 dataset is around 20 hours per epoch on eight Nvidia
 A100 GPUs. UMLIPs with large number of parameters will be expensive to run in MD simulations (see t_step metric below),
-limiting the size of the simulation cells or time scales you can study.
+limiting the size of the simulation cells or time scales you can study. For reference, the t_step of eqV2-OMat24 is
+around 213 ms/atom/step (~2 orders of magnitude more expensive than the models shown here).
 
 For the initial launch, we have included M3GNet, CHGNet and TensorNet UMLIPs trained on the MatPES, MPF,
 MPtrj, and OMat24 datasets. The sizes of the datasets are:
@@ -107,46 +108,97 @@ def get_sorted(df, i):
     return sorted(df[i].dropna())
 
 
-def create_graphs(df):
-    """
-    Creates a series of bar graphs for a given DataFrame, where each graph corresponds
-    to a specific column (starting from the third column) of the DataFrame. The charts
-    represent the data grouped by "Architecture" and categorized by "Dataset".
+# def create_graphs(df):
+#     """
+#     Creates a series of bar graphs for a given DataFrame, where each graph corresponds
+#     to a specific column (starting from the third column) of the DataFrame. The charts
+#     represent the data grouped by "Architecture" and categorized by "Dataset".
+#
+#     Parameters:
+#         df (pandas.DataFrame): Input DataFrame containing the data to be visualized.
+#                                The DataFrame must include columns "Dataset",
+#                                "Architecture", and additional numerical columns
+#                                starting from the third column.
+#
+#     Returns:
+#         dash.development.base_component.Component: A Dash Bootstrap Component (dbc.Row),
+#                                                    which contains multiple dbc.Col
+#                                                    elements, each holding a Dash Core
+#                                                    Component (dcc.Graph) object. These
+#                                                    graphs represent the bar charts of
+#                                                    the DataFrame's numerical columns.
+#     """
+#     layout = dict(font=dict(size=18))
+#
+#     cols = []
+#     for i in df.columns[2:]:
+#         if not (i.endswith("STDAE") or "diff" in i):
+#             fig = px.bar(df, x="Dataset", y=i, color="Architecture", barmode="group")
+#             fig.update_layout(**layout)
+#             cols.append(
+#                 dbc.Col(
+#                     dcc.Graph(
+#                         id=f"{i}_hist",
+#                         figure=fig,
+#                     ),
+#                     width=6,
+#                 )
+#             )
+#     return dbc.Row(cols)
 
-    Parameters:
-        df (pandas.DataFrame): Input DataFrame containing the data to be visualized.
-                               The DataFrame must include columns "Dataset",
-                               "Architecture", and additional numerical columns
-                               starting from the third column.
+
+@callback(
+    Output("pbe-graph", "figure"),
+    Input("pbe-benchmarks-table", "selected_columns"),
+)
+def update_pbe_graphs(selected_columns):
+    """
+    This function is a callback for updating a bar plot figure of performance benchmarks
+    based on the selected columns in a Dash DataTable component. It generates and
+    configures the bar chart showing benchmark comparisons between architectures for
+    various datasets.
+
+    Args:
+        selected_columns (list): A list of selected column names from the benchmark
+        DataTable. It is expected to be a non-empty list with the first column name
+        used for the y-axis of the plot.
 
     Returns:
-        dash.development.base_component.Component: A Dash Bootstrap Component (dbc.Row),
-                                                   which contains multiple dbc.Col
-                                                   elements, each holding a Dash Core
-                                                   Component (dcc.Graph) object. These
-                                                   graphs represent the bar charts of
-                                                   the DataFrame's numerical columns.
+        plotly.graph_objects.Figure: A bar chart figure, showing the benchmark
+        comparisons using the selected column for the y-axis, grouped by architecture.
     """
     layout = dict(font=dict(size=18))
-
-    cols = []
-    for i in df.columns[2:]:
-        if not (i.endswith("STDAE") or "diff" in i):
-            fig = px.bar(df, x="Dataset", y=i, color="Architecture", barmode="group")
-            fig.update_layout(**layout)
-            cols.append(
-                dbc.Col(
-                    dcc.Graph(
-                        id=f"{i}_hist",
-                        figure=fig,
-                    ),
-                    width=6,
-                )
-            )
-    return dbc.Row(cols)
+    fig = px.bar(pbe_df, x="Dataset", y=selected_columns[0], color="Architecture", barmode="group")
+    fig.update_layout(**layout)
+    return fig
 
 
-def gen_data_table(df):
+@callback(
+    Output("r2scan-graph", "figure"),
+    Input("r2scan-benchmarks-table", "selected_columns"),
+)
+def update_r2scan_graphs(selected_columns):
+    """
+    Updates the R2SCAN graph figure based on selected benchmark table columns. The function takes
+    the selected columns from a table as input and generates a bar graph displaying benchmark metrics
+    grouped by architecture, using the provided dataset. The graph figure is updated with a defined
+    layout for consistent formatting.
+
+    Args:
+        selected_columns (list of str): A list containing the selected column names from the
+            benchmarks table.
+
+    Returns:
+        plotly.graph_objs._figure.Figure: The updated bar graph figure representing the benchmark
+            data using the selected column.
+    """
+    layout = dict(font=dict(size=18))
+    fig = px.bar(r2scan_df, x="Dataset", y=selected_columns[0], color="Architecture", barmode="group")
+    fig.update_layout(**layout)
+    return fig
+
+
+def gen_data_table(df, name):
     """
     Generates a Dash DataTable with specific configurations for displaying benchmarking
     data from a Pandas DataFrame. The table filters out certain columns, formats numeric
@@ -162,17 +214,20 @@ def gen_data_table(df):
     """
     cols = [c for c in df.columns if c if not ("diff" in c or "STDAE" in c)]
     return dash_table.DataTable(
-        id="pbe-benchmarks-table",
+        id=f"{name}-benchmarks-table",
         columns=[
             {
                 "name": i,
                 "id": i,
                 "type": "numeric",
+                "selectable": i not in ["Dataset", "Architecture"],
                 "format": Format(precision=2, scheme=Scheme.decimal, nully="-"),
             }
             for i in cols
         ],
         data=df.to_dict("records"),
+        column_selectable="single",
+        selected_columns=["Ef MAE"],
         style_data_conditional=[
             {
                 "if": {"row_index": "odd"},
@@ -230,9 +285,9 @@ layout = dbc.Container(
             width=12,
         ),
         dbc.Col(html.H4("PBE", className="section-title"), width=12),
-        create_graphs(pbe_df),
+        dbc.Col(dcc.Graph(id="pbe-graph"), width=12),
         dbc.Col(
-            gen_data_table(pbe_df),
+            gen_data_table(pbe_df, "pbe"),
             width=12,
         ),
         dbc.Col(
@@ -244,9 +299,9 @@ layout = dbc.Container(
             width=12,
             style={"padding-top": "30px"},
         ),
-        create_graphs(r2scan_df),
+        dbc.Col(dcc.Graph(id="r2scan-graph"), width=12),
         dbc.Col(
-            gen_data_table(r2scan_df),
+            gen_data_table(r2scan_df, "r2scan"),
             width=12,
         ),
         dbc.Col(
