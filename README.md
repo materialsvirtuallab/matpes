@@ -40,6 +40,10 @@ The aims of MatPES are three-fold:
    (r2SCAN) meta-GGA functional. The r2SCAN functional recovers all 17 exact constraints presently known for
    meta-GGA functionals and has shown good transferable accuracy across diverse bonding and chemistries.
 
+The workflow used to generate the MatPES dataset is shown below.
+
+![MatPES Workflow](assets/MatPES_workflow.png)
+
 #### How to use MatPES
 
 ##### Download
