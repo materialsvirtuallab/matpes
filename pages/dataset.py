@@ -43,89 +43,7 @@ The following is a single document in the `MatPES-PBE.json.gz` file. Comments ar
         "angle_tolerance": 5.0,
         "version": "2.5.0"
     },
-    "structure": {  # Pymatgen serialized structure.
-        "@module": "pymatgen.core.structure",
-        "@class": "Structure",
-        "charge": 0.0,
-        "lattice": {
-            "matrix": [
-                [
-                    3.178955709039007,
-                    0.0,
-                    0.0
-                ],
-                [
-                    0.9162579385309424,
-                    6.0443487692359605,
-                    0.0
-                ],
-                [
-                    0.8505975627954393,
-                    1.2610826193398135,
-                    2.5634942881327865
-                ]
-            ],
-            "pbc": [
-                true,
-                true,
-                true
-            ],
-            "a": 3.178955709039007,
-            "b": 6.11340172523328,
-            "c": 2.9808301783100504,
-            "alpha": 62.5448687562368,
-            "beta": 73.41987469637797,
-            "gamma": 81.3802049262522,
-            "volume": 49.25681734779065
-        },
-        "properties": {},
-        "sites": [
-            {
-                "species": [
-                    {
-                        "element": "Y",
-                        "occu": 1
-                    }
-                ],
-                "abc": [
-                    0.8262975288031029,
-                    0.1076795882636929,
-                    0.0790466796845521
-                ],
-                "properties": {
-                    "magmom": 0.147
-                },
-                "label": "Y",
-                "xyz": [
-                    2.792662437204551,
-                    0.7505373806601974,
-                    0.2026357118672113
-                ]
-            },
-            {
-                "species": [
-                    {
-                        "element": "Ti",
-                        "occu": 1
-                    }
-                ],
-                "abc": [
-                    0.4313331046725963,
-                    0.6086949234199679,
-                    0.9632165015661229
-                ],
-                "properties": {
-                    "magmom": 1.071
-                },
-                "label": "Ti",
-                "xyz": [
-                    2.748219999999993,
-                    4.893859999999998,
-                    2.469200000000001
-                ]
-            }
-        ]
-    },
+    "structure": {...},  # Pymatgen serialized structure.
     "energy": -13.19442081,  # The DFT energy per atom.
     "forces": [  # The DFT forces on each atom.
         [
@@ -146,6 +64,10 @@ The following is a single document in the `MatPES-PBE.json.gz` file. Comments ar
         22.84178803,
         23.6719352,
         6.22290851
+    ],
+    "abs_forces": [  # The absolute value of the DFT forces on each atom.
+        0.6631734649691654,
+        0.6631734649691654
     ],
     "matpes_id": "matpes-20240214_999484_73",  # A unique id associated with each structure.
     "bandgap": 0.0,  # The DFT band gap.
