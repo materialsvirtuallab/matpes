@@ -101,7 +101,7 @@ def get_category(el: Element) -> str:
 
 
 def pt_heatmap(
-    values: dict[str, float], label: str = "value", log: bool = False, include_artificial=False
+    values: dict[str, float], label: str = "value", log: bool = False, include_artificial=False, colorscale="YlOrRd"
 ) -> go.Figure:
     """
     Generate a heatmap visualization of the periodic table.
@@ -111,6 +111,7 @@ def pt_heatmap(
         label (str): Label for the values displayed.
         log (bool): Whether to use logarithmic scaling for the color axis.
         include_artificial (bool): Whether to include artificial elements. Defaults to False.
+        colorscale (str): Colorscale to use for the heatmap. Defaults to "YlOrRd".
 
     Returns:
         plotly.graph_objects.Figure: A scatter plot representing the heatmap.
@@ -195,6 +196,8 @@ def pt_heatmap(
         yaxis=dict(title=None, scaleanchor="x", scaleratio=1.33, autorange="reversed"),
         width=1200,
         height=900,
+        colorscale={"sequential": colorscale},
+        plot_bgcolor="white",
     )
 
     if log:

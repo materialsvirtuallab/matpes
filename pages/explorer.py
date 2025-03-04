@@ -212,7 +212,7 @@ def display_data(
 
     output = [
         f"Elemental Heatmap ({nstructures:,} structures)",
-        pt_heatmap(el_counts, label="Count", log=True),
+        pt_heatmap(el_counts, label="Count", log=True, colorscale="YlOrRd_r"),
         ecoh_fig,
         forces_fig,
         nsites_fig,
