@@ -56,7 +56,7 @@ alpha level.
 """
 
 LEGEND = r"""
-Matcalc-Benchmark metrics can be divided into three categories: equilibrium, near-equilibrium, and molecular dynamics
+MatCalc-Benchmark metrics can be divided into three categories: equilibrium, near-equilibrium, and molecular dynamics
 properties.
 
 | Task                          | Symbol     | Units        | Functional   | Test Source              | Number |
@@ -298,7 +298,7 @@ layout = dbc.Container(
             html.Div(dcc.Markdown(TABLE_NOTE)),
             width=12,
         ),
-        dbc.Col(html.H4("Overview of Matcalc-Benchmark Metrics"), width=12, style={"padding-top": "30px"}),
+        dbc.Col(html.H4("Overview of MatCalc-Benchmark Metrics"), width=12, style={"padding-top": "30px"}),
         dbc.Col(
             html.Div([dcc.Markdown(LEGEND)], id="matcalc-benchmark-legend"),
             width=12,
