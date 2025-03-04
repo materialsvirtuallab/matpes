@@ -74,9 +74,9 @@ properties.
 | **Molecular dynamics**        |            |              |              |                          |        |
 | Median termination temp       | T_1/2^term | K            | PBE & RRSCAN | [MVL]                    | 172    |
 | Ionic conductivity            | sigma      | mS/cm        | PBE          | [MVL]                    | 698    |
-| Time per atom per time step   | t_step     | ms/step/atom | PBE & RRSCAN | [MVL]                    | 1      |
+| Time per atom per step   | t_step     | ms/step/atom | PBE & RRSCAN | [MVL]                    | 1      |
 
-The time per atom per time step (t_step) was computed using MD simulations conducted on a single Intel Xeon Gold core
+The time per atom per step (t_step) was computed using LAMMPS MD simulations conducted on a single Intel Xeon Gold core
 for a system of 64 Si atoms under ambient conditions (300 K and 1 bar) over 50 ps with a 1 fs time step.
 
 [WBM]: https://doi.org/10.1038/s41524-020-00481-6
