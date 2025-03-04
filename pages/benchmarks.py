@@ -108,45 +108,6 @@ def get_sorted(df, i):
     return sorted(df[i].dropna())
 
 
-# def create_graphs(df):
-#     """
-#     Creates a series of bar graphs for a given DataFrame, where each graph corresponds
-#     to a specific column (starting from the third column) of the DataFrame. The charts
-#     represent the data grouped by "Architecture" and categorized by "Dataset".
-#
-#     Parameters:
-#         df (pandas.DataFrame): Input DataFrame containing the data to be visualized.
-#                                The DataFrame must include columns "Dataset",
-#                                "Architecture", and additional numerical columns
-#                                starting from the third column.
-#
-#     Returns:
-#         dash.development.base_component.Component: A Dash Bootstrap Component (dbc.Row),
-#                                                    which contains multiple dbc.Col
-#                                                    elements, each holding a Dash Core
-#                                                    Component (dcc.Graph) object. These
-#                                                    graphs represent the bar charts of
-#                                                    the DataFrame's numerical columns.
-#     """
-#     layout = dict(font=dict(size=18))
-#
-#     cols = []
-#     for i in df.columns[2:]:
-#         if not (i.endswith("STDAE") or "diff" in i):
-#             fig = px.bar(df, x="Dataset", y=i, color="Architecture", barmode="group")
-#             fig.update_layout(**layout)
-#             cols.append(
-#                 dbc.Col(
-#                     dcc.Graph(
-#                         id=f"{i}_hist",
-#                         figure=fig,
-#                     ),
-#                     width=6,
-#                 )
-#             )
-#     return dbc.Row(cols)
-
-
 @callback(
     Output("pbe-graph", "figure"),
     Input("pbe-benchmarks-table", "selected_columns"),
@@ -168,7 +129,8 @@ def update_pbe_graphs(selected_columns):
         comparisons using the selected column for the y-axis, grouped by architecture.
     """
     layout = dict(font=dict(size=18))
-    fig = px.bar(pbe_df, x="Dataset", y=selected_columns[0], color="Architecture", barmode="group")
+    col = selected_columns[0]
+    fig = px.bar(pbe_df, x="Dataset", y=col, color="Architecture", barmode="group")
     fig.update_layout(**layout)
     return fig
 
@@ -193,7 +155,16 @@ def update_r2scan_graphs(selected_columns):
             data using the selected column.
     """
     layout = dict(font=dict(size=18))
-    fig = px.bar(r2scan_df, x="Dataset", y=selected_columns[0], color="Architecture", barmode="group")
+    col = selected_columns[0]
+    # error_y = f"{col.split(' ')[0]} STDAE" if col.endswith("MAE") else None
+    fig = px.bar(
+        r2scan_df,
+        x="Dataset",
+        y=col,
+        # error_y=error_y,
+        color="Architecture",
+        barmode="group",
+    )
     fig.update_layout(**layout)
     return fig
 
@@ -227,7 +198,7 @@ def gen_data_table(df, name):
         ],
         data=df.to_dict("records"),
         column_selectable="single",
-        selected_columns=["Ef MAE"],
+        selected_columns=["d MAE"],
         style_data_conditional=[
             {
                 "if": {"row_index": "odd"},
@@ -287,6 +258,12 @@ layout = dbc.Container(
         dbc.Col(html.H4("PBE", className="section-title"), width=12),
         dbc.Col(dcc.Graph(id="pbe-graph"), width=12),
         dbc.Col(
+            html.Div(
+                "Clicking on the radio buttons graphs the selected column.",
+            ),
+            width=12,
+        ),
+        dbc.Col(
             gen_data_table(pbe_df, "pbe"),
             width=12,
         ),
@@ -299,7 +276,20 @@ layout = dbc.Container(
             width=12,
             style={"padding-top": "30px"},
         ),
+        dbc.Col(
+            html.Div(
+                "There are only a limited number of MatPES r2SCAN benchmarks for different models due to"
+                " the limited amount of other r2SCAN training data sets and ground-truth r2SCAN DFT data.",
+            ),
+            width=12,
+        ),
         dbc.Col(dcc.Graph(id="r2scan-graph"), width=12),
+        dbc.Col(
+            html.Div(
+                "Clicking on the radio buttons graphs the selected column.",
+            ),
+            width=12,
+        ),
         dbc.Col(
             gen_data_table(r2scan_df, "r2scan"),
             width=12,
