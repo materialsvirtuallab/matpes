@@ -11,10 +11,11 @@ dash.register_page(__name__, path="/dataset")
 MARKDOWN_CONTENT = """
 #### Introduction
 
-Each MatPES dataset is provided as a pair of gzipped files in the Javascript object notation (JSON) format. For
-example, the PBE dataset comprises `MatPES-PBE.json.gz` and `MatPES-atoms-PBE.json.gz`. The `MatPES-PBE.json.gz` file
-contains a list of structures with PES (energy, force, stresses) and associated metadata. The `MatPES-atoms-PBE.json.gz`
-provides reference atomic energies for each element, which is used to normalize the energy prior to training.
+Each MatPES dataset is provided as a gzipped file in the Javascript object notation (JSON) format. For example, the
+`MatPES-PBE-20240214.json.gz` file contains a list of structures with PES (energy, force, stresses) and associated
+metadata. The [PBE](https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-atoms.json.gz) and
+[r2SCAN](https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-R2SCAN-atoms.json.gz) atomic energies computed
+with the same  settings are also available, though you will probably not need them unless in special situations.
 
 #### Example document
 
