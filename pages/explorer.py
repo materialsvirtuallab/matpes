@@ -26,11 +26,15 @@ if TYPE_CHECKING:
     import pandas as pd
 
 dash.register_page(__name__)
-
+DATADIR = Path(__file__).absolute().parent
 # Define constants
 FUNCTIONALS = ("PBE", "r2SCAN")
 
-DATADIR = Path(__file__).absolute().parent
+STATS = {}
+for func in FUNCTIONALS:
+    with open(DATADIR / f"{func.lower()}_stats.json") as f:
+        STATS[func] = json.load(f)
+
 
 DEFAULT_FIG_LAYOUT = dict(font=dict(size=18), yaxis=dict(nticks=8))
 
@@ -164,8 +168,7 @@ def display_data(
 
         data["nelements"] = {"counts": counts.tolist(), "bins": bins.tolist()}
     else:
-        with open(DATADIR / f"{functional.lower()}_stats.json") as f:
-            data = json.load(f)
+        data = STATS[functional]
     nstructures = data["nstructures"]
     el_counts = collections.defaultdict(int)
     el_counts.update(data["element_counts"])
