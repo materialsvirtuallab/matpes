@@ -52,7 +52,10 @@ near-equilibrium benchmark datasets soon in the MatCalc repository together with
 TABLE_NOTE = """
 For MAEs, all values not statistically different from the best value in each column are highlighted. Statistical
 significance is determined using a [paired t-test](https://en.wikipedia.org/wiki/Paired_difference_test) with 0.05
-alpha level.
+alpha level. It should be noted that the Ef test set was derived from the WBM database, which was computed using a
+different set of pseudopotential settings. This is likely the reason why the reported Ef MAEs are higher than
+expected. We are in the process of updating the Ef benchmark data with consistent settings for the MatPES models. We
+expect the performance to be comparable to the OMat24 models.
 """
 
 LEGEND = r"""
@@ -63,18 +66,18 @@ properties.
 |-------------------------------|------------|--------------|--------------|--------------------------|--------|
 | **Equilibrium**               |            |              |              |                          |        |
 | Structural similarity         | \|v\|      | -            | PBE          | [WBM]                    | 1, 000 |
-|                               |            | -            | RRSCAN       | [GNoME]                  | 1,000  |
+|                               |            | -            | r2SCAN       | [GNoME]                  | 1,000  |
 | Formation energy per atom     | Ef         | eV/atom      | PBE          | [WBM]                    | 1,000  |
-|                               |            | eV/atom      | RRSCAN       | [GNoME]                  | 1,000  |
+|                               |            | eV/atom      | r2SCAN       | [GNoME]                  | 1,000  |
 | **Near-equilibrium**          |            |              |              |                          |        |
 | Bulk modulus                  | K_VRH      | GPa          | PBE          | [MP]                     | 3,959  |
 | Shear modulus                 | G_VRH      | GPa          | PBE          | [MP]                     | 3,959  |
 | Constant volume heat capacity | C_V        | J/mol/K      | PBE          | [Alexandria]             | 1,170  |
 | Off-equilibrium force         | F/F_DFT    | --           | PBE          | [WBM high energy states] | 979    |
 | **Molecular dynamics**        |            |              |              |                          |        |
-| Median termination temp       | T_1/2^term | K            | PBE & RRSCAN | [MVL]                    | 172    |
+| Median termination temp       | T_1/2^term | K            | PBE & r2SCAN | [MVL]                    | 172    |
 | Ionic conductivity            | sigma      | mS/cm        | PBE          | [MVL]                    | 698    |
-| Time per atom per step   | t_step     | ms/step/atom | PBE & RRSCAN | [MVL]                    | 1      |
+| Time per atom per step        | t_step     | ms/step/atom | PBE & r2SCAN | [MVL]                    | 1      |
 
 The time per atom per step (t_step) was computed using LAMMPS MD simulations conducted on a single Intel Xeon Gold core
 for a system of 64 Si atoms under ambient conditions (300 K and 1 bar) over 50 ps with a 1 fs time step.
