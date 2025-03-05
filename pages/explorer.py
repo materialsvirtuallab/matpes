@@ -32,7 +32,7 @@ FUNCTIONALS = ("PBE", "r2SCAN")
 
 DATADIR = Path(__file__).absolute().parent
 
-DEFAULT_FIG_LAYOUT = dict(font=dict(size=18))
+DEFAULT_FIG_LAYOUT = dict(font=dict(size=18), yaxis=dict(nticks=8))
 
 
 def get_data(
