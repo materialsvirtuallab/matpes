@@ -28,7 +28,7 @@ potentials (UMLIPs) on a balanced set of equilibrium, near-equilibrium and molec
 In addition to the property metrics, it is important to consider the training data size and the number of
 parameters of the UMLIPs. Large datasets are difficult to train with, requiring large amounts of CPU/GPU resources.
 For instance, the training time for TensorNet on the MatPES-PBE dataset is about 15 minutes per epoch on a single
-Nvidia RTX A6000 GPU, while that for the same model on the OMat24 dataset is around 20 hours per epoch on eight Nvidia
+Nvidia RTX A6000 GPU, while that for the same model on the OMat24 dataset is around 20 hours per epoch on 16 Nvidia
 A100 GPUs. UMLIPs with large number of parameters will be expensive to run in MD simulations (see t_step metric below),
 limiting the size of the simulation cells or time scales you can study. For reference, the t_step of eqV2-OMat24 is
 around 213 ms/atom/step (~2 orders of magnitude more expensive than the models shown here).
