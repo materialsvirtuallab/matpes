@@ -16,8 +16,8 @@ dash.register_page(__name__, path="/benchmarks")
 
 DATADIR = Path(__file__).absolute().parent
 
-pbe_df = pd.read_csv(DATADIR / "matcalc-benchmark-pbe.csv")
-r2scan_df = pd.read_csv(DATADIR / "matcalc-benchmark-r2scan.csv")
+BENCHMARK_DATA = {func: pd.read_csv(DATADIR / f"matcalc-benchmark-{func.lower()}.csv") for func in ("PBE", "r2SCAN")}
+
 
 INTRO_CONTENT = """
 ## MatCalc-Benchmark
@@ -112,64 +112,38 @@ def get_sorted(df, i):
 
 
 @callback(
-    Output("pbe-graph", "figure"),
-    Input("pbe-benchmarks-table", "selected_columns"),
+    [Output("pbe-graph", "figure"), Output("r2scan-graph", "figure")],
+    [Input("pbe-benchmarks-table", "selected_columns"), Input("r2scan-benchmarks-table", "selected_columns")],
 )
-def update_pbe_graphs(selected_columns):
+def update_graphs(selected_columns_pbe, selected_columns_r2scan):
     """
-    This function is a callback for updating a bar plot figure of performance benchmarks
-    based on the selected columns in a Dash DataTable component. It generates and
-    configures the bar chart showing benchmark comparisons between architectures for
-    various datasets.
+    Updates the graphs for PBE and R2SCAN benchmarks based on the selected columns.
 
-    Args:
-        selected_columns (list): A list of selected column names from the benchmark
-        DataTable. It is expected to be a non-empty list with the first column name
-        used for the y-axis of the plot.
+    This function generates bar graphs dynamically using the selected columns from the
+    data tables for PBE and R2SCAN benchmarks. Each graph visualizes the performance of
+    various architectures on specific datasets and updates their appearance using provided
+    layout settings.
+
+    Arguments:
+    selected_columns_pbe: list
+        List of selected column names from the PBE benchmarks table.
+    selected_columns_r2scan: list
+        List of selected column names from the R2SCAN benchmarks table.
 
     Returns:
-        plotly.graph_objects.Figure: A bar chart figure, showing the benchmark
-        comparisons using the selected column for the y-axis, grouped by architecture.
+    tuple
+        A tuple containing two graph figures, one for PBE and one for
+        R2SCAN benchmarks, represented as Plotly Figure objects.
+
     """
     layout = dict(font=dict(size=18))
-    col = selected_columns[0]
-    fig = px.bar(pbe_df, x="Dataset", y=col, color="Architecture", barmode="group")
-    fig.update_layout(**layout)
-    return fig
-
-
-@callback(
-    Output("r2scan-graph", "figure"),
-    Input("r2scan-benchmarks-table", "selected_columns"),
-)
-def update_r2scan_graphs(selected_columns):
-    """
-    Updates the R2SCAN graph figure based on selected benchmark table columns. The function takes
-    the selected columns from a table as input and generates a bar graph displaying benchmark metrics
-    grouped by architecture, using the provided dataset. The graph figure is updated with a defined
-    layout for consistent formatting.
-
-    Args:
-        selected_columns (list of str): A list containing the selected column names from the
-            benchmarks table.
-
-    Returns:
-        plotly.graph_objs._figure.Figure: The updated bar graph figure representing the benchmark
-            data using the selected column.
-    """
-    layout = dict(font=dict(size=18))
-    col = selected_columns[0]
-    # error_y = f"{col.split(' ')[0]} STDAE" if col.endswith("MAE") else None
-    fig = px.bar(
-        r2scan_df,
-        x="Dataset",
-        y=col,
-        # error_y=error_y,
-        color="Architecture",
-        barmode="group",
-    )
-    fig.update_layout(**layout)
-    return fig
+    figs = []
+    for cols, (_func, df) in zip([selected_columns_pbe, selected_columns_r2scan], BENCHMARK_DATA.items(), strict=False):
+        col = cols[0]
+        fig = px.bar(df, x="Dataset", y=col, color="Architecture", barmode="group")
+        fig.update_layout(**layout)
+        figs.append(fig)
+    return figs
 
 
 def gen_data_table(df, name):
@@ -230,7 +204,7 @@ def gen_data_table(df, name):
             },
             {
                 "if": {
-                    "filter_query": "{{f/f_DFT}} = {}".format(pbe_df["f/f_DFT"].max()),
+                    "filter_query": "{{f/f_DFT}} = {}".format(df["f/f_DFT"].max() if "f/f_DFT" in df else 0),
                     "column_id": "f/f_DFT",
                 },
                 "font-weight": "bold",
@@ -267,7 +241,7 @@ layout = dbc.Container(
             width=12,
         ),
         dbc.Col(
-            gen_data_table(pbe_df, "pbe"),
+            gen_data_table(BENCHMARK_DATA["PBE"], "pbe"),
             width=12,
         ),
         dbc.Col(
@@ -294,7 +268,7 @@ layout = dbc.Container(
             width=12,
         ),
         dbc.Col(
-            gen_data_table(r2scan_df, "r2scan"),
+            gen_data_table(BENCHMARK_DATA["r2SCAN"], "r2scan"),
             width=12,
         ),
         dbc.Col(
