@@ -16,7 +16,7 @@ foundational models), with near-complete coverage of the periodic table of eleme
 [CHGNet], [MACE], to name a few. uMLIPs have broad applications, including materials discovery and the
 prediction of PES-derived properties such as elastic constants, phonon dispersion, etc.
 
-However, most current uMLIPs were trained on DFT relaxation calculations from the [Materials Project].
+However, most current uMLIPs were trained on DFT relaxation calculations, e.g., from the [Materials Project].
 This dataset, referred to as `MPF` or `MPTraj` in the literature, suffer from several issues:
 
 1. The energies, forces, and stresses are not converged to the accuracies necessary to train a high quality MLIP.
@@ -25,7 +25,7 @@ This dataset, referred to as `MPF` or `MPTraj` in the literature, suffer from se
    (GGA) functional, even though improved functionals with better performance across diverse chemistries and bonding
    such as the strongly constrained and appropriately normed (SCAN) meta-GGA functional already exists.
 
-MatPES is a continuing effort to address these limitations comprehensively.
+MatPES is an initiative to address these limitations comprehensively.
 
 #### Goals
 
@@ -33,14 +33,19 @@ The aims of MatPES are three-fold:
 
 1. **Accuracy.** The data in MatPES was computed using static DFT calculations with stringent converegence criteria.
    Please refer to the `MatPESStaticSet` in [pymatgen] for details.
-2. **Diversity.** The structures in MatPES are robustly sampled from 300K MD simulations using the original [M3GNet]
-   uMLIP. MatPES uses a modified version of DImensionality-Reduced Encoded Clusters with sTratified ([DIRECT])
-   sampling to ensure comprehensive coverage of structures and local environments.
+2. **Comprehensiveness.** The structures in MatPES are using a 2-stage version of DImensionality-Reduced
+   Encoded Clusters with sTratified ([DIRECT]) sampling from a greatly expanded configuration of structures from MD
+   simulations with the pre-trained [M3GNet] UMLIP.
 3. **Quality.** MatPES contains not only data computed using the PBE functional, but also the revised regularized SCAN
    (r2SCAN) meta-GGA functional. The r2SCAN functional recovers all 17 exact constraints presently known for
    meta-GGA functionals and has shown good transferable accuracy across diverse bonding and chemistries.
 
-The workflow used to generate the MatPES dataset is shown below.
+The workflow used to generate the MatPES dataset is shown below. The initial v2025.1 release comprises ~400,000
+structures from 300K MD simulations and Materials Project ground state calculations. This dataset is much smaller
+than other PES datasets in the literature and yet achieves essentially comparable or, in some cases, improved
+performance and reliability. The [MatPES.ai] website provides a comprehensive analysis of the
+[statistics](http://matpes.ai/explorer) and [performance benchmarks](http://matpes.ai/benchmarks) of the MatPES
+dataset.
 
 ![matpes_workflow](assets/MatPES_workflow.png)
 
@@ -48,10 +53,9 @@ The workflow used to generate the MatPES dataset is shown below.
 
 ##### Download
 
-You can download the entire MatPES dataset at [MatPES.ai](https://matpes.ai).
-(note: links are not functional until publication).
+You can download the MatPES datasets at [MatPES.ai].
 
-##### MatPES tool
+##### MatPES library
 
 We have also provided a simple library to work with MatPES. Using this tool, you can download the MatPES dataset
 and extract subsets of the data, e.g., by elements or chemical system.
@@ -62,7 +66,7 @@ Install the latest version of the `matpes` library using pip.
 pip install matpes
 ```
 
-The `matpes` tool comes with a command-line interface for working with the matpes dataset.
+The `matpes` library comes with a command-line interface for working with the matpes dataset.
 
 ```shell
 # Download the PBE dataset to the current directory
@@ -76,10 +80,6 @@ matpes data -i MatPES-PBE-20240214.json.gz --chemsys Fe-O -o Fe-O.json.gz
 
 The `matpes.db` module also provides functionality to create your own MongoDB database with the MatPES downloaded data,
 which is extremely useful if you are going to be working with the data (e.g., querying, adding entries, etc.) a lot.
-
-##### Exploring
-
-The [MatPES Explorer](explorer) provides a statistical visualization of the dataset.
 
 ##### Pre-trained uMLIPs
 
@@ -108,3 +108,4 @@ A foundational potential energy surface dataset for materials. Submitted.
 [CHGNet]: http://doi.org/10.1038/s42256-023-00716-3
 [MACE]: https://proceedings.neurips.cc/paper_files/paper/2022/hash/4a36c3c51af11ed9f34615b81edb5bbc-Abstract-Conference.html
 [DIRECT]: https//doi.org/10.1038/s41524-024-01227-4
+[MatPES.ai]: https://matpes.ai
