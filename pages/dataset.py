@@ -19,23 +19,28 @@ with the same  settings are also available, though you will probably not need th
 
 #### Example document
 
-The following is a single document in the `MatPES-PBE.json.gz` file. Comments are provided for each field.
+The following is a commented version of a single entry in the `MatPES-PBE-20240214.json.gz` file.
 
 ```json
 {
-    "builder_meta": {...},  # This metadata field is used by the MatPES developers only.
-    "nsites": 2,  # Number of sites in the structure.
-    "elements": ["Ti", "Y"],  # The elements in the structure.
-    "nelements": 2,  # Number of elements for this structure.
-    "composition": {"Y": 1.0, "Ti": 1.0},  # The composition as a dict.
-    "composition_reduced": {"Y": 1.0, "Ti": 1.0},  # The reduced/normalized composition as a dict.
-    "formula_pretty": "YTi",  # An easy to read string formula.
-    "formula_anonymous": "AB",  # An anonymous formula.
-    "chemsys": "Ti-Y",  # The chemical system the structure is associated with.
-    "volume": 49.25681734779065,  # The volume of the structure.
-    "density": 4.6108675489852535,  # The density of the structure.
-    "density_atomic": 24.628408673895326,  # The atomic density of the structure.
-    "symmetry": {
+    "builder_meta": { ... },  // Metadata used by MatPES developers only.
+
+    "nsites": 2,  // Number of sites in the structure.
+    "elements": ["Ti", "Y"],  // Elements present in the structure.
+    "nelements": 2,  // Number of unique elements in the structure.
+
+    "composition": { "Y": 1.0, "Ti": 1.0 },  // Elemental composition as a dictionary.
+    "composition_reduced": { "Y": 1.0, "Ti": 1.0 },  // Reduced/normalized composition.
+
+    "formula_pretty": "YTi",  // Readable chemical formula.
+    "formula_anonymous": "AB",  // Anonymous formula representation.
+    "chemsys": "Ti-Y",  // Chemical system association.
+
+    "volume": 49.25681734779065,  // Structure volume in Å³.
+    "density": 4.6108675489852535,  // Density in g/cm³.
+    "density_atomic": 24.628408673895326,  // Atomic density.
+
+    "symmetry": {  // Crystallographic symmetry information.
         "crystal_system": "Monoclinic",
         "symbol": "Pm",
         "number": 6,
@@ -44,45 +49,42 @@ The following is a single document in the `MatPES-PBE.json.gz` file. Comments ar
         "angle_tolerance": 5.0,
         "version": "2.5.0"
     },
-    "structure": {...},  # Pymatgen serialized structure.
-    "energy": -13.19442081,  # The DFT energy per atom.
-    "forces": [  # The DFT forces on each atom.
-        [
-            0.43578007,
-            -0.32456562,
-            -0.38019986
-        ],
-        [
-            -0.43578007,
-            0.32456562,
-            0.38019986
-        ]
+
+    "structure": { ... },  // Pymatgen serialized structure.
+
+    "energy": -13.19442081,  // DFT energy per atom in eV.
+
+    "forces": [  // DFT-calculated forces on each atom (eV/Å).
+        [0.43578007, -0.32456562, -0.38019986],
+        [-0.43578007, 0.32456562, 0.38019986]
     ],
-    "stress": [  # The DFT stress.
-        -5.71186022,
-        -9.34590239,
-        13.64346365,
-        22.84178803,
-        23.6719352,
-        6.22290851
+
+    "stress": [  // DFT-calculated stress tensor components (GPa).
+        -5.71186022, -9.34590239, 13.64346365,
+        22.84178803, 23.6719352, 6.22290851
     ],
-    "abs_forces": [  # The absolute value of the DFT forces on each atom.
+
+    "abs_forces": [  // Magnitude of DFT forces per atom.
         0.6631734649691654,
         0.6631734649691654
     ],
-    "matpes_id": "matpes-20240214_999484_73",  # A unique id associated with each structure.
-    "bandgap": 0.0,  # The DFT band gap.
-    "functional": "PBE",  # The DFT functional.
-    "formation_energy_per_atom": 0.5199284258333332,  # The DFT formation energy per atom.
-    "cohesive_energy_per_atom": -4.266150985,  # The DFT cohesive energy per atom.
-    "provenance": {  # Important metadata on how the structure was obtained.
-        "original_mp_id": "mp-999484",
+
+    "matpes_id": "matpes-20240214_999484_73",  // Unique MatPES ID for this structure.
+
+    "bandgap": 0.0,  // DFT-calculated electronic band gap (eV).
+    "functional": "PBE",  // DFT exchange-correlation functional.
+
+    "formation_energy_per_atom": 0.5199284258333332,  // Formation energy per atom (eV).
+    "cohesive_energy_per_atom": -4.266150985,  // Cohesive energy per atom (eV).
+
+    "provenance": {  // Metadata describing dataset origin and simulation conditions.
+        "original_mp_id": "mp-999484",  // Source ID from the Materials Project.
         "materials_project_version": "v2022.10.28",
-        "md_ensemble": "NpT",
-        "md_temperature": 300.0,
-        "md_pressure": 1.0,
-        "md_step": 93,
-        "mlip_name": "M3GNet-MP-2021.2.8-DIRECT"
+        "md_ensemble": "NpT",  // Molecular dynamics ensemble type.
+        "md_temperature": 300.0,  // MD simulation temperature (K).
+        "md_pressure": 1.0,  // MD simulation pressure (atm).
+        "md_step": 93,  // MD simulation step number.
+        "mlip_name": "M3GNet-MP-2021.2.8-DIRECT"  // Machine learning potential used.
     }
 }
 ```
