@@ -1,7 +1,7 @@
 [![GitHub license](https://img.shields.io/github/license/materialsvirtuallab/matpes)](https://github.com/materialsvirtuallab/matpes/blob/main/LICENSE)
 [![Linting](https://github.com/materialsvirtuallab/matpes/workflows/Linting/badge.svg)](https://github.com/materialsvirtuallab/matpes/workflows/Linting/badge.svg)
 
-### Goals
+### Aims
 
 MatPES is an initiative by the [Materials Virtual Lab] and the [Materials Project] to address
 [critical deficiencies](http://matpes.ai/about) in potential energy surface (PES) datasets for materials.
@@ -17,7 +17,7 @@ The initial v2025.1 release comprises ~400,000 structures from 300K MD simulatio
 than other PES datasets in the literature and yet achieves comparable or, in some cases,
 [improved performance and reliability](http://matpes.ai/benchmarks).
 
-### MatPES library
+### Software
 
 The `matpes` python package, which provides tools for working with the MatPES datasets, can be installed via pip:
 
@@ -40,15 +40,15 @@ matpes data -i MatPES-PBE-20240214.json.gz --chemsys Fe-O -o Fe-O.json.gz
 The `matpes.db` module provides functionality to create your own MongoDB database with the MatPES downloaded data,
 which is extremely useful if you are going to be working with the data (e.g., querying, adding entries, etc.) a lot.
 
-### Pre-trained uMLIPs
+### Models
 
-We have released a set of MatPES-trained uMLIPs in various architectures ([M3GNet], [CHGNet], [TensorNet]) in
-the [MatGL] package. This is by far the easiest way to get started with using MatPES.
+We have released a set of MatPES-trained universal machine learning interatomic potentials (UMLIPs) in the [M3GNet],
+[CHGNet], [TensorNet] architectures in the [MatGL] package.
 
-### Notebooks
+### Tutorials
 
 We have provided a series of Jupyter notebooks demonstrating how to load the MatPES dataset, train a model and perform
-finetuning.
+fine-tuning.
 
 ### Citing
 

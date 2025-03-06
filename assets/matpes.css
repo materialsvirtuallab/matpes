@@ -6,8 +6,6 @@
     background: -webkit-linear-gradient(#613B9B, darkblue);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: 5rem;
-    text-align: center;
 }
 
 #matpes-tagline{
@@ -47,7 +45,6 @@
 }
 
 .download-button {
-    width: 8rem;
     border-radius: 0.5rem;
 }
 

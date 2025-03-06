@@ -17,38 +17,57 @@ with open(readme, encoding="utf-8") as f:
 
 MARKDOWN_CONTENT = "\n".join(MARKDOWN_CONTENT.split("\n")[2:])
 
+jumbotron = html.Div(
+    dbc.Container(
+        [
+            html.H1("MatPES", className="display-3", id="matpes-title"),
+            html.P(
+                "A Foundational Potential Energy Surface Dataset for Materials.",
+                className="lead",
+            ),
+            html.Hr(className="my-2"),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dbc.Button(
+                            "PBE",
+                            href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-20240214.json.gz",
+                            class_name="me-1 download-button",
+                            color="info",
+                            external_link=True,
+                        ),
+                        width=1,
+                        align="center",
+                        className="d-grid gap-2",
+                    ),
+                    dbc.Col(
+                        dbc.Button(
+                            "r2SCAN",
+                            href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-r2SCAN-20240214.json.gz",
+                            class_name="me-1 download-button",
+                            color="success",
+                            external_link=True,
+                        ),
+                        width=1,
+                        align="center",
+                        className="d-grid gap-2",
+                    ),
+                ],
+            ),
+        ],
+        fluid=True,
+        className="py-3",
+    ),
+    className="p-3 bg-body-secondary rounded-3",
+)
+
+
 layout = dbc.Container(
     [
-        html.H1("MatPES", id="matpes-title"),
-        html.H2("A Foundational Potential Energy Surface Dataset for Materials", id="matpes-tagline"),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Button(
-                        "PBE",
-                        href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-20240214.json.gz",
-                        class_name="ms-2 download-button btn-lg",
-                        color="success",
-                        external_link=True,
-                    ),
-                    width={"size": 2, "offset": 4},
-                    align="center",
-                ),
-                dbc.Col(
-                    dbc.Button(
-                        "r2SCAN",
-                        href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-r2SCAN-20240214.json.gz",
-                        class_name="ms-2 download-button btn-lg",
-                        color="info",
-                        external_link=True,
-                    ),
-                    width=2,
-                    align="center",
-                ),
-            ],
-        ),
+        jumbotron,
         dbc.Row(
             html.Div([dcc.Markdown(MARKDOWN_CONTENT)]),
+            className="mt-4",
         ),
     ]
 )
