@@ -52,11 +52,44 @@ fine-tuning.
 
 ### Citing
 
-If you use MatPES, please cite the following work:
+If you use the MatPES dataset, please cite the following work:
 
 ```txt
 Aaron Kaplan, Runze Liu, Ji Qi, Tsz Wai Ko, Bowen Deng, Gerbrand Ceder, Kristin A. Persson, Shyue Ping Ong.
 A foundational potential energy surface dataset for materials. Submitted.
+```
+
+In addition, if you are using any of the pre-trained UMLIPs or architectures, please cite the references below on the
+architecture used as well as MatGL.
+
+[M3GNet]
+
+```txt
+Chen, C.; Ong, S. P. A Universal Graph Deep Learning Interatomic Potential for the Periodic Table. Nat Comput
+Sci 2022, 2 (11), 718–728. DOI: 10.1038/s43588-022-00349-3
+```
+
+[CHGNet]
+
+```txt
+Deng, B.; Zhong, P.; Jun, K.; Riebesell, J.; Han, K.; Bartel, C. J.; Ceder, G. CHGNet as a Pretrained Universal
+Neural Network Potential for Charge-Informed Atomistic Modelling. Nat Mach Intell 2023, 5 (9), 1031–1041.
+DOI: 10.1038/s42256-023-00716-3.
+```
+
+[TensorNet]
+
+```txt
+Simeon, G.; de Fabritiis, G. TensorNet: Cartesian Tensor Representations for Efficient Learning of Molecular
+Potentials. arXiv October 30, 2023. DOI: 10.48550/arXiv.2306.06482.
+```
+
+[MatGL]
+
+```txt
+Ko, T. W.; Deng, B.; Nassar, M.; Barroso-Luque, L.; Liu, R.; Qi, J.; Liu, E.; Ceder, G.; Miret, S.;
+Ong, S. P. Materials Graph Library (MatGL), an open-source graph deep learning library for materials science and
+chemistry. Submitted.
 ```
 
 [Materials Virtual Lab]: http://materialsvirtuallab.org

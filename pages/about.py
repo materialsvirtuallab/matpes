@@ -11,9 +11,6 @@ dash.register_page(__name__, path="/about")
 MARKDOWN_CONTENT = """
 ### Background
 
-Welcome to MatPES, a foundational potential energy surface (PES) dataset for materials. This is a collaboration between
-the [Materials Virtual Lab] and the [Materials Project].
-
 Machine learning interatomic potentials (MLIPs) have revolutionized the field of computational materials science.
 MLIPs use ML to reproduce the PES (energies, forces, and stresses) of a collection of atoms, typically computed
 using an ab initio method such as density functional theory (DFT).
@@ -33,11 +30,10 @@ This dataset, referred to as `MPF` or `MPTraj` in the literature, suffer from se
    (GGA) functional, even though improved functionals with better performance across diverse chemistries and bonding
    such as the strongly constrained and appropriately normed (SCAN) meta-GGA functional already exists.
 
-MatPES is an initiative to address these limitations comprehensively.
-
 ### Goals
 
-The aims of MatPES are three-fold:
+MatPES is an initiative by the [Materials Virtual Lab] and the [Materials Project] to address these limitations
+comprehensively. The aims of MatPES are three-fold:
 
 1. **Accuracy.** The data in MatPES was computed using static DFT calculations with stringent converegence criteria.
    Please refer to the `MatPESStaticSet` in [pymatgen] for details.
