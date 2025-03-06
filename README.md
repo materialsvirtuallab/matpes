@@ -8,7 +8,7 @@ MatPES is an initiative by the [Materials Virtual Lab] and the [Materials Projec
 
 1. **Accuracy.** MatPES is computed using static DFT calculations with stringent converegence criteria.
    Please refer to the `MatPESStaticSet` in [pymatgen] for details.
-2. **Comprehensiveness.** MatPES structures are constructed using a 2-stage version of DImensionality-Reduced
+2. **Comprehensiveness.** MatPES structures are sampled using a 2-stage version of DImensionality-Reduced
    Encoded Clusters with sTratified ([DIRECT]) sampling from a greatly expanded configuration of MD structures.
 3. **Quality.** MatPES includes computed data from the PBE functional, as well as the high fidelity r2SCAN meta-GGA
    functional with improved description across diverse bonding and chemistries.

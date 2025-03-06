@@ -27,32 +27,26 @@ jumbotron = html.Div(
             ),
             html.Hr(className="my-2"),
             dbc.Row(
-                [
-                    dbc.Col(
+                html.Div(
+                    [
                         dbc.Button(
                             "PBE",
                             href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-20240214.json.gz",
                             class_name="me-1 download-button",
                             color="info",
                             external_link=True,
+                            size="lg",
                         ),
-                        width=1,
-                        align="center",
-                        className="d-grid gap-2",
-                    ),
-                    dbc.Col(
                         dbc.Button(
                             "r2SCAN",
                             href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-r2SCAN-20240214.json.gz",
                             class_name="me-1 download-button",
                             color="success",
                             external_link=True,
+                            size="lg",
                         ),
-                        width=1,
-                        align="center",
-                        className="d-grid gap-2",
-                    ),
-                ],
+                    ]
+                ),
             ),
         ],
         fluid=True,
