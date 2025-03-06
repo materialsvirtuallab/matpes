@@ -22,31 +22,25 @@ BENCHMARK_DATA = {func: pd.read_csv(DATADIR / f"matcalc-benchmark-{func.lower()}
 INTRO_CONTENT = """
 ## MatCalc-Benchmark
 
-The MatCalc-Benchmark is designed to evaluate the performance of different universal machine learning interatomic
-potentials (UMLIPs) on a balanced set of equilibrium, near-equilibrium and molecular dynamics properties of materials.
+The MatCalc-Benchmark evaluates UMLIP performance across equilibrium, near-equilibrium, and molecular dynamics
+properties.
 
-In addition to the property metrics, it is important to consider the training data size and the number of
-parameters of the UMLIPs. Large datasets are difficult to train with, requiring large amounts of CPU/GPU resources.
-For instance, the training time for TensorNet on the MatPES-PBE dataset is about 15 minutes per epoch on a single
-Nvidia RTX A6000 GPU, while that for the same model on the OMat24 dataset is around 20 hours per epoch on 16 Nvidia
-A100 GPUs. UMLIPs with large number of parameters will be expensive to run in MD simulations (see t_step metric below),
-limiting the size of the simulation cells or time scales you can study. For reference, the t_step of eqV2-OMat24 is
-around 213 ms/atom/step (~2 orders of magnitude more expensive than the models shown here).
+Important notes:
+- Beyond property metrics, training data size and model complexity are crucial.
+- Large datasets demand significant computational resources. TensorNet training on MatPES-PBE takes ~15 min/epoch on an
+  RTX A6000 GPU, whereas OMat24 requires ~20 hours/epoch on 16 A100 GPUs.
+- Complex models with high parameter counts are computationally expensive, restricting MD simulation scale and time.
+  For instance, eqV2-OMat24 has a t_step of ~213 ms/atom/step, nearly 100 times costlier than the models reported here.
+- Performance differences should be viewed in context of statistical significance. Given that the same datasets are
+  used for all models, we determine statistical  significance is determined using a
+  [paired t-test](https://en.wikipedia.org/wiki/Paired_difference_test) with 0.05 alpha level.
 
-For the initial launch, we have included M3GNet, CHGNet and TensorNet UMLIPs trained on the MatPES, MPF,
-MPtrj, and OMat24 datasets. The sizes of the datasets are:
-- MPF: 185,877
-- MPtrj: 1,580,395
-- OMat24: 100,824,585
-- MatPES PBE: 434,712
-- MatPES r2SCAN: 387,897
-
-We welcome the contribution of other UMLIPs to be added to this MatCalc-Benchmark. To ensure a fair comparison, we
-will require all UMLIPs included in the benchmark to provide **information about training dataset size, training cost,
-and the number of parameters**, in addition to the performance metrics below. The easiest way to run the benchmark is to
-implement an ASE compatible calculator, which can then be used with the
+We welcome the community's contribution of UMLIPs to this MatCalc-Benchmark. To ensure a fair
+comparison, please provide **information about training dataset size, training cost, and the number of parameters**.
+The easiest way to run the benchmark is to implement an ASE compatible calculator, which can then be used with the
 [MatCalc](https://github.com/materialsvirtuallab/matcalc) package. We will release the equilibrium and
-near-equilibrium benchmark datasets soon in the MatCalc repository together with benchmarking tools.
+near-equilibrium benchmark datasets soon in the MatCalc repository together with benchmarking tools. The MD
+benchmarks can only be run by the Materials Virtual Lab.
 """
 
 TABLE_NOTE = """
@@ -59,6 +53,8 @@ expect the performance to be comparable to the OMat24 models.
 """
 
 LEGEND = r"""
+##### Metrics
+
 MatCalc-Benchmark metrics can be divided into three categories: equilibrium, near-equilibrium, and molecular dynamics
 properties.
 
@@ -81,6 +77,19 @@ properties.
 
 The time per atom per step (t_step) was computed using LAMMPS MD simulations conducted on a single Intel Xeon Gold core
 for a system of 64 Si atoms under ambient conditions (300 K and 1 bar) over 50 ps with a 1 fs time step.
+
+##### Datasets
+
+The current MatCalc-Benchmark includes M3GNet, CHGNet and TensorNet UMLIPs trained on the MatPES, MPF,
+MPtrj, and OMat24 datasets, summarized below.
+
+| Dataset       | Number of Structures |
+|--------------|---------------------|
+| MPF         | 185,877             |
+| MPtrj       | 1,580,395           |
+| OMat24      | 100,824,585         |
+| MatPES PBE  | 434,712             |
+| MatPES r²SCAN | 387,897           |
 
 [WBM]: https://doi.org/10.1038/s41524-020-00481-6
 [GNoME]: https://doi.org/10.1038/s41586-023-06735-9
@@ -226,56 +235,73 @@ def gen_data_table(df, name):
     )
 
 
+pbe_tab = dbc.Card(
+    dbc.CardBody(
+        [
+            dbc.Col(dcc.Graph(id="pbe-graph"), width=12),
+            dbc.Col(
+                html.Div(
+                    "Clicking on the radio buttons graphs the selected column.",
+                ),
+                width=12,
+            ),
+            dbc.Col(
+                gen_data_table(BENCHMARK_DATA["PBE"], "pbe"),
+                width=12,
+            ),
+            dbc.Col(
+                html.Div(dcc.Markdown(TABLE_NOTE)),
+                width=12,
+            ),
+        ]
+    ),
+    className="mt-3",
+)
+
+r2scan_tab = dbc.Card(
+    dbc.CardBody(
+        [
+            dbc.Col(
+                html.Div(
+                    "There are only a limited number of MatPES r2SCAN benchmarks for different models due to"
+                    " the limited amount of other r2SCAN training data sets and ground-truth r2SCAN DFT data.",
+                ),
+                width=12,
+            ),
+            dbc.Col(dcc.Graph(id="r2scan-graph"), width=12),
+            dbc.Col(
+                html.Div(
+                    "Clicking on the radio buttons graphs the selected column.",
+                ),
+                width=12,
+            ),
+            dbc.Col(
+                gen_data_table(BENCHMARK_DATA["r2SCAN"], "r2scan"),
+                width=12,
+            ),
+            dbc.Col(
+                html.Div(dcc.Markdown(TABLE_NOTE)),
+                width=12,
+            ),
+        ]
+    ),
+    className="mt-3",
+)
+
+
 layout = dbc.Container(
     [
         dbc.Col(
             html.Div([dcc.Markdown(INTRO_CONTENT)]),
             width=12,
         ),
-        dbc.Col(html.H4("PBE", className="section-title"), width=12),
-        dbc.Col(dcc.Graph(id="pbe-graph"), width=12),
-        dbc.Col(
-            html.Div(
-                "Clicking on the radio buttons graphs the selected column.",
-            ),
-            width=12,
+        dbc.Tabs(
+            [
+                dbc.Tab(pbe_tab, label="PBE"),
+                dbc.Tab(r2scan_tab, label="r2SCAN"),
+            ]
         ),
-        dbc.Col(
-            gen_data_table(BENCHMARK_DATA["PBE"], "pbe"),
-            width=12,
-        ),
-        dbc.Col(
-            html.Div(dcc.Markdown(TABLE_NOTE)),
-            width=12,
-        ),
-        dbc.Col(
-            html.H4("r2SCAN", className="section-title"),
-            width=12,
-            style={"padding-top": "30px"},
-        ),
-        dbc.Col(
-            html.Div(
-                "There are only a limited number of MatPES r2SCAN benchmarks for different models due to"
-                " the limited amount of other r2SCAN training data sets and ground-truth r2SCAN DFT data.",
-            ),
-            width=12,
-        ),
-        dbc.Col(dcc.Graph(id="r2scan-graph"), width=12),
-        dbc.Col(
-            html.Div(
-                "Clicking on the radio buttons graphs the selected column.",
-            ),
-            width=12,
-        ),
-        dbc.Col(
-            gen_data_table(BENCHMARK_DATA["r2SCAN"], "r2scan"),
-            width=12,
-        ),
-        dbc.Col(
-            html.Div(dcc.Markdown(TABLE_NOTE)),
-            width=12,
-        ),
-        dbc.Col(html.H4("Overview of MatCalc-Benchmark Metrics"), width=12, style={"padding-top": "30px"}),
+        dbc.Col(html.H4("Additional Information"), width=12, style={"padding-top": "20px"}),
         dbc.Col(
             html.Div([dcc.Markdown(LEGEND)], id="matcalc-benchmark-legend"),
             width=12,
