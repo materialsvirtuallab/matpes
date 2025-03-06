@@ -2,6 +2,20 @@
     margin-top: 2rem;
 }
 
+#matpes-title{
+    background: -webkit-linear-gradient(#613B9B, darkblue);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 5rem;
+    text-align: center;
+}
+
+#matpes-tagline{
+    font-size: 1.5rem;
+    font-style: italic;
+    text-align: center;
+}
+
 .section-title {
     padding-top: 1rem;
     text-align: center;
@@ -33,7 +47,7 @@
 }
 
 .download-button {
-    width: 6rem;
+    width: 8rem;
     border-radius: 0.5rem;
 }
 

@@ -55,7 +55,7 @@ navbar = dbc.Navbar(
                     dbc.Col(
                         html.Img(src=dash.get_asset_url("logo.svg"), alt="MatPES", id="header-logo"),
                     ),
-                    dbc.Col(html.A(dbc.NavbarBrand("MatPES.ai", class_name="ms-2"), href="/")),
+                    # dbc.Col(html.A(dbc.NavbarBrand("MatPES.ai", class_name="ms-2"), href="/")),
                 ],
                 align="center",
                 class_name="g-0",
@@ -71,12 +71,12 @@ navbar = dbc.Navbar(
                                     name, href=f"/{name.lower()}", class_name="ms-4 nav-link-item", active="exact"
                                 )
                             )
-                            for name in ("Explorer", "Dataset", "Benchmarks")
+                            for name in ("Explorer", "Dataset", "Benchmarks", "About")
                         ],
                         align="center",
                         class_name="g-0",
                     ),
-                    download_bar,
+                    # download_bar,
                 ],
                 id="navbar-collapse",
                 is_open=False,
