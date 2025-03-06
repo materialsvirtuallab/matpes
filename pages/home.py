@@ -36,6 +36,12 @@ jumbotron = html.Div(
                             color="info",
                             external_link=True,
                             size="lg",
+                            id="pbe-download-button",
+                        ),
+                        dbc.Tooltip(
+                            "Download PBE dataset (434,712 structures)",
+                            target="pbe-download-button",
+                            placement="bottom",
                         ),
                         dbc.Button(
                             "r2SCAN",
@@ -44,6 +50,12 @@ jumbotron = html.Div(
                             color="success",
                             external_link=True,
                             size="lg",
+                            id="r2scan-download-button",
+                        ),
+                        dbc.Tooltip(
+                            "Download r2SCAN dataset (387,897 structures)",
+                            target="r2scan-download-button",
+                            placement="bottom",
                         ),
                     ]
                 ),
