@@ -8,6 +8,8 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
+from matpes import MATPES_SRC
+
 dash.register_page(__name__, path="/")
 
 readme = Path(__file__).parent.absolute() / ".." / "README.md"
@@ -31,7 +33,7 @@ jumbotron = html.Div(
                     [
                         dbc.Button(
                             "PBE",
-                            href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-2025.1.json.gz",
+                            href=f"{MATPES_SRC}/MatPES-PBE-2025.1.json.gz",
                             class_name="me-1 download-button",
                             color="info",
                             external_link=True,
@@ -45,7 +47,7 @@ jumbotron = html.Div(
                         ),
                         dbc.Button(
                             "r2SCAN",
-                            href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-r2SCAN-2025.1.json.gz",
+                            href=f"{MATPES_SRC}/MatPES-R2SCAN-2025.1.json.gz",
                             class_name="me-1 download-button",
                             color="success",
                             external_link=True,

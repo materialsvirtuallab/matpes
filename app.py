@@ -18,34 +18,6 @@ app = Dash(
     title="MatPES",
 )
 
-download_bar = dbc.Row(
-    [
-        dbc.Col(
-            dbc.NavbarBrand("Download", id="download-brand"),
-        ),
-        dbc.Col(
-            dbc.Button(
-                "PBE",
-                href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-20240214.json.gz",
-                class_name="ms-2 download-button",
-                color="success",
-                external_link=True,
-            ),
-        ),
-        dbc.Col(
-            dbc.Button(
-                "r2SCAN",
-                href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-r2SCAN-20240214.json.gz",
-                class_name="ms-2 download-button",
-                color="info",
-                external_link=True,
-            ),
-            width="auto",
-        ),
-    ],
-    class_name="g-0 ms-auto flex-nowrap mt-3 mt-md-0",
-    align="center",
-)
 
 navbar = dbc.Navbar(
     dbc.Container(
@@ -76,7 +48,6 @@ navbar = dbc.Navbar(
                         align="center",
                         class_name="g-0",
                     ),
-                    # download_bar,
                 ],
                 id="navbar-collapse",
                 is_open=False,

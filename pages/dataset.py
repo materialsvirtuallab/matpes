@@ -6,17 +6,20 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
+from matpes import MATPES_SRC
+
 dash.register_page(__name__, path="/dataset")
 
-MARKDOWN_CONTENT = """
+INTRO_CONTENT = f"""
 #### Introduction
 
 Each MatPES dataset is provided as a gzipped file in the Javascript object notation (JSON) format. For example, the
 `MatPES-PBE-2025.1.json.gz` file contains a list of structures with PES (energy, force, stresses) and associated
-metadata. The [PBE](https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-atoms.json.gz) and
-[r2SCAN](https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-R2SCAN-atoms.json.gz) atomic energies computed
-with the same  settings are also available, though you will probably not need them unless in special situations.
+metadata. The [PBE]({MATPES_SRC}/MatPES-PBE-atoms.json.gz) and
+[r2SCAN]({MATPES_SRC}/MatPES-R2SCAN-atoms.json.gz) atomic energies computed
+with the same  settings are also available, though you will probably not need them unless in special situations."""
 
+EXAMPLE_CONTENT = """
 #### Example document
 
 The following is a commented version of a single entry in the `MatPES-PBE-2025.1.json.gz` file.
@@ -90,4 +93,4 @@ The following is a commented version of a single entry in the `MatPES-PBE-2025.1
 ```
 """
 
-layout = dbc.Container([html.Div([dcc.Markdown(MARKDOWN_CONTENT)])])
+layout = dbc.Container([html.Div([dcc.Markdown(INTRO_CONTENT), dcc.Markdown(EXAMPLE_CONTENT)])])

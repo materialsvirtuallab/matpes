@@ -9,4 +9,4 @@ try:
 except PackageNotFoundError:
     pass  # package not installed
 
-MATPES_SRC = "https://mavrl-web.s3.us-east-1.amazonaws.com/matpes"
+MATPES_SRC = "https://s3.us-east-1.amazonaws.com/materialsproject-contribs/MatPES_2025_1"
