@@ -92,7 +92,7 @@ def release_github(ctx: Context, version: str) -> None:
         ctx (Context): The context.
         version (str): The version.
     """
-    with open("docs/CHANGES.md", encoding="utf-8") as file:
+    with open("docs/changes.md", encoding="utf-8") as file:
         contents = file.read()
     tokens = re.split(r"\n\#\#\s", contents)
     desc = tokens[1].strip()
