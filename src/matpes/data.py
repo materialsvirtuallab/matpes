@@ -13,7 +13,7 @@ from tqdm import tqdm
 from matpes import MATPES_SRC
 
 
-def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version: str = "20240214", return_json: bool = True):
+def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version: str = "2025.1", return_json: bool = True):
     """
     Downloads and reads a JSON dataset file if not already present locally. The file
     is expected to be hosted at a remote location, and the function will use the
