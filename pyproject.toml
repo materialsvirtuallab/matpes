@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "matpes"
-authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
+authors = [{ name = "MatPES Development Team", email = "ongsp@ucsd.edu" }]
 maintainers = [
     { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
 ]
@@ -47,7 +47,7 @@ dependencies = [
     "pymatgen",
     "tqdm"
 ]
-version = "0.0.1"
+version = "0.0.2"
 
 [tool.setuptools.packages.find]
 where = ["src"]
