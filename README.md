@@ -43,7 +43,14 @@ which is extremely useful if you are going to be working with the data (e.g., qu
 ### Models
 
 We have released a set of MatPES-trained universal machine learning interatomic potentials (UMLIPs) in the [M3GNet],
-[CHGNet], [TensorNet] architectures in the [MatGL] package.
+[CHGNet], [TensorNet] architectures in the [MatGL] package. For example, you can load the TensorNet UMLIP trained on
+MatPES PBE 2025.1 as follows:
+
+```python
+import matgl
+
+matgl.load_model("TensorNet-MatPES-PBE-v2025.1-PES")
+```
 
 ### Tutorials
 
