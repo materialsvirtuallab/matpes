@@ -12,14 +12,14 @@ MARKDOWN_CONTENT = """
 #### Introduction
 
 Each MatPES dataset is provided as a gzipped file in the Javascript object notation (JSON) format. For example, the
-`MatPES-PBE-20240214.json.gz` file contains a list of structures with PES (energy, force, stresses) and associated
+`MatPES-PBE-2025.1.json.gz` file contains a list of structures with PES (energy, force, stresses) and associated
 metadata. The [PBE](https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-atoms.json.gz) and
 [r2SCAN](https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-R2SCAN-atoms.json.gz) atomic energies computed
 with the same  settings are also available, though you will probably not need them unless in special situations.
 
 #### Example document
 
-The following is a commented version of a single entry in the `MatPES-PBE-20240214.json.gz` file.
+The following is a commented version of a single entry in the `MatPES-PBE-2025.1.json.gz` file.
 
 ```json
 {
