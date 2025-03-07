@@ -31,7 +31,7 @@ jumbotron = html.Div(
                     [
                         dbc.Button(
                             "PBE",
-                            href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-20240214.json.gz",
+                            href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-PBE-2025.1.json.gz",
                             class_name="me-1 download-button",
                             color="info",
                             external_link=True,
@@ -45,7 +45,7 @@ jumbotron = html.Div(
                         ),
                         dbc.Button(
                             "r2SCAN",
-                            href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-r2SCAN-20240214.json.gz",
+                            href="https://mavrl-web.s3.us-east-1.amazonaws.com/matpes/MatPES-r2SCAN-2025.1.json.gz",
                             class_name="me-1 download-button",
                             color="success",
                             external_link=True,
