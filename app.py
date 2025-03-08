@@ -43,7 +43,7 @@ navbar = dbc.Navbar(
                                     name, href=f"/{name.lower()}", class_name="ms-4 nav-link-item", active="exact"
                                 )
                             )
-                            for name in ("Explorer", "Dataset", "Benchmarks", "About")
+                            for name in ("Explorer", "Dataset", "Benchmarks", "About", "References")
                         ],
                         align="center",
                         class_name="g-0",
