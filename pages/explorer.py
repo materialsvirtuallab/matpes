@@ -25,7 +25,7 @@ from .utils import pt_heatmap
 if TYPE_CHECKING:
     import pandas as pd
 
-dash.register_page(__name__)
+dash.register_page(__name__, order=2)
 DATADIR = Path(__file__).absolute().parent
 # Define constants
 FUNCTIONALS = ("PBE", "r2SCAN")
@@ -230,17 +230,19 @@ def display_data(
                 page_size=25,
                 id="data-table",
                 columns=[
-                    {
-                        "name": i,
-                        "id": i,
-                        "type": "numeric",
-                        "format": Format(precision=3, scheme=Scheme.fixed),
-                    }
-                    if i in ["energy", "cohesive_energy_per_atom"]
-                    else {
-                        "name": i,
-                        "id": i,
-                    }
+                    (
+                        {
+                            "name": i,
+                            "id": i,
+                            "type": "numeric",
+                            "format": Format(precision=3, scheme=Scheme.fixed),
+                        }
+                        if i in ["energy", "cohesive_energy_per_atom"]
+                        else {
+                            "name": i,
+                            "id": i,
+                        }
+                    )
                     for i in table_df.columns
                 ],
                 data=table_df.to_dict("records"),

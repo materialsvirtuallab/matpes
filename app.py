@@ -36,14 +36,17 @@ navbar = dbc.Navbar(
             dbc.Collapse(
                 [
                     dbc.Row(
-                        [dbc.Col(dbc.NavLink("Home", href="/", class_name="ms-4 nav-link-item", active="exact"))]
-                        + [
+                        [
                             dbc.Col(
                                 dbc.NavLink(
-                                    name, href=f"/{name.lower()}", class_name="ms-4 nav-link-item", active="exact"
+                                    page["name"],
+                                    href=page["path"],
+                                    class_name="ms-4 nav-link-item",
+                                    active="exact",
                                 )
                             )
-                            for name in ("Explorer", "Dataset", "Benchmarks", "About", "References")
+                            for page in dash.page_registry.values()
+                            # for name in ("Explorer", "Dataset", "Benchmarks", "About", "References")
                         ],
                         align="center",
                         class_name="g-0",

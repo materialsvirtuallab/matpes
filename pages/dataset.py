@@ -8,7 +8,7 @@ from dash import dcc, html
 
 from matpes import MATPES_SRC
 
-dash.register_page(__name__, path="/dataset")
+dash.register_page(__name__, path="/dataset", order=4)
 
 INTRO_CONTENT = f"""
 #### Introduction

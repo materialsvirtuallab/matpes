@@ -12,7 +12,7 @@ import plotly.express as px
 from dash import Input, Output, callback, dash_table, dcc, html
 from dash.dash_table.Format import Format, Scheme
 
-dash.register_page(__name__, path="/benchmarks")
+dash.register_page(__name__, path="/benchmarks", order=3)
 
 DATADIR = Path(__file__).absolute().parent
 

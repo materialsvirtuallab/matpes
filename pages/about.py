@@ -6,7 +6,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-dash.register_page(__name__, path="/about")
+dash.register_page(__name__, path="/about", order=5)
 
 MARKDOWN_CONTENT = """
 ### Background

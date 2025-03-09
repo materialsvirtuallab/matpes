@@ -10,7 +10,7 @@ from dash import dcc, html
 
 from matpes import MATPES_SRC
 
-dash.register_page(__name__, path="/")
+dash.register_page(__name__, path="/", order=1)
 
 readme = Path(__file__).parent.absolute() / ".." / "README.md"
 
