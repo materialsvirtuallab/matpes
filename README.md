@@ -54,7 +54,7 @@ matgl.load_model("TensorNet-MatPES-PBE-v2025.1-PES")
 
 ### Tutorials
 
-We have provided [Jupyter notebooks](/notebooks) demonstrating how to load the MatPES dataset, train a model and
+We have provided [Jupyter notebooks](http://matpes.ai/tutorials) demonstrating how to load the MatPES dataset, train a model and
 perform fine-tuning.
 
 ### Citing
