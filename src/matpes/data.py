@@ -31,7 +31,7 @@ def get_data(
                           Defaults to "PBE".
         version (str): The version string for the dataset. Defaults to "20240214".
         return_entries (bool): Whether to return the deserialized entries from JSON or not. Defaults to True.
-        include_atoms (bool): Whether to download the atomic reference file.
+        download_atoms (bool): Whether to download the atomic reference file.
 
     Returns:
         dict: A dictionary representation of the JSON dataset contents.
