@@ -60,7 +60,7 @@ layout = dbc.Container(
             id="notebook-dropdown",
             placeholder="Select a notebook to view:",
             value=NOTEBOOKS[0],
-            options=[{"label": f, "value": f} for f in NOTEBOOKS],
+            options=[{"label": f.rsplit(".")[0], "value": f} for f in NOTEBOOKS],
         ),
         html.Iframe(
             style={"height": "1000px", "width": "100%"},
