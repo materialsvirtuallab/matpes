@@ -13,7 +13,12 @@ from tqdm import tqdm
 from matpes import MATPES_SRC
 
 
-def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version: str = "2025.1", return_json: bool = True):
+def get_data(
+    functional: Literal["PBE", "R2SCAN"] = "PBE",
+    version: str = "2025.1",
+    return_entries: bool = True,
+    download_atoms: bool = False,
+):
     """
     Downloads and reads a JSON dataset file if not already present locally. The file
     is expected to be hosted at a remote location, and the function will use the
@@ -25,7 +30,8 @@ def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version: str = "2025.
         functional (str): The functional type used for labeling the dataset.
                           Defaults to "PBE".
         version (str): The version string for the dataset. Defaults to "20240214".
-        return_json (bool): Whether to return JSON or not. Defaults to True.
+        return_entries (bool): Whether to return the deserialized entries from JSON or not. Defaults to True.
+        include_atoms (bool): Whether to download the atomic reference file.
 
     Returns:
         dict: A dictionary representation of the JSON dataset contents.
@@ -34,27 +40,30 @@ def get_data(functional: Literal["PBE", "R2SCAN"] = "PBE", version: str = "2025.
         RuntimeError: If the file download fails or the remote source is
                       inaccessible.
     """
-    fname = f"MatPES-{functional.upper()}-{version}.json.gz"
+    fnames = [f"MatPES-{functional.upper()}-{version}.json.gz"]
+    if download_atoms:
+        fnames.append(f"MatPES-{functional.upper()}-atoms.json.gz")
 
-    if not os.path.exists(fname):
-        url = f"{MATPES_SRC}/{fname}"
-        print(f"Downloading from {url}...")
+    for fname in fnames:
+        if not os.path.exists(fname):
+            url = f"{MATPES_SRC}/{fname}"
+            print(f"Downloading from {url}...")
 
-        # Streaming, so we can iterate over the response.
-        response = requests.get(url, stream=True)
+            # Streaming, so we can iterate over the response.
+            response = requests.get(url, stream=True)
 
-        # Sizes in bytes.
-        total_size = int(response.headers.get("content-length", 0))
-        block_size = 1024
+            # Sizes in bytes.
+            total_size = int(response.headers.get("content-length", 0))
+            block_size = 1024
 
-        with tqdm(total=total_size, unit="B", unit_scale=True) as progress_bar, open(fname, "wb") as file:
-            for data in response.iter_content(block_size):
-                progress_bar.update(len(data))
-                file.write(data)
+            with tqdm(total=total_size, unit="B", unit_scale=True) as progress_bar, open(fname, "wb") as file:
+                for data in response.iter_content(block_size):
+                    progress_bar.update(len(data))
+                    file.write(data)
 
-        if total_size != 0 and progress_bar.n != total_size:
-            raise RuntimeError(f"Failed to download {url}. Status code: {response.status_code}")
-    if return_json:
-        with gzip.open(fname, "r") as f:
+            if total_size != 0 and progress_bar.n != total_size:
+                raise RuntimeError(f"Failed to download {url}. Status code: {response.status_code}")
+    if return_entries:
+        with gzip.open(fnames[0], "r") as f:
             return json.load(f)
     return None
