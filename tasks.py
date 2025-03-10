@@ -185,7 +185,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
 
 
 @task
-def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> None:
+def release(ctx: Context, version, nodoc: bool = False) -> None:
     """
     Run full sequence for releasing matpes.
 
@@ -194,7 +194,6 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
         version (str, optional): The version to release.
         nodoc (bool, optional): Whether to skip documentation generation.
     """
-    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
     ctx.run("rm -r dist build matpes.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:
