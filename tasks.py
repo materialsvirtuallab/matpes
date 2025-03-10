@@ -212,15 +212,15 @@ def release(ctx: Context, version, nodoc: bool = False) -> None:
 
 
 @task
-def open_doc(ctx: Context) -> None:
+def generate_tutorials(ctx: Context) -> None:
     """
-    Open local documentation in web browser.
+    Generate tutorial HTML.
 
     Args:
         ctx (invoke.Context): The context object.
     """
-    pth = os.path.abspath("docs/_build/html/index.html")
-    webbrowser.open(f"file://{pth}")
+    ctx.run("jupyter nbconvert --to html notebooks/*.ipynb")
+    ctx.run("mv notebooks/*.html assets")
 
 
 @task
