@@ -55,14 +55,14 @@ The following is a commented version of a single entry in the `MatPES-PBE-2025.1
 
     "structure": { ... },  // Pymatgen serialized structure.
 
-    "energy": -13.19442081,  // DFT energy per atom in eV.
+    "energy": -13.19442081,  // DFT energy in eV.
 
     "forces": [  // DFT-calculated forces on each atom (eV/Å).
         [0.43578007, -0.32456562, -0.38019986],
         [-0.43578007, 0.32456562, 0.38019986]
     ],
 
-    "stress": [  // DFT-calculated stress tensor components (GPa).
+    "stress": [  // DFT-calculated stress tensor components (kilobar).
         -5.71186022, -9.34590239, 13.64346365,
         22.84178803, 23.6719352, 6.22290851
     ],
