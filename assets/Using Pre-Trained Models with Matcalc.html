@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Training a MatPES model</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Using Pre-Trained Models with Matcalc</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7509,19 +7509,7 @@ a.anchor-link {
 </style>
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">¶</a></h1><p>This notebook demonstrates the fitting of a TensorNet UMLIP using the MatPES v2025.1 PBE dataset. Fitting of other architectures in MatGL with either the PBE or r2SCAN datasets is similar.</p>
-<p><strong>Important Note</strong>: The training data sizes and maximum number of epochs chosen in the notebook are deliberately small so that the notebook will run within a reasonably short amount of time on a single CPU (~5-10 mins) for demonstration purposes. <strong>The resulting model is not expected to be production quality</strong>. When properly training a model, use the entire dataset with a much greater number of epochs.</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=1">
+<main><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7531,33 +7519,45 @@ a.anchor-link {
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">matgl</span>
+<span class="kn">from</span> <span class="nn">matcalc.elasticity</span> <span class="kn">import</span> <span class="n">ElasticityCalc</span>
+<span class="kn">from</span> <span class="nn">matgl.ext.ase</span> <span class="kn">import</span> <span class="n">PESCalculator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
 
-<span class="kn">import</span> <span class="nn">lightning</span> <span class="k">as</span> <span class="nn">pl</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">ase.stress</span> <span class="kn">import</span> <span class="n">voigt_6_to_full_3x3_stress</span>
-<span class="kn">from</span> <span class="nn">dgl.data.utils</span> <span class="kn">import</span> <span class="n">split_dataset</span>
-<span class="kn">from</span> <span class="nn">lightning.pytorch.callbacks</span> <span class="kn">import</span> <span class="n">ModelCheckpoint</span>
-<span class="kn">from</span> <span class="nn">lightning.pytorch.callbacks.early_stopping</span> <span class="kn">import</span> <span class="n">EarlyStopping</span>
-<span class="kn">from</span> <span class="nn">lightning.pytorch.loggers</span> <span class="kn">import</span> <span class="n">CSVLogger</span>
-<span class="kn">from</span> <span class="nn">matgl.config</span> <span class="kn">import</span> <span class="n">DEFAULT_ELEMENTS</span>
-<span class="kn">from</span> <span class="nn">matgl.ext.pymatgen</span> <span class="kn">import</span> <span class="n">Structure2Graph</span>
-<span class="kn">from</span> <span class="nn">matgl.graph.data</span> <span class="kn">import</span> <span class="n">MGLDataLoader</span><span class="p">,</span> <span class="n">MGLDataset</span><span class="p">,</span> <span class="n">collate_fn_pes</span>
-<span class="kn">from</span> <span class="nn">matgl.models</span> <span class="kn">import</span> <span class="n">TensorNet</span>
-<span class="kn">from</span> <span class="nn">matgl.utils.training</span> <span class="kn">import</span> <span class="n">PotentialLightningModule</span><span class="p">,</span> <span class="n">xavier_init</span>
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">torch.optim.lr_scheduler</span> <span class="kn">import</span> <span class="n">CosineAnnealingLR</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-
-<span class="kn">from</span> <span class="nn">matpes.data</span> <span class="kn">import</span> <span class="n">get_data</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">matgl</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">"TensorNet-MatPES-PBE-v2025.1-PES"</span><span class="p">)</span>
+<span class="n">ase_calc</span> <span class="o">=</span> <span class="n">PESCalculator</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ElasticityCalc</span><span class="p">(</span><span class="n">ase_calc</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>/Users/shyue/repos/matgl/src/matgl/apps/pes.py:69: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.element_refs = AtomRef(property_offset=torch.tensor(element_refs, dtype=matgl.float_th))
+/Users/shyue/repos/matgl/src/matgl/apps/pes.py:75: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.register_buffer("data_mean", torch.tensor(data_mean, dtype=matgl.float_th))
+/Users/shyue/repos/matgl/src/matgl/apps/pes.py:76: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.register_buffer("data_std", torch.tensor(data_std, dtype=matgl.float_th))
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Let us obtain the structure of Si from the Materials Project API</p>
 </div>
 </div>
 </div>
@@ -7569,24 +7569,13 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="s2">"PBE"</span><span class="p">,</span> <span class="n">download_atoms</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">mpr</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>We need to load the atomic energies as the zero reference.</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7594,44 +7583,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="s2">"MatPES-PBE-atoms.json.gz"</span><span class="p">,</span> <span class="s2">"rt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">isolated_energies_pbe</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-<span class="n">isolated_energies_pbe</span> <span class="o">=</span> <span class="p">{</span><span class="n">d</span><span class="p">[</span><span class="s2">"elements"</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span> <span class="n">d</span><span class="p">[</span><span class="s2">"energy"</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">isolated_energies_pbe</span><span class="p">}</span>
-<span class="nb">len</span><span class="p">(</span><span class="n">isolated_energies_pbe</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[ ]:</div>
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>89</pre>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Initialize the lists for storing structures with energies, forces, and optional stresses</span>
-<span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">labels</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-    <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"structure"</span><span class="p">]))</span>
-    <span class="n">labels</span><span class="p">[</span><span class="s2">"energies"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"energy"</span><span class="p">])</span>
-    <span class="n">labels</span><span class="p">[</span><span class="s2">"forces"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"forces"</span><span class="p">])</span>
-    <span class="n">labels</span><span class="p">[</span><span class="s2">"stresses"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">voigt_6_to_full_3x3_stress</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"stress"</span><span class="p">]))</span> <span class="o">*</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">si</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_structure_by_material_id</span><span class="p">(</span><span class="s2">"mp-149"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">si</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7643,21 +7596,58 @@ a.anchor-link {
 <div class="jp-OutputArea jp-Cell-outputArea">
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 434712/434712 [00:54&lt;00:00, 8021.74it/s]
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Full Formula (Si2)
+Reduced Formula: Si
+abc   :   3.849278   3.849279   3.849278
+angles:  60.000012  60.000003  60.000011
+pbc   :       True       True       True
+Sites (2)
+  #  SP        a      b      c    magmom
+---  ----  -----  -----  -----  --------
+  0  Si    0.875  0.875  0.875        -0
+  1  Si    0.125  0.125  0.125        -0
 </pre>
 </div>
 </div>
 </div>
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=4">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">pred</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">calc</span><span class="p">(</span><span class="n">si</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Loading-the-data-into-the-the-MGLDataSet">Loading the data into the the MGLDataSet<a class="anchor-link" href="#Loading-the-data-into-the-the-MGLDataSet">¶</a></h1>
+<p>For comparison, let's obtain the DFT computed values from Materials Project</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=6">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">mp_data</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_summary_by_material_id</span><span class="p">(</span><span class="s2">"mp-149"</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -7669,10 +7659,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># define the graph converter for periodic systems</span>
-<span class="n">element_types</span> <span class="o">=</span> <span class="n">DEFAULT_ELEMENTS</span>
-<span class="n">cry_graph</span> <span class="o">=</span> <span class="n">Structure2Graph</span><span class="p">(</span><span class="n">element_types</span><span class="o">=</span><span class="n">element_types</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">MGLDataset</span><span class="p">(</span><span class="n">structures</span><span class="o">=</span><span class="n">structures</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="n">cry_graph</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"K_VRH: TensorNet-MatPES-PBE = </span><span class="si">{</span><span class="n">pred</span><span class="p">[</span><span class="s1">'bulk_modulus_vrh'</span><span class="p">]</span><span class="si">}</span><span class="s2">; DFT = </span><span class="si">{</span><span class="n">mp_data</span><span class="p">[</span><span class="s1">'bulk_modulus'</span><span class="p">][</span><span class="s1">'vrh'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"G_VRH: TensorNet-MatPES-PBE = </span><span class="si">{</span><span class="n">pred</span><span class="p">[</span><span class="s1">'shear_modulus_vrh'</span><span class="p">]</span><span class="si">}</span><span class="s2">; DFT = </span><span class="si">{</span><span class="n">mp_data</span><span class="p">[</span><span class="s1">'shear_modulus'</span><span class="p">][</span><span class="s1">'vrh'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7684,445 +7672,10 @@ a.anchor-link {
 <div class="jp-OutputArea jp-Cell-outputArea">
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 434712/434712 [03:07&lt;00:00, 2323.23it/s]
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Data-split">Data split<a class="anchor-link" href="#Data-split">¶</a></h1><p>For the purposes for demonstration, we are only going to use 2% of the data for trainining and 0.1% of the data for validation. In a real training, you should use a split such as 90%:10% or 95%:5%.</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=9">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">training_set</span><span class="p">,</span> <span class="n">validation_set</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">split_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.979</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># define the proper collate function for MGLDataLoader</span>
-<span class="n">collate_fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">collate_fn_pes</span><span class="p">,</span> <span class="n">include_line_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_stress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># initialize dataloader for training and validation</span>
-<span class="n">train_loader</span><span class="p">,</span> <span class="n">val_loader</span> <span class="o">=</span> <span class="n">MGLDataLoader</span><span class="p">(</span>
-    <span class="n">train_data</span><span class="o">=</span><span class="n">training_set</span><span class="p">,</span>
-    <span class="n">val_data</span><span class="o">=</span><span class="n">validation_set</span><span class="p">,</span>
-    <span class="n">collate_fn</span><span class="o">=</span><span class="n">collate_fn</span><span class="p">,</span>
-    <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
-    <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=10">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Model-Setup">Model Setup<a class="anchor-link" href="#Model-Setup">¶</a></h1><p>Here, we demonstrate the initialization of the TensorNet architecture. You may use any of the other architectures implemented in MatGL.</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=11">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">TensorNet</span><span class="p">(</span>
-    <span class="n">element_types</span><span class="o">=</span><span class="n">element_types</span><span class="p">,</span>
-    <span class="n">is_intensive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">rbf_type</span><span class="o">=</span><span class="s2">"SphericalBessel"</span><span class="p">,</span>
-    <span class="n">use_smooth</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">units</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=12">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># calculate scaling factor for training</span>
-<span class="n">train_graphs</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">energies</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">forces</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">g</span><span class="p">,</span> <span class="n">_lat</span><span class="p">,</span> <span class="n">_attrs</span><span class="p">,</span> <span class="n">lbs</span> <span class="ow">in</span> <span class="n">training_set</span><span class="p">:</span>
-    <span class="n">train_graphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
-    <span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lbs</span><span class="p">[</span><span class="s2">"energies"</span><span class="p">])</span>
-    <span class="n">forces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lbs</span><span class="p">[</span><span class="s2">"forces"</span><span class="p">])</span>
-<span class="n">forces</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
-<span class="n">rms_forces</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">forces</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
-<span class="c1"># weight initialization</span>
-<span class="n">xavier_init</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-<span class="c1"># setup the optimizer and scheduler</span>
-<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1.0e-3</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1.0e-5</span><span class="p">,</span> <span class="n">amsgrad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">scheduler</span> <span class="o">=</span> <span class="n">CosineAnnealingLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="n">eta_min</span><span class="o">=</span><span class="mf">1.0e-2</span> <span class="o">*</span> <span class="mf">1.0e-3</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=13">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Setup-the-potential-lightning-module">Setup the potential lightning module<a class="anchor-link" href="#Setup-the-potential-lightning-module">¶</a></h1><p>Note that the max_epochs is set to 2 here for demonstration purposes. In a real fitting, this number should be much larger (probably &gt; 1000).</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=14">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># setup element_refs</span>
-<span class="n">energies_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">isolated_energies_pbe</span><span class="p">[</span><span class="n">element</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">DEFAULT_ELEMENTS</span><span class="p">])</span>
-<span class="c1"># initialize the potential lightning module</span>
-<span class="n">lit_model</span> <span class="o">=</span> <span class="n">PotentialLightningModule</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
-    <span class="n">element_refs</span><span class="o">=</span><span class="n">energies_offsets</span><span class="p">,</span>
-    <span class="n">data_std</span><span class="o">=</span><span class="n">rms_forces</span><span class="p">,</span>
-    <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
-    <span class="n">scheduler</span><span class="o">=</span><span class="n">scheduler</span><span class="p">,</span>
-    <span class="n">loss</span><span class="o">=</span><span class="s2">"l1_loss"</span><span class="p">,</span>
-    <span class="n">stress_weight</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-    <span class="n">include_line_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="c1"># setup loggers</span>
-<span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">CSVLogger</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
-<span class="c1"># setup checkpoints</span>
-<span class="n">checkpoint_callback</span> <span class="o">=</span> <span class="n">ModelCheckpoint</span><span class="p">(</span>
-    <span class="n">save_top_k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">monitor</span><span class="o">=</span><span class="s2">"val_Total_Loss"</span><span class="p">,</span>
-    <span class="n">mode</span><span class="o">=</span><span class="s2">"min"</span><span class="p">,</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"</span><span class="si">{epoch:04d}</span><span class="s2">-best_model"</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="c1"># setup trainer</span>
-<span class="n">trainer</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span>
-    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
-    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s2">"val_Total_Loss"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"min"</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">checkpoint_callback</span><span class="p">],</span>
-    <span class="n">max_epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">accelerator</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">,</span>  <span class="c1"># you can use gpu instead</span>
-    <span class="n">gradient_clip_val</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-    <span class="n">accumulate_grad_batches</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-    <span class="n">profiler</span><span class="o">=</span><span class="s2">"simple"</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>GPU available: True (mps), used: False
-TPU available: False, using: 0 TPU cores
-HPU available: False, using: 0 HPUs
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=15">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Run-the-fit">Run the fit<a class="anchor-link" href="#Run-the-fit">¶</a></h1>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=16">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">lit_model</span><span class="p">,</span> <span class="n">train_dataloaders</span><span class="o">=</span><span class="n">train_loader</span><span class="p">,</span> <span class="n">val_dataloaders</span><span class="o">=</span><span class="n">val_loader</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>
-  | Name  | Type              | Params | Mode
-----------------------------------------------------
-0 | mae   | MeanAbsoluteError | 0      | train
-1 | rmse  | MeanSquaredError  | 0      | train
-2 | model | Potential         | 837 K  | train
-----------------------------------------------------
-837 K     Trainable params
-0         Non-trainable params
-837 K     Total params
-3.352     Total estimated model params size (MB)
-69        Modules in train mode
-0         Modules in eval mode
-</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Sanity Checking: |                                                                                            …</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Training: |                                                                                                   …</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Validation: |                                                                                                 …</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Validation: |                                                                                                 …</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>`Trainer.fit` stopped: `max_epochs=2` reached.
-FIT Profiler Report
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-|  Action                                                                                                                                                                     	|  Mean duration (s)	|  Num calls      	|  Total time (s) 	|  Percentage %   	|
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-|  Total                                                                                                                                                                      	|  -              	|  18171          	|  611.61         	|  100 %          	|
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-|  run_training_epoch                                                                                                                                                         	|  296.55         	|  2              	|  593.11         	|  96.975         	|
-|  run_training_batch                                                                                                                                                         	|  1.0341         	|  544            	|  562.55         	|  91.979         	|
-|  [Strategy]SingleDeviceStrategy.backward                                                                                                                                    	|  0.61331        	|  544            	|  333.64         	|  54.551         	|
-|  [Strategy]SingleDeviceStrategy.training_step                                                                                                                               	|  0.41931        	|  544            	|  228.11         	|  37.296         	|
-|  [LightningModule]PotentialLightningModule.optimizer_step                                                                                                                   	|  1.0494         	|  136            	|  142.72         	|  23.335         	|
-|  [Strategy]SingleDeviceStrategy.validation_step                                                                                                                             	|  0.61214        	|  30             	|  18.364         	|  3.0026         	|
-|  [_TrainingEpochLoop].train_dataloader_next                                                                                                                                 	|  0.0097045      	|  544            	|  5.2792         	|  0.86317        	|
-|  [_EvaluationLoop].val_next                                                                                                                                                 	|  0.010562       	|  30             	|  0.31686        	|  0.051807       	|
-|  [Callback]TQDMProgressBar.on_train_batch_end                                                                                                                               	|  0.00048945     	|  544            	|  0.26626        	|  0.043535       	|
-|  [LightningModule]PotentialLightningModule.configure_gradient_clipping                                                                                                      	|  0.00061047     	|  136            	|  0.083024       	|  0.013575       	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_train_epoch_end       	|  0.037707       	|  2              	|  0.075415       	|  0.012331       	|
-|  [LightningModule]PotentialLightningModule.optimizer_zero_grad                                                                                                              	|  0.00039795     	|  136            	|  0.054121       	|  0.008849       	|
-|  [Strategy]SingleDeviceStrategy.batch_to_device                                                                                                                             	|  3.308e-05      	|  574            	|  0.018988       	|  0.0031046      	|
-|  [Callback]TQDMProgressBar.on_validation_batch_end                                                                                                                          	|  0.00043932     	|  30             	|  0.01318        	|  0.0021549      	|
-|  [LightningModule]PotentialLightningModule.transfer_batch_to_device                                                                                                         	|  2.1152e-05     	|  574            	|  0.012141       	|  0.0019851      	|
-|  [Callback]TQDMProgressBar.on_validation_start                                                                                                                              	|  0.0025428      	|  3              	|  0.0076283      	|  0.0012473      	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_train_batch_end       	|  1.1304e-05     	|  544            	|  0.0061496      	|  0.0010055      	|
-|  [Callback]TQDMProgressBar.on_train_start                                                                                                                                   	|  0.003221       	|  1              	|  0.003221       	|  0.00052664     	|
-|  [Callback]TQDMProgressBar.on_sanity_check_start                                                                                                                            	|  0.0032153      	|  1              	|  0.0032153      	|  0.00052572     	|
-|  [LightningModule]PotentialLightningModule.on_validation_model_zero_grad                                                                                                    	|  0.0015928      	|  2              	|  0.0031856      	|  0.00052086     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_train_epoch_end                                                                                     	|  0.0012048      	|  2              	|  0.0024095      	|  0.00039397     	|
-|  [Callback]TQDMProgressBar.on_validation_end                                                                                                                                	|  0.00079675     	|  3              	|  0.0023902      	|  0.00039081     	|
-|  [Callback]TQDMProgressBar.on_validation_batch_start                                                                                                                        	|  5.8543e-05     	|  30             	|  0.0017563      	|  0.00028716     	|
-|  [Callback]ModelSummary.on_fit_start                                                                                                                                        	|  0.001716       	|  1              	|  0.001716       	|  0.00028058     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_after_backward                                                                                      	|  2.3265e-06     	|  544            	|  0.0012656      	|  0.00020693     	|
-|  [Callback]TQDMProgressBar.on_train_epoch_start                                                                                                                             	|  0.00059594     	|  2              	|  0.0011919      	|  0.00019488     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_train_batch_end                                                                                     	|  1.2921e-06     	|  544            	|  0.00070288     	|  0.00011492     	|
-|  [Callback]TQDMProgressBar.on_train_epoch_end                                                                                                                               	|  0.00032792     	|  2              	|  0.00065583     	|  0.00010723     	|
-|  [Callback]ModelSummary.on_train_batch_end                                                                                                                                  	|  1.1395e-06     	|  544            	|  0.00061988     	|  0.00010135     	|
-|  [LightningModule]PotentialLightningModule.on_before_batch_transfer                                                                                                         	|  8.734e-07      	|  574            	|  0.00050133     	|  8.1969e-05     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_before_backward                                                                                     	|  9.0663e-07     	|  544            	|  0.00049321     	|  8.0641e-05     	|
-|  [LightningModule]PotentialLightningModule.on_validation_model_eval                                                                                                         	|  0.00013688     	|  3              	|  0.00041063     	|  6.7139e-05     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_train_batch_start                                                                                   	|  7.4417e-07     	|  544            	|  0.00040483     	|  6.6191e-05     	|
-|  [LightningModule]PotentialLightningModule.on_after_backward                                                                                                                	|  6.8329e-07     	|  544            	|  0.00037171     	|  6.0776e-05     	|
-|  [Callback]TQDMProgressBar.on_after_backward                                                                                                                                	|  6.4567e-07     	|  544            	|  0.00035124     	|  5.7429e-05     	|
-|  [LightningModule]PotentialLightningModule.on_train_batch_end                                                                                                               	|  5.6762e-07     	|  544            	|  0.00030878     	|  5.0487e-05     	|
-|  [LightningModule]PotentialLightningModule.on_train_batch_start                                                                                                             	|  5.3422e-07     	|  544            	|  0.00029061     	|  4.7516e-05     	|
-|  [Callback]TQDMProgressBar.on_train_batch_start                                                                                                                             	|  5.3293e-07     	|  544            	|  0.00028991     	|  4.7402e-05     	|
-|  [Callback]TQDMProgressBar.on_train_end                                                                                                                                     	|  0.00028108     	|  1              	|  0.00028108     	|  4.5958e-05     	|
-|  [Strategy]SingleDeviceStrategy.on_train_batch_start                                                                                                                        	|  5.0934e-07     	|  544            	|  0.00027708     	|  4.5304e-05     	|
-|  [LightningModule]PotentialLightningModule.on_before_backward                                                                                                               	|  5.0927e-07     	|  544            	|  0.00027704     	|  4.5297e-05     	|
-|  [Callback]ModelSummary.on_after_backward                                                                                                                                   	|  5.0422e-07     	|  544            	|  0.0002743      	|  4.4849e-05     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_after_backward        	|  4.7799e-07     	|  544            	|  0.00026003     	|  4.2515e-05     	|
-|  [Callback]ModelSummary.on_train_batch_start                                                                                                                                	|  4.6718e-07     	|  544            	|  0.00025414     	|  4.1553e-05     	|
-|  [Callback]TQDMProgressBar.on_before_backward                                                                                                                               	|  4.4253e-07     	|  544            	|  0.00024074     	|  3.9362e-05     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_train_batch_start     	|  4.355e-07      	|  544            	|  0.00023691     	|  3.8736e-05     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_before_backward       	|  4.2531e-07     	|  544            	|  0.00023137     	|  3.7829e-05     	|
-|  [Callback]ModelSummary.on_before_backward                                                                                                                                  	|  4.1274e-07     	|  544            	|  0.00022453     	|  3.6711e-05     	|
-|  [LightningModule]PotentialLightningModule.on_after_batch_transfer                                                                                                          	|  3.7404e-07     	|  574            	|  0.0002147      	|  3.5104e-05     	|
-|  [LightningModule]PotentialLightningModule.on_train_epoch_end                                                                                                               	|  9.475e-05      	|  2              	|  0.0001895      	|  3.0984e-05     	|
-|  [LightningModule]PotentialLightningModule.lr_scheduler_step                                                                                                                	|  8.5063e-05     	|  2              	|  0.00017013     	|  2.7816e-05     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_validation_end        	|  4.6291e-05     	|  3              	|  0.00013887     	|  2.2706e-05     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_before_zero_grad                                                                                    	|  9.5588e-07     	|  136            	|  0.00013        	|  2.1255e-05     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_before_optimizer_step                                                                               	|  7.6411e-07     	|  136            	|  0.00010392     	|  1.6991e-05     	|
-|  [LightningModule]PotentialLightningModule.on_before_zero_grad                                                                                                              	|  6.4674e-07     	|  136            	|  8.7957e-05     	|  1.4381e-05     	|
-|  [Callback]TQDMProgressBar.on_before_zero_grad                                                                                                                              	|  5.224e-07      	|  136            	|  7.1047e-05     	|  1.1616e-05     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_before_zero_grad      	|  5.0919e-07     	|  136            	|  6.925e-05      	|  1.1323e-05     	|
-|  [Callback]ModelSummary.on_before_zero_grad                                                                                                                                 	|  4.5806e-07     	|  136            	|  6.2296e-05     	|  1.0186e-05     	|
-|  [Callback]ModelSummary.on_before_optimizer_step                                                                                                                            	|  4.2549e-07     	|  136            	|  5.7867e-05     	|  9.4614e-06     	|
-|  [Callback]TQDMProgressBar.on_before_optimizer_step                                                                                                                         	|  4.0771e-07     	|  136            	|  5.5449e-05     	|  9.0661e-06     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_before_optimizer_step 	|  3.9732e-07     	|  136            	|  5.4035e-05     	|  8.835e-06      	|
-|  [LightningModule]PotentialLightningModule.on_before_optimizer_step                                                                                                         	|  3.4404e-07     	|  136            	|  4.679e-05      	|  7.6503e-06     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.setup                    	|  3.7875e-05     	|  1              	|  3.7875e-05     	|  6.1927e-06     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_validation_batch_end                                                                                	|  1.2403e-06     	|  30             	|  3.7208e-05     	|  6.0837e-06     	|
-|  [Callback]ModelSummary.on_validation_batch_end                                                                                                                             	|  9.2915e-07     	|  30             	|  2.7874e-05     	|  4.5576e-06     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_validation_batch_start                                                                              	|  7.8187e-07     	|  30             	|  2.3456e-05     	|  3.8352e-06     	|
-|  [LightningModule]PotentialLightningModule.on_validation_batch_end                                                                                                          	|  7.4999e-07     	|  30             	|  2.25e-05       	|  3.6788e-06     	|
-|  [Callback]ModelSummary.on_validation_batch_start                                                                                                                           	|  5.472e-07      	|  30             	|  1.6416e-05     	|  2.6841e-06     	|
-|  [LightningModule]PotentialLightningModule.on_validation_batch_start                                                                                                        	|  5.3756e-07     	|  30             	|  1.6127e-05     	|  2.6368e-06     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_validation_batch_end  	|  5.2648e-07     	|  30             	|  1.5795e-05     	|  2.5825e-06     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_validation_end                                                                                      	|  4.1527e-06     	|  3              	|  1.2458e-05     	|  2.0369e-06     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_validation_batch_start	|  4.1244e-07     	|  30             	|  1.2373e-05     	|  2.0231e-06     	|
-|  [Callback]TQDMProgressBar.on_sanity_check_end                                                                                                                              	|  1.1791e-05     	|  1              	|  1.1791e-05     	|  1.9279e-06     	|
-|  [LightningModule]PotentialLightningModule.on_fit_start                                                                                                                     	|  6.9581e-06     	|  1              	|  6.9581e-06     	|  1.1377e-06     	|
-|  [Callback]ModelSummary.on_validation_end                                                                                                                                   	|  1.5833e-06     	|  3              	|  4.75e-06       	|  7.7664e-07     	|
-|  [Callback]ModelSummary.on_validation_start                                                                                                                                 	|  1.1527e-06     	|  3              	|  3.458e-06      	|  5.654e-07      	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_validation_epoch_end                                                                                	|  1.125e-06      	|  3              	|  3.3751e-06     	|  5.5184e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_train_start                                                                                         	|  3.1251e-06     	|  1              	|  3.1251e-06     	|  5.1096e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.setup                                                                                                  	|  2.9171e-06     	|  1              	|  2.9171e-06     	|  4.7696e-07     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_fit_start             	|  2.875e-06      	|  1              	|  2.875e-06      	|  4.7007e-07     	|
-|  [Callback]ModelSummary.on_train_epoch_start                                                                                                                                	|  1.2295e-06     	|  2              	|  2.4589e-06     	|  4.0204e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_train_end                                                                                           	|  2.3751e-06     	|  1              	|  2.3751e-06     	|  3.8834e-07     	|
-|  [Callback]TQDMProgressBar.setup                                                                                                                                            	|  2.292e-06      	|  1              	|  2.292e-06      	|  3.7475e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_validation_start                                                                                    	|  7.6399e-07     	|  3              	|  2.292e-06      	|  3.7475e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_save_checkpoint                                                                                     	|  1.1455e-06     	|  2              	|  2.2911e-06     	|  3.746e-07      	|
-|  [Callback]ModelSummary.on_train_epoch_end                                                                                                                                  	|  1.104e-06      	|  2              	|  2.2079e-06     	|  3.6101e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_train_epoch_start                                                                                   	|  1.0419e-06     	|  2              	|  2.0838e-06     	|  3.4071e-07     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_validation_start      	|  6.6628e-07     	|  3              	|  1.9989e-06     	|  3.2682e-07     	|
-|  [Callback]ModelSummary.on_train_start                                                                                                                                      	|  1.959e-06      	|  1              	|  1.959e-06      	|  3.2031e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_fit_start                                                                                           	|  1.9171e-06     	|  1              	|  1.9171e-06     	|  3.1346e-07     	|
-|  [Callback]ModelSummary.on_sanity_check_start                                                                                                                               	|  1.834e-06      	|  1              	|  1.834e-06      	|  2.9987e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_sanity_check_start                                                                                  	|  1.8331e-06     	|  1              	|  1.8331e-06     	|  2.9971e-07     	|
-|  [LightningModule]PotentialLightningModule.on_validation_start                                                                                                              	|  5.834e-07      	|  3              	|  1.7502e-06     	|  2.8616e-07     	|
-|  [LightningModule]PotentialLightningModule.on_validation_end                                                                                                                	|  5.8332e-07     	|  3              	|  1.75e-06       	|  2.8612e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_fit_end                                                                                             	|  1.6249e-06     	|  1              	|  1.6249e-06     	|  2.6568e-07     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_train_start           	|  1.5839e-06     	|  1              	|  1.5839e-06     	|  2.5898e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_validation_epoch_start                                                                              	|  5.2775e-07     	|  3              	|  1.5832e-06     	|  2.5887e-07     	|
-|  [Strategy]SingleDeviceStrategy.on_validation_end                                                                                                                           	|  5.2767e-07     	|  3              	|  1.583e-06      	|  2.5883e-07     	|
-|  [LightningModule]PotentialLightningModule.configure_optimizers                                                                                                             	|  1.542e-06      	|  1              	|  1.542e-06      	|  2.5213e-07     	|
-|  [LightningModule]PotentialLightningModule.on_validation_epoch_end                                                                                                          	|  5.1401e-07     	|  3              	|  1.542e-06      	|  2.5213e-07     	|
-|  [LightningModule]PotentialLightningModule.on_train_epoch_start                                                                                                             	|  7.4995e-07     	|  2              	|  1.4999e-06     	|  2.4524e-07     	|
-|  [Callback]ModelSummary.on_save_checkpoint                                                                                                                                  	|  6.8755e-07     	|  2              	|  1.3751e-06     	|  2.2483e-07     	|
-|  [Callback]TQDMProgressBar.on_validation_epoch_end                                                                                                                          	|  4.3105e-07     	|  3              	|  1.2931e-06     	|  2.1143e-07     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_validation_epoch_end  	|  4.3066e-07     	|  3              	|  1.292e-06      	|  2.1124e-07     	|
-|  [Callback]ModelSummary.on_validation_epoch_end                                                                                                                             	|  4.1677e-07     	|  3              	|  1.2503e-06     	|  2.0443e-07     	|
-|  [Callback]ModelSummary.on_validation_epoch_start                                                                                                                           	|  4.0272e-07     	|  3              	|  1.2082e-06     	|  1.9754e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.on_sanity_check_end                                                                                    	|  1.2082e-06     	|  1              	|  1.2082e-06     	|  1.9754e-07     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_validation_epoch_start	|  3.8906e-07     	|  3              	|  1.1672e-06     	|  1.9084e-07     	|
-|  [Callback]TQDMProgressBar.on_validation_epoch_start                                                                                                                        	|  3.8898e-07     	|  3              	|  1.1669e-06     	|  1.908e-07      	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_save_checkpoint       	|  5.8347e-07     	|  2              	|  1.1669e-06     	|  1.908e-07      	|
-|  [LightningModule]PotentialLightningModule.configure_callbacks                                                                                                              	|  1.1248e-06     	|  1              	|  1.1248e-06     	|  1.8391e-07     	|
-|  [LightningModule]PotentialLightningModule.on_validation_epoch_start                                                                                                        	|  3.6097e-07     	|  3              	|  1.0829e-06     	|  1.7706e-07     	|
-|  [Strategy]SingleDeviceStrategy.on_validation_start                                                                                                                         	|  3.4731e-07     	|  3              	|  1.0419e-06     	|  1.7036e-07     	|
-|  [Callback]TQDMProgressBar.on_save_checkpoint                                                                                                                               	|  5.2061e-07     	|  2              	|  1.0412e-06     	|  1.7024e-07     	|
-|  [Callback]EarlyStopping{'monitor': 'val_Total_Loss', 'mode': 'min'}.teardown                                                                                               	|  1e-06          	|  1              	|  1e-06          	|  1.635e-07      	|
-|  [Callback]TQDMProgressBar.on_fit_start                                                                                                                                     	|  9.581e-07      	|  1              	|  9.581e-07      	|  1.5665e-07     	|
-|  [LightningModule]PotentialLightningModule.setup                                                                                                                            	|  9.1689e-07     	|  1              	|  9.1689e-07     	|  1.4991e-07     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_train_epoch_start     	|  4.3761e-07     	|  2              	|  8.7521e-07     	|  1.431e-07      	|
-|  [Callback]ModelSummary.setup                                                                                                                                               	|  8.7498e-07     	|  1              	|  8.7498e-07     	|  1.4306e-07     	|
-|  [Callback]ModelSummary.on_train_end                                                                                                                                        	|  8.7498e-07     	|  1              	|  8.7498e-07     	|  1.4306e-07     	|
-|  [LightningModule]PotentialLightningModule.on_save_checkpoint                                                                                                               	|  3.7544e-07     	|  2              	|  7.5088e-07     	|  1.2277e-07     	|
-|  [Strategy]SingleDeviceStrategy.on_train_start                                                                                                                              	|  7.4995e-07     	|  1              	|  7.4995e-07     	|  1.2262e-07     	|
-|  [Callback]TQDMProgressBar.teardown                                                                                                                                         	|  6.6613e-07     	|  1              	|  6.6613e-07     	|  1.0891e-07     	|
-|  [Callback]ModelSummary.on_sanity_check_end                                                                                                                                 	|  6.2515e-07     	|  1              	|  6.2515e-07     	|  1.0221e-07     	|
-|  [LightningModule]PotentialLightningModule.teardown                                                                                                                         	|  6.2515e-07     	|  1              	|  6.2515e-07     	|  1.0221e-07     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_sanity_check_start    	|  5.8301e-07     	|  1              	|  5.8301e-07     	|  9.5324e-08     	|
-|  [LightningModule]PotentialLightningModule.on_train_end                                                                                                                     	|  5.8301e-07     	|  1              	|  5.8301e-07     	|  9.5324e-08     	|
-|  [LightningModule]PotentialLightningModule.on_fit_end                                                                                                                       	|  5.8301e-07     	|  1              	|  5.8301e-07     	|  9.5324e-08     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_train_end             	|  5.4203e-07     	|  1              	|  5.4203e-07     	|  8.8624e-08     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_fit_end               	|  5.4203e-07     	|  1              	|  5.4203e-07     	|  8.8624e-08     	|
-|  [Callback]TQDMProgressBar.on_fit_end                                                                                                                                       	|  5.0012e-07     	|  1              	|  5.0012e-07     	|  8.1771e-08     	|
-|  [Callback]ModelSummary.teardown                                                                                                                                            	|  5.0012e-07     	|  1              	|  5.0012e-07     	|  8.1771e-08     	|
-|  [LightningModule]PotentialLightningModule.on_train_start                                                                                                                   	|  4.9989e-07     	|  1              	|  4.9989e-07     	|  8.1733e-08     	|
-|  [Strategy]SingleDeviceStrategy.on_train_end                                                                                                                                	|  4.5891e-07     	|  1              	|  4.5891e-07     	|  7.5033e-08     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.on_sanity_check_end      	|  4.17e-07       	|  1              	|  4.17e-07       	|  6.8181e-08     	|
-|  [Callback]ModelCheckpoint{'monitor': 'val_Total_Loss', 'mode': 'min', 'every_n_train_steps': 0, 'every_n_epochs': 1, 'train_time_interval': None}.teardown                 	|  4.17e-07       	|  1              	|  4.17e-07       	|  6.8181e-08     	|
-|  [Callback]ModelSummary.on_fit_end                                                                                                                                          	|  3.7509e-07     	|  1              	|  3.7509e-07     	|  6.1329e-08     	|
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+<pre>K_VRH: TensorNet-MatPES-PBE = 101.15424648468968; DFT = 88.916
+G_VRH: TensorNet-MatPES-PBE = 62.546024424713266; DFT = 62.445
 </pre>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=17">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># save trained model</span>
-<span class="n">model_export_path</span> <span class="o">=</span> <span class="s2">"./trained_model/"</span>
-<span class="n">lit_model</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model_export_path</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=18">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Cleanup">Cleanup<a class="anchor-link" href="#Cleanup">¶</a></h1>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=19">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># This code just performs cleanup for this notebook.</span>
-<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s2">"MGLDataset"</span><span class="p">)</span>
-<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s2">"trained_model"</span><span class="p">)</span>
-</pre></div>
 </div>
 </div>
 </div>

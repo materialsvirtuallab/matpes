@@ -211,7 +211,7 @@ def release(ctx: Context, version, nodoc: bool = False) -> None:
 
 
 @task
-def generate_tutorials(ctx: Context) -> None:
+def make_tutorials(ctx: Context) -> None:
     """
     Generate tutorial HTML.
 
