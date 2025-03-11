@@ -218,6 +218,7 @@ def make_tutorials(ctx: Context) -> None:
     Args:
         ctx (invoke.Context): The context object.
     """
+    ctx.run("rm assets/*.html", warn=True)
     ctx.run("jupyter nbconvert --to html notebooks/*.ipynb")
     ctx.run("mv notebooks/*.html assets")
 
