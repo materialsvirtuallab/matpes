@@ -49,7 +49,18 @@ MatPES PBE 2025.1 as follows:
 ```python
 import matgl
 
-matgl.load_model("TensorNet-MatPES-PBE-v2025.1-PES")
+potential = matgl.load_model("TensorNet-MatPES-PBE-v2025.1-PES")
+```
+
+These UMLIPs can be used easily with the [MatCalc] package to rapidly compute properties. For example:
+
+```python
+from matcalc.elasticity import ElasticityCalc
+from matgl.ext.ase import PESCalculator
+
+ase_calc = PESCalculator(potential)
+calculator = ElasticityCalc(ase_calc)
+calculator.calc(structure)
 ```
 
 ### Tutorials
@@ -76,3 +87,4 @@ In addition, if you use any of the pre-trained UMLIPs or architectures, please c
 [CHGNet]: http://doi.org/10.1038/s42256-023-00716-3
 [TensorNet]: https://arxiv.org/abs/2306.06482
 [DIRECT]: https//doi.org/10.1038/s41524-024-01227-4
+[MatCalc]: https://github.com/materialsvirtuallab/matcalc

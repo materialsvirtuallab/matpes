@@ -7514,7 +7514,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
@@ -7524,9 +7524,9 @@ a.anchor-link {
 <span class="kn">from</span> <span class="nn">matgl.ext.ase</span> <span class="kn">import</span> <span class="n">PESCalculator</span>
 <span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">matgl</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">"TensorNet-MatPES-PBE-v2025.1-PES"</span><span class="p">)</span>
-<span class="n">ase_calc</span> <span class="o">=</span> <span class="n">PESCalculator</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">ElasticityCalc</span><span class="p">(</span><span class="n">ase_calc</span><span class="p">)</span>
+<span class="n">potential</span> <span class="o">=</span> <span class="n">matgl</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">"TensorNet-MatPES-PBE-v2025.1-PES"</span><span class="p">)</span>
+<span class="n">ase_calc</span> <span class="o">=</span> <span class="n">PESCalculator</span><span class="p">(</span><span class="n">potential</span><span class="p">)</span>
+<span class="n">calculator</span> <span class="o">=</span> <span class="n">ElasticityCalc</span><span class="p">(</span><span class="n">ase_calc</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7566,7 +7566,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">mpr</span> <span class="o">=</span> <span class="n">MPRester</span><span class="p">()</span>
@@ -7580,7 +7580,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">si</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_structure_by_material_id</span><span class="p">(</span><span class="s2">"mp-149"</span><span class="p">)</span>
@@ -7617,10 +7617,10 @@ Sites (2)
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">pred</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">calc</span><span class="p">(</span><span class="n">si</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">pred</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">calc</span><span class="p">(</span><span class="n">si</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7642,7 +7642,7 @@ Sites (2)
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">mp_data</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_summary_by_material_id</span><span class="p">(</span><span class="s2">"mp-149"</span><span class="p">)</span>
@@ -7656,7 +7656,7 @@ Sites (2)
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"K_VRH: TensorNet-MatPES-PBE = </span><span class="si">{</span><span class="n">pred</span><span class="p">[</span><span class="s1">'bulk_modulus_vrh'</span><span class="p">]</span><span class="si">}</span><span class="s2">; DFT = </span><span class="si">{</span><span class="n">mp_data</span><span class="p">[</span><span class="s1">'bulk_modulus'</span><span class="p">][</span><span class="s1">'vrh'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
