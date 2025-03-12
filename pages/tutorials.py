@@ -8,18 +8,18 @@ from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import Input, Output, callback, dcc, html
+from dash import Input, Output, callback, dcc
 
 dash.register_page(__name__, path="/tutorials", order=5)
 
 
 DATADIR = Path(__file__).absolute().parent / ".." / "assets"
 
-NOTEBOOKS = [os.path.basename(n) for n in glob.glob(str(DATADIR / "*.html"))]
+NOTEBOOKS = [os.path.basename(n) for n in glob.glob(str(DATADIR / "*.md"))]
 
 
 @callback(
-    Output("tutorial-iframe", "src"),
+    Output("notebook-markdown", "children"),
     Input("notebook-dropdown", "value"),
 )
 def display_notebook(nb):
@@ -41,7 +41,8 @@ def display_notebook(nb):
         The dynamically constructed path to the selected notebook file
         located under the 'assets' directory.
     """
-    return f"assets/{nb}"
+    with open(DATADIR / nb) as f:
+        return f.read()
 
 
 HEADER = """
@@ -62,9 +63,6 @@ layout = dbc.Container(
             value=NOTEBOOKS[0],
             options=[{"label": f.rsplit(".")[0], "value": f} for f in NOTEBOOKS],
         ),
-        html.Iframe(
-            style={"height": "1000px", "width": "100%"},
-            id="tutorial-iframe",
-        ),
+        dcc.Markdown(id="notebook-markdown", style={"marginTop": "10px"}),
     ]
 )
