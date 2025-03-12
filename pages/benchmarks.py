@@ -61,7 +61,7 @@ properties.
 | Task                          | Symbol     | Units        | Functional   | Test Source              | Number |
 |-------------------------------|------------|--------------|--------------|--------------------------|--------|
 | **Equilibrium**               |            |              |              |                          |        |
-| Structural similarity         | d          | -            | PBE          | [WBM]                    | 1, 000 |
+| Structural similarity         | d          | -            | PBE          | [WBM]                    | 1,000  |
 |                               |            | -            | r2SCAN       | [GNoME]                  | 1,000  |
 | Formation energy per atom     | Ef         | eV/atom      | PBE          | [WBM]                    | 1,000  |
 |                               |            | eV/atom      | r2SCAN       | [GNoME]                  | 1,000  |
