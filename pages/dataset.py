@@ -18,7 +18,8 @@ Each MatPES dataset is provided as a gzipped file in the Javascript object notat
 metadata. The [PBE]({MATPES_SRC}/MatPES-PBE-atoms.json.gz) and [r2SCAN]({MATPES_SRC}/MatPES-R2SCAN-atoms.json.gz)
 atomic energies computed with the same  settings are also available. """
 
-EXAMPLE_CONTENT = """
+EXAMPLE_CONTENT = (
+    """
 #### Example document
 
 The following is a commented version of a single entry in the `MatPES-PBE-2025.1.json.gz` file.
@@ -90,13 +91,15 @@ The following is a commented version of a single entry in the `MatPES-PBE-2025.1
     }
 }
 ```
-
+""",
+    f"""
 #### Train-validation-test split
 
 If you wish to reproduce the exact train:validation:test split used in the MatPES paper, you can download the split
 indices for the [PBE]({MATPES_SRC}/MatPES-PBE-split.json.gz) and [r2SCAN]({MATPES_SRC}/MatPES-R2SCAN-split.json.gz).
 You can then use the following code to split the dataset into train, validation, and test sets:
-
+""",
+    """
 ```python
 from monty.serialization import loadfn
 import json
@@ -120,6 +123,7 @@ print(f"{len(train_set)}-{len(valid_set)}-{len(test_set)}")
 # Output is 391240-21735-21737
 ```
 
-"""
+""",
+)
 
 layout = dbc.Container([html.Div([dcc.Markdown(INTRO_CONTENT), dcc.Markdown(EXAMPLE_CONTENT)])])
