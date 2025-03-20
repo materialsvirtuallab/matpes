@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 
 @task
-def make_doc(ctx: Context) -> None:
+def make_docs(ctx: Context) -> None:
     """
     Generate API documentation + run Sphinx.
 
@@ -43,6 +43,8 @@ def make_doc(ctx: Context) -> None:
         ctx.run("rm apidocs/*.rst", warn=True)
         ctx.run("mv html/matpes*.html .")
         ctx.run("mv html/modules.html .")
+
+        ctx.run("cp ../README.md index.md", warn=True)
 
         ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
