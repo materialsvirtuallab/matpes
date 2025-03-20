@@ -17,6 +17,10 @@ The initial v2025.1 release comprises ~400,000 structures from 300K MD simulatio
 than other PES datasets in the literature and yet achieves comparable or, in some cases,
 [improved performance and reliability](http://matpes.ai/benchmarks).
 
+MatPES is part of the MatML ecosystem, which includes the [MatGL] (Materials Graph Library) and [maml] (MAterials
+Machine Learning) packages, the [MatPES] (Materials Potential Energy Surface) dataset, and the [MatCalc] (Materials
+Calculator).
+
 ### Software
 
 The `matpes` python package, which provides tools for working with the MatPES datasets, can be installed via pip:
@@ -82,9 +86,11 @@ In addition, if you use any of the pre-trained UMLIPs or architectures, please c
 
 [Materials Virtual Lab]: http://materialsvirtuallab.org
 [Materials Project]: https://materialsproject.org
-[MatGL]: https://matgl.ai
 [M3GNet]: http://dx.doi.org/10.1038/s43588-022-00349-3
 [CHGNet]: http://doi.org/10.1038/s42256-023-00716-3
 [TensorNet]: https://arxiv.org/abs/2306.06482
 [DIRECT]: https//doi.org/10.1038/s41524-024-01227-4
-[MatCalc]: https://github.com/materialsvirtuallab/matcalc
+[maml]: https://materialsvirtuallab.github.io/maml/
+[MatGL]: https://matgl.ai
+[MatPES]: https://matpes.ai
+[MatCalc]: https://matcalc.ai
