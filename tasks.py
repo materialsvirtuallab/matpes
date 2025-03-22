@@ -198,7 +198,7 @@ def release(ctx: Context, version, nodoc: bool = False) -> None:
     ctx.run("rm -r dist build matpes.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:
-        make_doc(ctx)
+        make_docs(ctx)
         ctx.run("git add .")
         ctx.run('git commit --no-verify -a -m "Update docs"')
         ctx.run("git push")
