@@ -52,6 +52,8 @@ import matgl
 potential = matgl.load_model("TensorNet-MatPES-PBE-v2025.1-PES")
 ```
 
+The naming of the models follow the format `<architecture>-<dataset>-<dataset-version>-PES`.
+
 These UMLIPs can be used easily with the [MatCalc] package to rapidly compute properties. For example:
 
 ```python
