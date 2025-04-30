@@ -122,34 +122,49 @@ def get_sorted(df, i):
 
 @callback(
     [Output("pbe-graph", "figure"), Output("r2scan-graph", "figure")],
-    [Input("pbe-benchmarks-table", "selected_columns"), Input("r2scan-benchmarks-table", "selected_columns")],
+    [
+        Input("pbe-benchmarks-table", "selected_columns"),
+        Input("r2scan-benchmarks-table", "selected_columns"),
+        Input("pbe-benchmarks-table", "selected_rows"),
+        Input("r2scan-benchmarks-table", "selected_rows"),
+    ],
 )
-def update_graphs(selected_columns_pbe, selected_columns_r2scan):
+def update_graphs(selected_columns_pbe, selected_columns_r2scan, selected_rows_pbe, selected_rows_r2scan):
     """
-    Updates the graphs for PBE and R2SCAN benchmarks based on the selected columns.
 
-    This function generates bar graphs dynamically using the selected columns from the
-    data tables for PBE and R2SCAN benchmarks. Each graph visualizes the performance of
-    various architectures on specific datasets and updates their appearance using provided
-    layout settings.
+    @callback(
+        [Output("pbe-graph", "figure"), Output("r2scan-graph", "figure")],
+        [
+            Input("pbe-benchmarks-table", "selected_columns"),
+            Input("r2scan-benchmarks-table", "selected_columns"),
+            Input("pbe-benchmarks-table", "selected_rows"),
+            Input("r2scan-benchmarks-table", "selected_rows"),
+        ],
+    ).
 
-    Arguments:
-    selected_columns_pbe: list
-        List of selected column names from the PBE benchmarks table.
-    selected_columns_r2scan: list
-        List of selected column names from the R2SCAN benchmarks table.
+    Update the graphs based on the selected columns and rows for PBE and R2SCAN benchmarks.
+
+    Parameters:
+    - selected_columns_pbe: List of selected columns for PBE benchmarks.
+    - selected_columns_r2scan: List of selected columns for R2SCAN benchmarks.
+    - selected_rows_pbe: List of selected rows for PBE benchmarks.
+    - selected_rows_r2scan: List of selected rows for R2SCAN benchmarks.
 
     Returns:
-    tuple
-        A tuple containing two graph figures, one for PBE and one for
-        R2SCAN benchmarks, represented as Plotly Figure objects.
+    A list of figures updated based on the selected columns and rows for PBE and R2SCAN benchmarks.
 
     """
     layout = dict(font=dict(size=18))
     figs = []
-    for cols, (_func, df) in zip([selected_columns_pbe, selected_columns_r2scan], BENCHMARK_DATA.items(), strict=False):
+    for cols, rows, (_func, df) in zip(
+        [selected_columns_pbe, selected_columns_r2scan],
+        [selected_rows_pbe, selected_rows_r2scan],
+        BENCHMARK_DATA.items(),
+        strict=False,
+    ):
+        to_plot = df.iloc[rows]
         col = cols[0]
-        fig = px.bar(df, x="Dataset", y=col, color="Architecture", barmode="group")
+        fig = px.bar(to_plot, x="Dataset", y=col, color="Architecture", barmode="group")
         fig.update_layout(**layout)
         figs.append(fig)
     return figs
@@ -184,7 +199,9 @@ def gen_data_table(df, name):
         ],
         data=df.to_dict("records"),
         column_selectable="single",
+        row_selectable="multi",
         selected_columns=["d MAE"],
+        selected_rows=list(range(len(df))),
         style_data_conditional=[
             {
                 "if": {"row_index": "odd"},
