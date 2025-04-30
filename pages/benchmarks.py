@@ -32,8 +32,8 @@ Important notes:
 - Complex models with high parameter counts are computationally expensive, restricting MD simulation scale and time.
   For instance, eqV2-OMat24 has a t_step of ~213 ms/atom/step, nearly 100 times costlier than the models reported here.
 - Performance differences should be viewed in context of statistical significance. Given that the same datasets are
-  used for all models, we determine statistical  significance is determined using a
-  [paired t-test](https://en.wikipedia.org/wiki/Paired_difference_test) with 0.05 alpha level.
+  used for all models, statistical significance is determined using a
+  [paired t-test](https://en.wikipedia.org/wiki/Paired_difference_test) at alpha=0.05.
 
 We welcome the community's contribution of UMLIPs to this MatCalc-Benchmark. To ensure a fair
 comparison, please provide **information about training dataset size, training cost, and the number of parameters**.
