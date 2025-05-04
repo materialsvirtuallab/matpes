@@ -22,7 +22,7 @@ BENCHMARK_DATA = {func: pd.read_csv(DATADIR / f"matcalc-benchmark-{func.lower()}
 INTRO_CONTENT = """
 ## MatCalc-Benchmark
 
-The MatCalc-Benchmark evaluates UMLIP performance across equilibrium, near-equilibrium, and molecular dynamics
+The MatCalc-Benchmark evaluates FP performance across equilibrium, near-equilibrium, and molecular dynamics
 properties.
 
 Important notes:
@@ -35,7 +35,7 @@ Important notes:
   used for all models, statistical significance is determined using a
   [paired t-test](https://en.wikipedia.org/wiki/Paired_difference_test) at alpha=0.05.
 
-We welcome the community's contribution of UMLIPs to this MatCalc-Benchmark. To ensure a fair
+We welcome the community's contribution of FPs to this MatCalc-Benchmark. To ensure a fair
 comparison, please provide **information about training dataset size, training cost, and the number of parameters**.
 The easiest way to run the benchmark is to implement an ASE compatible calculator, which can then be used with the
 [MatCalc](https://github.com/materialsvirtuallab/matcalc) package. We will release the equilibrium and
@@ -80,7 +80,7 @@ for a system of 64 Si atoms under ambient conditions (300 K and 1 bar) over 50 p
 
 ##### Datasets
 
-The current MatCalc-Benchmark includes M3GNet, CHGNet and TensorNet UMLIPs trained on the MatPES, MPF,
+The current MatCalc-Benchmark includes M3GNet, CHGNet and TensorNet FPs trained on the MatPES, MPF,
 MPtrj, and OMat24 datasets, summarized below.
 
 | Dataset       | Number of Structures |
@@ -115,7 +115,7 @@ def get_sorted(df, i):
     Returns:
         Sorted list of values from the specified column.
     """
-    if i in ("f_UMLIP/f_DFT", "T_1/2^term (K)"):
+    if i in ("f_FP/f_DFT", "T_1/2^term (K)"):
         return sorted(df[i].dropna(), reverse=True)
     return sorted(df[i].dropna())
 

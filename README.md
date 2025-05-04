@@ -3,8 +3,10 @@
 
 ### Aims
 
-MatPES is an initiative by the [Materials Virtual Lab] and the [Materials Project] to address
-[critical deficiencies](http://matpes.ai/about) in potential energy surface (PES) datasets for materials.
+Potential energy surface datasets with near-complete coverage of the periodic table are used to train foundation
+potentials (FPs), i.e., machine learning interatomic potentials (MLIPs) with near-complete coverage of the periodic
+table.  MatPES is an initiative by the [Materials Virtual Lab] and the [Materials Project] to address
+[critical deficiencies](http://matpes.ai/about) in such PES datasets for materials.
 
 1. **Accuracy.** MatPES is computed using static DFT calculations with stringent converegence criteria.
    Please refer to the `MatPESStaticSet` in [pymatgen] for details.
@@ -15,7 +17,7 @@ MatPES is an initiative by the [Materials Virtual Lab] and the [Materials Projec
 
 The initial v2025.1 release comprises ~400,000 structures from 300K MD simulations. This dataset is much smaller
 than other PES datasets in the literature and yet achieves comparable or, in some cases,
-[improved performance and reliability](http://matpes.ai/benchmarks).
+[improved performance and reliability](http://matpes.ai/benchmarks) on trained FPs.
 
 MatPES is part of the MatML ecosystem, which includes the [MatGL] (Materials Graph Library) and [maml] (MAterials
 Machine Learning) packages, the [MatPES] (Materials Potential Energy Surface) dataset, and the [MatCalc] (Materials
@@ -46,9 +48,9 @@ which is extremely useful if you are going to be working with the data (e.g., qu
 
 ### Models
 
-We have released a set of MatPES-trained universal machine learning interatomic potentials (UMLIPs) in the [M3GNet],
-[CHGNet], [TensorNet] architectures in the [MatGL] package. For example, you can load the TensorNet UMLIP trained on
-MatPES PBE 2025.1 as follows:
+We have released a set of MatPES-trained foundation potentials (FPs) in the [M3GNet], [CHGNet], [TensorNet]
+architectures in the [MatGL] package. For example, you can load the TensorNet FP trained on MatPES PBE 2025.1 as
+follows:
 
 ```python
 import matgl
@@ -58,7 +60,7 @@ potential = matgl.load_model("TensorNet-MatPES-PBE-v2025.1-PES")
 
 The naming of the models follow the format `<architecture>-<dataset>-<dataset-version>-PES`.
 
-These UMLIPs can be used easily with the [MatCalc] package to rapidly compute properties. For example:
+These FPs can be used easily with the [MatCalc] package to rapidly compute properties. For example:
 
 ```python
 from matcalc.elasticity import ElasticityCalc
@@ -83,8 +85,8 @@ Kaplan, A. D.; Liu, R.; Qi, J.; Ko, T. W.; Deng, B.; Riebesell, J.; Ceder, G.; P
 Foundational Potential Energy Surface Dataset for Materials. arXiv 2025. DOI: 10.48550/arXiv.2503.04070.
 ```
 
-In addition, if you use any of the pre-trained UMLIPs or architectures, please cite the
-[references provided](http://matgl.ai/references) on the architecture used as well as MatGL.
+In addition, if you use any of the pre-trained FPs or architectures, please cite the [references provided]
+(http://matgl.ai/references) on the architecture used as well as MatGL.
 
 [Materials Virtual Lab]: http://materialsvirtuallab.org
 [Materials Project]: https://materialsproject.org

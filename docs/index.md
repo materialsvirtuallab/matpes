@@ -46,8 +46,8 @@ which is extremely useful if you are going to be working with the data (e.g., qu
 
 ### Models
 
-We have released a set of MatPES-trained universal machine learning interatomic potentials (UMLIPs) in the [M3GNet],
-[CHGNet], [TensorNet] architectures in the [MatGL] package. For example, you can load the TensorNet UMLIP trained on
+We have released a set of MatPES-trained universal machine learning interatomic potentials (FPs) in the [M3GNet],
+[CHGNet], [TensorNet] architectures in the [MatGL] package. For example, you can load the TensorNet FP trained on
 MatPES PBE 2025.1 as follows:
 
 ```python
@@ -56,7 +56,7 @@ import matgl
 potential = matgl.load_model("TensorNet-MatPES-PBE-v2025.1-PES")
 ```
 
-These UMLIPs can be used easily with the [MatCalc] package to rapidly compute properties. For example:
+These FPs can be used easily with the [MatCalc] package to rapidly compute properties. For example:
 
 ```python
 from matcalc.elasticity import ElasticityCalc
@@ -81,7 +81,7 @@ Kaplan, A. D.; Liu, R.; Qi, J.; Ko, T. W.; Deng, B.; Riebesell, J.; Ceder, G.; P
 Foundational Potential Energy Surface Dataset for Materials. arXiv 2025. DOI: 10.48550/arXiv.2503.04070.
 ```
 
-In addition, if you use any of the pre-trained UMLIPs or architectures, please cite the
+In addition, if you use any of the pre-trained FPs or architectures, please cite the
 [references provided](http://matgl.ai/references) on the architecture used as well as MatGL.
 
 [Materials Virtual Lab]: http://materialsvirtuallab.org

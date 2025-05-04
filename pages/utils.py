@@ -124,7 +124,7 @@ def pt_heatmap(
             df[f"log10_{label}"] = np.log10(df[label])
 
     # Initialize periodic table grid
-    grid = np.full((9, 18), None, dtype=np.float_)
+    grid = np.full((9, 18), None, dtype=np.float64)
     label_texts = np.full((9, 18), "", dtype=object)
     hover_texts = np.full((9, 18), "", dtype=object)
 

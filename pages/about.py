@@ -16,12 +16,12 @@ MLIPs use ML to reproduce the PES (energies, forces, and stresses) of a collecti
 using an ab initio method such as density functional theory (DFT).
 This enables the simulation of materials at much larger length and longer time scales at near-ab initio accuracy.
 
-One of the most exciting developments in the past few years is the emergence of universal MLIPs (uMLIPs, aka materials
-foundational models), with near-complete coverage of the periodic table of elements. Examples include [M3GNet],
-[CHGNet], [MACE], to name a few. uMLIPs have broad applications, including materials discovery and the
+One of the most exciting developments in the past few years is the emergence of MLIPs with near-complete coverage of
+the periodic table of elements. Such universal MLIPs are also known as foundation potentials (FPs). Examples include
+[M3GNet], [CHGNet], [MACE], to name a few. FPs have broad applications, including materials discovery and the
 prediction of PES-derived properties such as elastic constants, phonon dispersion, etc.
 
-However, most current uMLIPs were trained on DFT relaxation calculations, e.g., from the [Materials Project].
+However, most current FPs were trained on DFT relaxation calculations, e.g., from the [Materials Project].
 This dataset, referred to as `MPF` or `MPTraj` in the literature, suffer from several issues:
 
 1. The energies, forces, and stresses are not converged to the accuracies necessary to train a high quality MLIP.
@@ -39,7 +39,7 @@ comprehensively. The aims of MatPES are three-fold:
    Please refer to the `MatPESStaticSet` in [pymatgen] for details.
 2. **Comprehensiveness.** The structures in MatPES are using a 2-stage version of DImensionality-Reduced
    Encoded Clusters with sTratified ([DIRECT]) sampling from a greatly expanded configuration of structures from MD
-   simulations with the pre-trained [M3GNet] UMLIP.
+   simulations with the pre-trained [M3GNet] FP.
 3. **Quality.** MatPES contains not only data computed using the PBE functional, but also the revised regularized SCAN
    (r2SCAN) meta-GGA functional. The r2SCAN functional recovers all 17 exact constraints presently known for
    meta-GGA functionals and has shown good transferable accuracy across diverse bonding and chemistries.
