@@ -45,7 +45,8 @@ dependencies = [
     "pandas>=2",
     "pymongo>=4.11",
     "pymatgen",
-    "tqdm"
+    "tqdm",
+    "datasets>=3.6.0",
 ]
 version = "0.0.3"
 
@@ -174,6 +175,9 @@ reportInvalidTypeForm = false
 exclude = ["**/tests"]
 
 [dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+]
 lint = [
     "mypy>=1.15.0",
     "ruff>=0.11.2",

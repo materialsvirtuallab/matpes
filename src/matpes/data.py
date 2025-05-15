@@ -4,66 +4,62 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 from typing import Literal
 
-import requests
-from tqdm import tqdm
+from huggingface_hub import hf_hub_download
 
-from matpes import MATPES_SRC
+REPO_ID = "mavrl/matpes"
 
 
 def get_data(
     functional: Literal["PBE", "R2SCAN"] = "PBE",
     version: str = "2025.1",
-    return_entries: bool = True,
+    return_data: bool = True,
     download_atoms: bool = False,
-):
+) -> tuple[list[dict], list[dict]] | list[dict] | None:
     """
-    Downloads and reads a JSON dataset file if not already present locally. The file
-    is expected to be hosted at a remote location, and the function will use the
-    specified functional and version to construct the file name. If the file is
-    not found locally, it will attempt to download the file, save it locally in
-    compressed format, and then load its contents.
+    Retrieves dataset(s) related to materials properties based on specified options.
+
+    This function loads a dataset corresponding to a given functional and optionally
+    downloads additional atomic data. It allows specifying the functional type
+    (e.g., "PBE" or "R2SCAN") and the dataset version. By default, the output includes
+    entries unless otherwise configured.
 
     Parameters:
-        functional (str): The functional type used for labeling the dataset.
-                          Defaults to "PBE".
-        version (str): The version string for the dataset. Defaults to "20240214".
-        return_entries (bool): Whether to return the deserialized entries from JSON or not. Defaults to True.
-        download_atoms (bool): Whether to download the atomic reference file.
+        functional (Literal["PBE", "R2SCAN"]): The functional type specifying the
+            dataset to retrieve. Defaults to "PBE".
+        version (str): The version of the dataset to retrieve. Defaults to "2025.1".
+        download_atoms (bool): Whether to download and include atomic data in
+            the output. Defaults to False.
 
-    Returns:
-        dict: A dictionary representation of the JSON dataset contents.
+    Return Values:
+        Either the primary dataset or both the primary dataset and atomic data
+        depending on the value of `download_atoms`. If `download_atoms` is False, it
+        returns the primary dataset. Otherwise, it returns a tuple containing the
+        primary dataset and atomic data.
 
-    Raises:
-        RuntimeError: If the file download fails or the remote source is
-                      inaccessible.
+    Exceptions:
+        None
     """
-    fnames = [f"MatPES-{functional.upper()}-{version}.json.gz"]
+    data_path = hf_hub_download(
+        repo_id=REPO_ID, filename=f"MatPES-{functional.upper()}-{version}.json.gz", repo_type="dataset"
+    )
+    atoms_path = ""
     if download_atoms:
-        fnames.append(f"MatPES-{functional.upper()}-atoms.json.gz")
+        atoms_path = hf_hub_download(
+            repo_id=REPO_ID, filename=f"MatPES-{functional.upper()}-atoms.json.gz", repo_type="dataset"
+        )
 
-    for fname in fnames:
-        if not os.path.exists(fname):
-            url = f"{MATPES_SRC}/{fname}"
-            print(f"Downloading from {url}...")
+    if not return_data:
+        return None
 
-            # Streaming, so we can iterate over the response.
-            response = requests.get(url, stream=True)
+    with gzip.open(data_path, "rt") as f:
+        data = json.load(f)
 
-            # Sizes in bytes.
-            total_size = int(response.headers.get("content-length", 0))
-            block_size = 1024
+    if download_atoms:
+        with gzip.open(atoms_path, "rt") as f:
+            atoms_data = json.load(f)
 
-            with tqdm(total=total_size, unit="B", unit_scale=True) as progress_bar, open(fname, "wb") as file:
-                for data in response.iter_content(block_size):
-                    progress_bar.update(len(data))
-                    file.write(data)
+        return data, atoms_data
 
-            if total_size != 0 and progress_bar.n != total_size:
-                raise RuntimeError(f"Failed to download {url}. Status code: {response.status_code}")
-    if return_entries:
-        with gzip.open(fnames[0], "r") as f:
-            return json.load(f)
-    return None
+    return data
