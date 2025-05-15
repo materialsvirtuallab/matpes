@@ -84,4 +84,3 @@ print(vis.incar)
     NSW = 0
     PREC = Accurate
     SIGMA = 0.05
-
