@@ -23,7 +23,22 @@ MatPES is part of the MatML ecosystem, which includes the [MatGL] (Materials Gra
 Machine Learning) packages, the [MatPES] (Materials Potential Energy Surface) dataset, and the [MatCalc] (Materials
 Calculator).
 
-### Software
+### Getting the DataSet
+
+#### Hugging Face
+
+The MatPES dataset is available on [Hugging Face](https://huggingface.co/datasets/mavrl/matpes). You can use the
+`datasets` package to download it.
+
+```python
+from datasets import load_dataset
+
+load_dataset("mavrl/matpes", "pbe")
+
+load_dataset("mavrl/matpes", "r2scan")
+```
+
+#### MatPES Package
 
 The `matpes` python package, which provides tools for working with the MatPES datasets, can be installed via pip:
 
@@ -46,7 +61,7 @@ matpes data -i MatPES-PBE-20240214.json.gz --chemsys Fe-O -o Fe-O.json.gz
 The `matpes.db` module provides functionality to create your own MongoDB database with the MatPES downloaded data,
 which is extremely useful if you are going to be working with the data (e.g., querying, adding entries, etc.) a lot.
 
-### Models
+### MatPES-trained Models
 
 We have released a set of MatPES-trained foundation potentials (FPs) in the [M3GNet], [CHGNet], [TensorNet]
 architectures in the [MatGL] package. For example, you can load the TensorNet FP trained on MatPES PBE 2025.1 as
@@ -85,8 +100,8 @@ Kaplan, A. D.; Liu, R.; Qi, J.; Ko, T. W.; Deng, B.; Riebesell, J.; Ceder, G.; P
 Foundational Potential Energy Surface Dataset for Materials. arXiv 2025. DOI: 10.48550/arXiv.2503.04070.
 ```
 
-In addition, if you use any of the pre-trained FPs or architectures, please cite the [references provided]
-(http://matgl.ai/references) on the architecture used as well as MatGL.
+In addition, if you use any of the pre-trained FPs or architectures, please cite the
+[references provided](http://matgl.ai/references) on the architecture used as well as MatGL.
 
 [Materials Virtual Lab]: http://materialsvirtuallab.org
 [Materials Project]: https://materialsproject.org
