@@ -67,7 +67,7 @@ The following is a commented version of a single entry in the `MatPES-PBE-2025.1
         22.84178803, 23.6719352, 6.22290851
     ],
 
-    "abs_forces": [  // Magnitude of DFT forces per atom.
+    "abs_forces": [  // Magnitude of DFT forces per atom (eV/Å).
         0.6631734649691654,
         0.6631734649691654
     ],
